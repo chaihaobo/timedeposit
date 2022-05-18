@@ -1,0 +1,19 @@
+{
+    "hugo": "test",
+    "system": {
+        "mode": "development"
+    },
+    "log": {
+        "filename": "TimeDepositEODEngine.log",
+        "maxlines": 10000000,
+        "maxsize": 100000000,
+        "maxdays": 365,
+        "logLevel": "DEBUG"
+    },
+    "server": {
+        "RunMode": "debug",
+        "HttpPort": 8000,
+        "ReadTimeout": 60,
+        "WriteTimeout": 60
+    }
+}
