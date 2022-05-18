@@ -9,8 +9,8 @@ package dao
 import (
 	"fmt"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/db"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/model"
+	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/model"
 )
 
 func GetProcessFlowByName(flowName string) ([]model.TFlowNode, []model.TFlowNodeRelation) {

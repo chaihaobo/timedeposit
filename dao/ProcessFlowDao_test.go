@@ -9,7 +9,7 @@ package dao
 import (
 	"testing"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/model"
+	"gitlab.com/bns-engineering/td/model"
 )
 
 func TestGetProcessFlowByName(t *testing.T) {

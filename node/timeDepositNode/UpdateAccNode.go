@@ -9,11 +9,11 @@ package timeDepositNode
 import (
 	"errors"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/node"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 type UpdateAccNode struct {

@@ -10,11 +10,11 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	mambuEntity "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/node"
+	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 //Calc the Additional Profit for TD Account
@@ -43,7 +43,7 @@ func (node *ProfitApplyNode) Process() {
 
 // Checking whether this account need to change Maturity date
 func needToApplyProfit(tdAccInfo mambuEntity.TDAccount) bool {
-	isARO := tdAccInfo.Otherinformation.Arononaro == "ARO"
+	isARO := tdAccInfo.Otherinformation.AroNonAro == "ARO"
 	activeState := tdAccInfo.Accountstate == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
 	if error != nil {

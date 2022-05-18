@@ -82,20 +82,23 @@ type Accruedamounts struct {
 	Technicaloverdraftinterestaccrued int     `json:"technicalOverdraftInterestAccrued"`
 	Negativeinterestaccrued           int     `json:"negativeInterestAccrued"`
 }
-type Otherinformation struct {
-	Purpose               string `json:"purpose"`
-	Specialrate           string `json:"specialRate"`
-	Bhdnamarekpencairan   string `json:"bhdNamaRekPencairan"`
-	Fiturtambahan         string `json:"fiturTambahan"`
-	Nisbahpajak           string `json:"nisbahPajak"`
-	Nisbahzakat           string `json:"nisbahZakat"`
-	Bhdnomorrekpencairan  string `json:"bhdNomorRekPencairan"`
-	Sourceoffund          string `json:"sourceOfFund"`
-	Nisbahcounter         string `json:"nisbahCounter"`
-	Specialrateexpiration string `json:"specialRateExpiration"`
-	Tenor                 string `json:"tenor"`
-	Nisbahakhir           string `json:"nisbahAkhir"`
-	Arononaro             string `json:"aroNonAro"`
+type Otherinformation struct{
+	Purpose string `json:"purpose"`
+	BhdNamaRekPencairan string `json:"bhdNamaRekPencairan"`
+	FiturTambahan string `json:"fiturTambahan"`
+	NisbahPajak string `json:"nisbahPajak"`
+	NisbahZakat string `json:"nisbahZakat"`
+	BhdNomorRekPencairan string `json:"bhdNomorRekPencairan"`
+	SourceOfFund string `json:"sourceOfFund"`
+	NisbahCounter string `json:"nisbahCounter"`
+	AroType string `json:"aroType"`
+	Tenor string `json:"tenor"`
+	StopAro string `json:"stopAro"`
+	SpecialERExpiration string `json:"specialERExpiration"`
+	NisbahAkhir string `json:"nisbahAkhir"`
+	IsSpecialRate string `json:"isSpecialRate"`
+	SpecialER string `json:"specialER"`
+	AroNonAro string `json:"aroNonAro"`
 }
 type Datanasabah struct {
 	Nasabahaccountaddresstype string `json:"nasabahAccountAddressType"`

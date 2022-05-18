@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/model"
+	"gitlab.com/bns-engineering/td/model"
 	"gorm.io/gorm"
 )
 

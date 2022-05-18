@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"strings"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	commonLog "gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
+	"gitlab.com/bns-engineering/td/common/constant"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
 )
 
 // Get Membu Api Calling Headers

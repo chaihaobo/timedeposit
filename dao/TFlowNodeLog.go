@@ -9,9 +9,9 @@ package dao
 import (
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/db"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/model"
+	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/model"
 )
 
 func CreateFlowNodeLog(flowId, accountId, flowName, nodeName string) model.TFlowNodeLog {

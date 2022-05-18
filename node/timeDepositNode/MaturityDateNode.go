@@ -12,11 +12,11 @@ import (
 	"strconv"
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/node"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 //Modify the Maturity Date for TD Account
@@ -80,7 +80,7 @@ func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, erro
 
 // Checking whether this account need to change Maturity date
 func needToUpdateMaturityDate(tdAccInfo mambuEntity.TDAccount) bool {
-	isARO := tdAccInfo.Otherinformation.Arononaro == "ARO"
+	isARO := tdAccInfo.Otherinformation.AroNonAro == "ARO"
 	activeState := tdAccInfo.Accountstate == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
 	if error != nil {

@@ -7,8 +7,8 @@
 package timeDepositNode
 
 import (
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/node"
 )
 
 //Calc the Additional Profit for TD Account

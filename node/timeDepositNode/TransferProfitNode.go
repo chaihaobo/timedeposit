@@ -10,11 +10,11 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/node"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 type TransferProfitNode struct {
@@ -36,9 +36,9 @@ func (node *TransferProfitNode) Process() {
 	netProfit := newTDAccount.Balances.Totalbalance - principalAmount
 
 	//_otherInformation.bhdNomorRekPencairan
-	benefitAccount, err := mambuservices.GetTDAccountById(newTDAccount.Otherinformation.Bhdnomorrekpencairan)
+	benefitAccount, err := mambuservices.GetTDAccountById(newTDAccount.Otherinformation.BhdNomorRekPencairan)
 	if err != nil {
-		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.Bhdnomorrekpencairan)
+		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
 
 		node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
 	}
@@ -57,11 +57,12 @@ func (node *TransferProfitNode) Process() {
 }
 
 func needToTransferProfit(tdAccInfo mambuEntity.TDAccount, netProfit float64) bool {
-	isARO := tdAccInfo.Otherinformation.Arononaro == "ARO"
+	isARO := tdAccInfo.Otherinformation.AroNonAro == "ARO"
 	activeState := tdAccInfo.Accountstate == "ACTIVE"
-	isStopARO := tdAccInfo.Otherinformation.s
+	isStopARO := tdAccInfo.Otherinformation.StopAro != "FALSE" 
 
-	aroType := tdAccInfo.Otherinformation.
+
+	aroType := tdAccInfo.Otherinformation.AroType
 
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
 	if error != nil {
@@ -72,6 +73,8 @@ func needToTransferProfit(tdAccInfo mambuEntity.TDAccount, netProfit float64) bo
 	tomorrow := time.Now().AddDate(0, 0, 1)
 	return isARO &&
 		activeState &&
+		!isStopARO &&
+		aroType == "Principal Only" &&
 		util.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
 		util.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.Maturitydate)
 }

@@ -10,10 +10,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	commonLog "gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	mambuEntity "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/common/constant"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 // // Get Transaction Info from mambu api with key of account
@@ -36,6 +36,7 @@ import (
 // }
 
 func WithdrawNetProfit(latestTDAccount, benefitAccount mambuEntity.TDAccount, netProfit float64) {
+	netProfitStr := fmt.Sprintf("%f", netProfit)
 	tmpTransaction := mambuEntity.Transaction{
 		Metadata: mambuEntity.Metadata{
 			MessageType:                    "",
@@ -64,14 +65,14 @@ func WithdrawNetProfit(latestTDAccount, benefitAccount mambuEntity.TDAccount, ne
 			TranDesc2:                      "",
 			TranDesc3:                      "",
 		},
-		Amount: string(netProfit),
+		Amount: string(netProfitStr),
 		TransactionDetails: mambuEntity.TransactionDetails{
 			TransactionChannelID: "",
 		},
 	}
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
-		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", searchParam)
+		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte)
 		return
 	}
 	postJsonStr := string(queryParamByte)

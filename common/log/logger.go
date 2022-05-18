@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 
 	"github.com/astaxie/beego/logs"
-	commonConfig "gitlab.com/hugo.hu/time-deposit-eod-engine/common/config"
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
 )
 
 var (

@@ -12,10 +12,10 @@ import (
 	"sync"
 
 	"github.com/trustmaster/goflow"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/dao"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node/timeDepositNode"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/dao"
+	"gitlab.com/bns-engineering/td/node"
+	"gitlab.com/bns-engineering/td/node/timeDepositNode"
 )
 
 var typeRegistry = make(map[string]node.NodeRun)

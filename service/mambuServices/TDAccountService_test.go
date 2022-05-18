@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"testing"
 
-	commonConfig "gitlab.com/hugo.hu/time-deposit-eod-engine/common/config"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	mambuEntity "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
+	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 func TestGetTDAccountById(t *testing.T) {

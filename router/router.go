@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/router/api"
+	"gitlab.com/bns-engineering/td/router/api"
 )
 
 // InitRouter initialize routing information

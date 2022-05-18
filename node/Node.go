@@ -7,10 +7,10 @@
 package node
 
 import (
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/dao"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/model"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/dao"
+	"gitlab.com/bns-engineering/td/model"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 type Node struct {

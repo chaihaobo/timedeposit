@@ -9,9 +9,9 @@ package api
 import (
 	"testing"
 
-	commonConfig "gitlab.com/hugo.hu/time-deposit-eod-engine/common/config"
-	commonLog "gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/flow"
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/flow"
 )
 
 func TestStartTDFlow(t *testing.T) {

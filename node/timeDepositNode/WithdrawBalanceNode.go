@@ -7,7 +7,7 @@
 package timeDepositNode
 
 import (
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
+	"gitlab.com/bns-engineering/td/node"
 )
 
 type WithdrawBalanceNode struct {

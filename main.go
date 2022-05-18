@@ -11,10 +11,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	commonConfig "gitlab.com/hugo.hu/time-deposit-eod-engine/common/config"
-	commonLog "gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/flow"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/router"
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/flow"
+	"gitlab.com/bns-engineering/td/router"
 )
 
 const (
@@ -34,7 +34,7 @@ func init() {
 	flow.InitWorkflow()
 }
 
-func main_hugo() {
+func main() {
 
 	gin.SetMode(config.GetString("server.RunMode"))
 

@@ -12,12 +12,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/trustmaster/goflow"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/dao"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/flow"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/dao"
+	"gitlab.com/bns-engineering/td/flow"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 func StartTDFlow(c *gin.Context) {

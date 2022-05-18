@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/trustmaster/goflow"
-	commonConfig "gitlab.com/hugo.hu/time-deposit-eod-engine/common/config"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
 )
 
 func TestInitProcessFlow(t *testing.T) {

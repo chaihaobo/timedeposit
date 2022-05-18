@@ -7,11 +7,11 @@
 package timeDepositNode
 
 import (
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/dao"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/node"
-	mambuservices "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuServices"
+	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/dao"
+	"gitlab.com/bns-engineering/td/node"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 //AA Time Deposit Engine IWT start Time Deposit

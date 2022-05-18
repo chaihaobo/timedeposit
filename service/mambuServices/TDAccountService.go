@@ -12,10 +12,10 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/constant"
-	commonLog "gitlab.com/hugo.hu/time-deposit-eod-engine/common/log"
-	"gitlab.com/hugo.hu/time-deposit-eod-engine/common/util"
-	mambuEntity "gitlab.com/hugo.hu/time-deposit-eod-engine/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/common/constant"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 // Get TDAccount Info from mambu api
