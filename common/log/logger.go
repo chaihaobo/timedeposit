@@ -13,19 +13,18 @@ import (
 	commonConfig "gitlab.com/bns-engineering/td/common/config"
 )
 
-var (
-	// Log 日志记录句柄
-	Log *logs.BeeLogger //日志记录句柄
+var (	
+	Log *logs.BeeLogger // Log handler
 )
 
-// InitLogConfig 初始化Log设置
+// InitLogConfig initial the log configuration
 func InitLogConfig(configData commonConfig.Config) {
-	Log = logs.NewLogger(100000)                        // 创建一个日志记录器，参数为缓冲区的大小
-	logFileName := configData.GetString("log.filename") // 日志文件名
-	maxlines := configData.GetInt("log.maxlines")       // 日志最大行数
-	maxsize := configData.GetInt("log.maxsize")         // 日志文件大小的最大值
-	maxdays := configData.GetInt("log.maxdays")         // 日志文件保留最长周期
-	logLevel := configData.GetString("log.logLevel")    // 日志级别
+	Log = logs.NewLogger(100000)                        // create log hanlder, set the buffer size
+	logFileName := configData.GetString("log.filename") // log file name
+	maxlines := configData.GetInt("log.maxlines")       // max lines for log file
+	maxsize := configData.GetInt("log.maxsize")         // max size of log file
+	maxdays := configData.GetInt("log.maxdays")         // log file expire time
+	logLevel := configData.GetString("log.logLevel")    // log level
 
 	logConifgMap := make(map[string]interface{})
 	logConifgMap["filename"] = logFileName
@@ -33,15 +32,15 @@ func InitLogConfig(configData commonConfig.Config) {
 	logConifgMap["maxsize"] = maxsize
 	logConifgMap["maxdays"] = maxdays
 
-	// 设置配置文
+	// load the config map
 	jsonConfig, _ := json.Marshal(logConifgMap)
 
-	Log.SetLogger("file", string(jsonConfig)) // 设置日志记录方式：本地文件记录
-	Log.SetLevel(getLogLevel(logLevel))       // 设置日志写入缓冲区的等级
-	Log.EnableFuncCallDepth(true)             // 输出log时能显示输出文件名和行号（非必须）
+	Log.SetLogger("file", string(jsonConfig)) // Set the log type：log into file
+	Log.SetLevel(getLogLevel(logLevel))       // set the log level
+	Log.EnableFuncCallDepth(true)             // whether to show the line number?
 }
 
-// 获取日志级别
+// Get log level
 func getLogLevel(logLevel string) int {
 	switch logLevel {
 	case "INFO":
