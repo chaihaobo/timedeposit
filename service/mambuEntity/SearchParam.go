@@ -2,22 +2,22 @@
  * @Author: Hugo
  * @Date: 2022-05-12 11:17:37
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-12 11:23:14
+ * @Last Modified time: 2022-05-20 03:58:11
  */
 package mambuEntity
 
 type SearchParam struct {
-	Sortingcriteria Sortingcriteria  `json:"sortingCriteria"`
-	Filtercriteria  []Filtercriteria `json:"filterCriteria"`
+	SortingCriteria SortingCriteria  `json:"sortingCriteria"`
+	FilterCriteria  []FilterCriteria `json:"filterCriteria"`
 }
-type Sortingcriteria struct {
+type SortingCriteria struct {
 	Field string `json:"field"`
 	Order string `json:"order"`
 }
-type Filtercriteria struct {
+type FilterCriteria struct {
 	Field       string   `json:"field"`
 	Operator    string   `json:"operator"`
 	Value       string   `json:"value,omitempty"`
 	Values      []string `json:"values,omitempty"`
-	Secondvalue string   `json:"secondValue,omitempty"`
+	SecondValue string   `json:"secondValue,omitempty"`
 }

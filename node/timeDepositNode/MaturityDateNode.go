@@ -56,7 +56,7 @@ func updateMaturityDate(tmpTDAccount mambuEntity.TDAccount, flowID string) (mamb
 	}
 
 	note := fmt.Sprintf("TDE-AUTO-%v", flowID)
-	maturityDate, err := generateMaturityDateStr(tmpTDAccount.Otherinformation.Tenor, tmpTDAccount.Maturitydate)
+	maturityDate, err := generateMaturityDateStr(tmpTDAccount.OtherInformation.Tenor, tmpTDAccount.MaturityDate)
 	if err != nil {
 		return tmpTDAccount, err
 	}

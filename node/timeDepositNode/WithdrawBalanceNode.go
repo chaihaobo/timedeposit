@@ -22,20 +22,20 @@ type WithdrawBalanceNode struct {
 func (node *WithdrawBalanceNode) Process() {
 	CurNodeName := "withdraw_balance_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
-	totalBalance := tmpTDAccount.Balances.Totalbalance
+	totalBalance := tmpTDAccount.Balances.TotalBalance
 	if !(tmpTDAccount.IsCaseB() && totalBalance > 0) {
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 		log.Log.Info("No need to withdraw balance, accNo: %v", tmpFlowTask.FlowId)
 	} else {
 
 		//_otherInformation.bhdNomorRekPencairan
-		benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+		benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 		if err != nil {
-			log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+			log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
 		}
 
-		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", tmpTDAccount.Otherinformation.Tenor)
+		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", tmpTDAccount.OtherInformation.Tenor)
 		withrawResp, err := mambuservices.WithdrawTransaction(tmpTDAccount, benefitAccount, nodeLog, totalBalance, channelID)
 		if err != nil {
 			log.Log.Error("Failed to withdraw for td account: %v", tmpTDAccount.ID)

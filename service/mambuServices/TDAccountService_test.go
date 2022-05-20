@@ -67,7 +67,7 @@ func TestGetTDAccountListById(t *testing.T) {
 			name: "query td acc by status and accountType",
 			args: args{
 				mambuEntity.SearchParam{
-					Filtercriteria: []mambuEntity.Filtercriteria{
+					FilterCriteria: []mambuEntity.FilterCriteria{
 						{
 							Field:    "accountState",
 							Operator: "IN",
@@ -79,7 +79,7 @@ func TestGetTDAccountListById(t *testing.T) {
 							Value:    "FIXED_DEPOSIT",
 						},
 					},
-					Sortingcriteria: mambuEntity.Sortingcriteria{
+					SortingCriteria: mambuEntity.SortingCriteria{
 						Field: "id",
 						Order: "ASC",
 					},
@@ -92,7 +92,7 @@ func TestGetTDAccountListById(t *testing.T) {
 			name: "query td acc by expire date",
 			args: args{
 				mambuEntity.SearchParam{
-					Filtercriteria: []mambuEntity.Filtercriteria{
+					FilterCriteria: []mambuEntity.FilterCriteria{
 						{
 							Field:    "accountState",
 							Operator: "IN",
@@ -107,10 +107,10 @@ func TestGetTDAccountListById(t *testing.T) {
 							Field:       "_rekening.rekeningTanggalJatohTempo",
 							Operator:    "BETWEEN",
 							Value:       "2022-05-01",
-							Secondvalue: "2022-05-31",
+							SecondValue: "2022-05-31",
 						},
 					},
-					Sortingcriteria: mambuEntity.Sortingcriteria{
+					SortingCriteria: mambuEntity.SortingCriteria{
 						Field: "id",
 						Order: "ASC",
 					},

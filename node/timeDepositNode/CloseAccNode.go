@@ -23,8 +23,8 @@ type CloseAccNode struct {
 func (node *CloseAccNode) Process() {
 	CurNodeName := "close_account_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
-	totalBalance := tmpTDAccount.Balances.Totalbalance
-	if !(tmpTDAccount.IsCaseB3() && totalBalance > 0) && 
+	totalBalance := tmpTDAccount.Balances.TotalBalance
+	if !(tmpTDAccount.IsCaseB3() && totalBalance > 0) &&
 		!(tmpTDAccount.IsCaseC() && totalBalance > 0) {
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 		log.Log.Info("No need to close account, accNo: %v", tmpFlowTask.FlowId)

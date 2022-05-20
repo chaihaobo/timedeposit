@@ -29,7 +29,7 @@ func (node *UpdateAccNode) Process() {
 		log.Log.Info("No need to update maturity info for td account, accNo: %v", tmpTDAccount.ID)
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 	} else {
-		newDate := util.GetDate(tmpTDAccount.Maturitydate)
+		newDate := util.GetDate(tmpTDAccount.MaturityDate)
 		isApplySucceed := mambuservices.UpdateMaturifyDateForTDAccount(tmpTDAccount.ID, newDate)
 		if !isApplySucceed {
 			log.Log.Error("Apply profit failed for account: %v", tmpTDAccount.ID)
@@ -47,28 +47,26 @@ func (node *UpdateAccNode) Process() {
 }
 
 func needToUpdateTDAccInfo(tdAccInfo mambuEntity.TDAccount) bool {
-	isARO := strings.ToUpper(tdAccInfo.Otherinformation.AroNonAro) == "ARO"
-	activeState := tdAccInfo.Accountstate == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
+	activeState := tdAccInfo.AccountState == "ACTIVE"
+	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
-		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 		return false
 	}
 
-	isStopARO := tdAccInfo.Otherinformation.StopAro != "FALSE" 
-	aroType := tdAccInfo.Otherinformation.AroType
-	
-	netProfit := tdAccInfo.Balances.Totalbalance - tdAccInfo.Rekening.RekeningPrincipalAmount
+	isStopARO := tdAccInfo.OtherInformation.StopAro != "FALSE"
+	aroType := tdAccInfo.OtherInformation.AroType
 
-	return isARO &&						//B
-		activeState &&//B
+	netProfit := tdAccInfo.Balances.TotalBalance - tdAccInfo.Rekening.RekeningPrincipalAmount
+
+	return isARO && //B
+		activeState && //B
 		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) && //B
-		rekeningTanggalJatohTempoDate.Before(tdAccInfo.Maturitydate) && //B
+		rekeningTanggalJatohTempoDate.Before(tdAccInfo.MaturityDate) && //B
 		((!isStopARO && //B1
 			aroType == "Principal Only" && //B1
-			netProfit > 0 ) || //B1.1
-		(!isStopARO &&//B2
-			aroType == "Full")) //B2
+			netProfit > 0) || //B1.1
+			(!isStopARO && //B2
+				aroType == "Full")) //B2
 }
-
-

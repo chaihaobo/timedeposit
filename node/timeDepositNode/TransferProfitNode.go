@@ -22,7 +22,7 @@ type TransferProfitNode struct {
 func (node *TransferProfitNode) Process() {
 	CurNodeName := "transfer_profit_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
-	netProfit := tmpTDAccount.Balances.Totalbalance - tmpTDAccount.Rekening.RekeningPrincipalAmount
+	netProfit := tmpTDAccount.Balances.TotalBalance - tmpTDAccount.Rekening.RekeningPrincipalAmount
 
 	newTDAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.ID)
 	if err != nil {
@@ -36,13 +36,13 @@ func (node *TransferProfitNode) Process() {
 		log.Log.Info("No need to withdraw profit, accNo: %v", tmpTDAccount.ID)
 	} else {
 		//_otherInformation.bhdNomorRekPencairan
-		benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+		benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 		if err != nil {
-			log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+			log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
 		}
 
-		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", tmpTDAccount.Otherinformation.Tenor)
+		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", tmpTDAccount.OtherInformation.Tenor)
 		withrawResp, err := mambuservices.WithdrawTransaction(tmpTDAccount, benefitAccount, nodeLog, netProfit, channelID)
 		if err != nil {
 			log.Log.Error("Failed to withdraw for td account: %v", tmpTDAccount.ID)

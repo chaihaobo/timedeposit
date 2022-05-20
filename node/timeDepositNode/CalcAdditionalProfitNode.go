@@ -37,7 +37,7 @@ func (node *CalcAdditionalProfitNode) Process() {
 	tmpTDAccount = newTDAccount
 
 	// Get last applied interest info
-	transList, err := mambuservices.GetTransactionByQueryParam(generateSearchParam(tmpTDAccount.Encodedkey))
+	transList, err := mambuservices.GetTransactionByQueryParam(generateSearchParam(tmpTDAccount.EncodedKey))
 	if err != nil || len(transList) <= 0 {
 		log.Log.Info("No applied profit, skip")
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
@@ -46,9 +46,9 @@ func (node *CalcAdditionalProfitNode) Process() {
 	lastAppliedInterestTrans := transList[0]
 
 	//Get benefit account
-	benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+	benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 	if err != nil {
-		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
 		node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
 	}
 
@@ -57,7 +57,7 @@ func (node *CalcAdditionalProfitNode) Process() {
 
 	if tmpTDAccount.IsCaseB1_1_1_1() ||
 		tmpTDAccount.IsCaseB2_1_1() ||
-		(tmpTDAccount.IsCaseB3() && newTDAccount.Balances.Totalbalance > 0) {
+		(tmpTDAccount.IsCaseB3() && newTDAccount.Balances.TotalBalance > 0) {
 		withrawResp, err := mambuservices.WithdrawTransaction(tmpTDAccount, benefitAccount, nodeLog, additionalProfit, "BBN_BAGHAS_DEPMUDC")
 		if err != nil {
 			log.Log.Error("Failed to withdraw for td account: %v", tmpTDAccount.ID)
@@ -75,7 +75,7 @@ func (node *CalcAdditionalProfitNode) Process() {
 		}
 		log.Log.Info("Finish deposit balance for accNo: %v, encodedKey:%v", tmpTDAccount.ID, depositResp.EncodedKey)
 		node.Node.Output <- tmpTDAccount
-	} else {		
+	} else {
 		log.Log.Info("No need to withdraw profit, accNo: %v", tmpTDAccount.ID)
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 	}
@@ -83,11 +83,11 @@ func (node *CalcAdditionalProfitNode) Process() {
 }
 
 func getAdditionProfitAndTax(tmpTDAccount mambuEntity.TDAccount, lastAppliedInterestTrans mambuEntity.TransactionBrief) (float64, float64) {
-	specialER, _ := strconv.ParseFloat(tmpTDAccount.Otherinformation.SpecialER, 64)
-	ER := tmpTDAccount.Interestsettings.Interestratesettings.Interestrate
+	specialER, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.SpecialER, 64)
+	ER := tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate
 	appliedInterest := lastAppliedInterestTrans.Amount
 	additionalProfit := (specialER/ER)*appliedInterest - appliedInterest
-	taxRate, _ := strconv.ParseFloat(tmpTDAccount.Otherinformation.NisbahPajak, 64)
+	taxRate, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.NisbahPajak, 64)
 	taxRateReal := taxRate / 100
 	additionalProfitTax := additionalProfit * taxRateReal
 	return additionalProfit, additionalProfitTax
@@ -95,7 +95,7 @@ func getAdditionProfitAndTax(tmpTDAccount mambuEntity.TDAccount, lastAppliedInte
 
 func generateSearchParam(encodedKey string) mambuEntity.SearchParam {
 	tmpQueryParam := mambuEntity.SearchParam{
-		Filtercriteria: []mambuEntity.Filtercriteria{
+		FilterCriteria: []mambuEntity.FilterCriteria{
 			{
 				Field:    "parentAccountKey",
 				Operator: "EQUALS",
@@ -111,10 +111,10 @@ func generateSearchParam(encodedKey string) mambuEntity.SearchParam {
 				//todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
 				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), //today
-				Secondvalue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
+				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
 			},
 		},
-		Sortingcriteria: mambuEntity.Sortingcriteria{
+		SortingCriteria: mambuEntity.SortingCriteria{
 			Field: "id",
 			Order: "DESC",
 		},

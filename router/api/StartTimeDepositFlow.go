@@ -57,7 +57,7 @@ func StartTDFlow(c *gin.Context) {
 
 func generateSearchTDAccountParam() mambuEntity.SearchParam {
 	tmpQueryParam := mambuEntity.SearchParam{
-		Filtercriteria: []mambuEntity.Filtercriteria{
+		FilterCriteria: []mambuEntity.FilterCriteria{
 			{
 				Field:    "accountState",
 				Operator: "IN",
@@ -69,14 +69,14 @@ func generateSearchTDAccountParam() mambuEntity.SearchParam {
 				Value:    "FIXED_DEPOSIT",
 			},
 			{
-				Field:       "_rekening.rekeningTanggalJatohTempo",
+				Field: "_rekening.rekeningTanggalJatohTempo",
 				//todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
 				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), //today
-				Secondvalue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
+				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
 			},
 		},
-		Sortingcriteria: mambuEntity.Sortingcriteria{
+		SortingCriteria: mambuEntity.SortingCriteria{
 			Field: "id",
 			Order: "ASC",
 		},
