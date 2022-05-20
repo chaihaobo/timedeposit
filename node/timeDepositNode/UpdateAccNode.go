@@ -8,6 +8,8 @@ package timeDepositNode
 
 import (
 	"errors"
+	"strings"
+	"time"
 
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
@@ -23,18 +25,15 @@ type UpdateAccNode struct {
 func (node *UpdateAccNode) Process() {
 	CurNodeName := "update_account_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
-	if !needToUpdateTDAccInfo(tmpTDAccount) {
+	if !tmpTDAccount.IsCaseB1_1() && !tmpTDAccount.IsCaseB2() {
 		log.Log.Info("No need to update maturity info for td account, accNo: %v", tmpTDAccount.ID)
-		//Todo: db log
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 	} else {
-		//Todo: update new date for /_rekening/rekeningTanggalJatohTempo
 		newDate := util.GetDate(tmpTDAccount.Maturitydate)
 		isApplySucceed := mambuservices.UpdateMaturifyDateForTDAccount(tmpTDAccount.ID, newDate)
 		if !isApplySucceed {
 			log.Log.Error("Apply profit failed for account: %v", tmpTDAccount.ID)
-			//Todo: db log
-			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("Call mambu service failed"))
+			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu service failed"))
 			//Failed in this node, skip all the other steps and finish this order
 			return
 		} else {
@@ -47,7 +46,29 @@ func (node *UpdateAccNode) Process() {
 	node.Node.Output <- tmpTDAccount
 }
 
-func needToUpdateTDAccInfo(tmpTDAccount mambuEntity.TDAccount) bool {
-	//Todo: not implemented
-	panic("unimplemented")
+func needToUpdateTDAccInfo(tdAccInfo mambuEntity.TDAccount) bool {
+	isARO := strings.ToUpper(tdAccInfo.Otherinformation.AroNonAro) == "ARO"
+	activeState := tdAccInfo.Accountstate == "ACTIVE"
+	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+	if error != nil {
+		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+		return false
+	}
+
+	isStopARO := tdAccInfo.Otherinformation.StopAro != "FALSE" 
+	aroType := tdAccInfo.Otherinformation.AroType
+	
+	netProfit := tdAccInfo.Balances.Totalbalance - tdAccInfo.Rekening.RekeningPrincipalAmount
+
+	return isARO &&						//B
+		activeState &&//B
+		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) && //B
+		rekeningTanggalJatohTempoDate.Before(tdAccInfo.Maturitydate) && //B
+		((!isStopARO && //B1
+			aroType == "Principal Only" && //B1
+			netProfit > 0 ) || //B1.1
+		(!isStopARO &&//B2
+			aroType == "Full")) //B2
 }
+
+

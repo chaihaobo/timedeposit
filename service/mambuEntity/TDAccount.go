@@ -6,7 +6,13 @@
  */
 package mambuEntity
 
-import "time"
+import (
+	"strings"
+	"time"
+
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/util"
+)
 
 type TDAccount struct {
 	Encodedkey                  string                    `json:"encodedKey"`
@@ -117,4 +123,83 @@ type Otherinformationcorporate struct {
 	Infolimitnominalsetornontunai   string `json:"infoLimitNominalSetorNontunai"`
 	Infolimitfrekuensisetortunai    string `json:"infoLimitFrekuensiSetorTunai"`
 	Infolimitnominalsetortunai      string `json:"infoLimitNominalSetorTunai"`
+}
+
+func (tdAccInfo *TDAccount)IsCaseA() bool {
+	isARO := strings.ToUpper(tdAccInfo.Otherinformation.AroNonAro) == "ARO"
+	activeState := tdAccInfo.Accountstate == "ACTIVE"
+	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+	if error != nil {
+		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+		return false
+	}
+
+	tomorrow := time.Now().AddDate(0, 0, 1)
+	return isARO &&
+		activeState &&
+		util.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
+		util.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.Maturitydate)
+}
+
+func (tdAccInfo *TDAccount)IsCaseB() bool {
+	isARO := strings.ToUpper(tdAccInfo.Otherinformation.AroNonAro) == "ARO"
+	activeState := tdAccInfo.Accountstate == "ACTIVE"
+	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+	if error != nil {
+		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
+		return false
+	}
+	isStopARO := tdAccInfo.Otherinformation.StopAro != "FALSE" 
+	return isARO &&
+		activeState &&
+		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
+		rekeningTanggalJatohTempoDate.Before(tdAccInfo.Maturitydate) &&
+		!isStopARO 
+}
+
+func (tdAccInfo *TDAccount)IsCaseB1() bool {
+	isStopARO := tdAccInfo.Otherinformation.StopAro == "FALSE" 
+	aroType := tdAccInfo.Otherinformation.AroType
+	return tdAccInfo.IsCaseB() &&
+		isStopARO && 
+		aroType == "Principal Only" 
+}
+
+
+func (tdAccInfo *TDAccount)IsCaseB1_1() bool {
+	netProfit := tdAccInfo.Balances.Totalbalance - tdAccInfo.Rekening.RekeningPrincipalAmount
+	return tdAccInfo.IsCaseB1() && netProfit > 0
+}
+
+func (tdAccInfo *TDAccount)IsCaseB1_1_1_1() bool {
+	bSpecialRate  := strings.ToUpper(tdAccInfo.Otherinformation.IsSpecialRate) == "TRUE"
+	return   tdAccInfo.IsCaseB1_1() && bSpecialRate
+}
+
+
+func (tdAccInfo *TDAccount)IsCaseB2() bool {
+	isStopARO := tdAccInfo.Otherinformation.StopAro == "FALSE" 
+	aroType := tdAccInfo.Otherinformation.AroType
+	return tdAccInfo.IsCaseB() &&
+		isStopARO && 
+		strings.ToUpper(aroType) == "FULL" 
+}
+
+func (tdAccInfo *TDAccount)IsCaseB2_1_1() bool {
+	bSpecialRate  := strings.ToUpper(tdAccInfo.Otherinformation.IsSpecialRate) == "TRUE"
+	return tdAccInfo.IsCaseB2() && bSpecialRate
+}
+
+
+func (tdAccInfo *TDAccount)IsCaseB3() bool {
+	isStopARO := tdAccInfo.Otherinformation.StopAro == "TRUE" 
+	return tdAccInfo.IsCaseB() &&
+		isStopARO 
+}
+
+
+func (tdAccInfo *TDAccount)IsCaseC() bool {
+	isARO := strings.ToUpper(tdAccInfo.Otherinformation.AroNonAro) == "ARO"
+	isMatureState := tdAccInfo.Accountstate == "Mature"
+	return !isARO && isMatureState 
 }

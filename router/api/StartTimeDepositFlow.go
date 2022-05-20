@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-16 09:08:29
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 04:15:44
+ * @Last Modified time: 2022-05-19 11:01:26
  */
 package api
 
@@ -70,6 +70,7 @@ func generateSearchTDAccountParam() mambuEntity.SearchParam {
 			},
 			{
 				Field:       "_rekening.rekeningTanggalJatohTempo",
+				//todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
 				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), //today
 				Secondvalue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow

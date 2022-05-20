@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-11 12:21:05
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-17 12:10:33
+ * @Last Modified time: 2022-05-19 07:07:18
  */
 package mambuservices
 
@@ -132,7 +132,7 @@ func TestGetTDAccountListById(t *testing.T) {
 			for index, tmpTDAcc := range got {
 				b, err := json.Marshal(tmpTDAcc)
 				if err != nil {
-					fmt.Errorf("Json Convert Error! srcData:%v", tmpTDAcc)
+					log.Log.Error("Json Convert Error! srcData:%v", tmpTDAcc)
 				}
 				log.Log.Info("QueryTDAccInfo: %v, %v", index, string(b))
 			}

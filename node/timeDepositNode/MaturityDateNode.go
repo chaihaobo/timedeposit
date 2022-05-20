@@ -28,7 +28,7 @@ func (node *MaturityDateNode) Process() {
 	CurNodeName := "maturity_date_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
 
-	if !needToUpdateMaturityDate(tmpTDAccount) {
+	if !tmpTDAccount.IsCaseA() {
 		log.Log.Info("No need to update maturity date, accNo: %v", tmpTDAccount.ID)
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 	} else {
@@ -72,25 +72,8 @@ func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, erro
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
 		log.Log.Error("Error for convert tenor to int, tenor: %v", tenor)
-		return "", errors.New("convert tenor to int failed!")
+		return "", errors.New("convert tenor to int failed")
 	}
 	resultDate := maturityDate.AddDate(0, tenorInt, 0)
 	return util.GetDate(resultDate), nil
-}
-
-// Checking whether this account need to change Maturity date
-func needToUpdateMaturityDate(tdAccInfo mambuEntity.TDAccount) bool {
-	isARO := tdAccInfo.Otherinformation.AroNonAro == "ARO"
-	activeState := tdAccInfo.Accountstate == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
-	if error != nil {
-		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
-		return false
-	}
-
-	tomorrow := time.Now().AddDate(0, 0, 1)
-	return isARO &&
-		activeState &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.Maturitydate)
 }

@@ -2,12 +2,17 @@
  * @Author: Hugo
  * @Date: 2022-05-16 04:15:23
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 05:07:04
+ * @Last Modified time: 2022-05-19 09:00:00
  */
 package timeDepositNode
 
 import (
+	"errors"
+	"fmt"
+
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/node"
+	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 type WithdrawBalanceNode struct {
@@ -15,33 +20,38 @@ type WithdrawBalanceNode struct {
 }
 
 func (node *WithdrawBalanceNode) Process() {
-	// tmpTDAccount := <-node.Node.Input
-	// latestTDAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.ID)
-	// if err != nil {
-	// 	//Todo: log
-	// 	log.Log.Error("Failed to get info of td account: %v", tmpTDAccount.ID)
-	// 	//Finish current flow
-	// 	return
-	// }
+	CurNodeName := "withdraw_balance_node"
+	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
+	totalBalance := tmpTDAccount.Balances.Totalbalance
+	if !(tmpTDAccount.IsCaseB() && totalBalance > 0) {
+		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
+		log.Log.Info("No need to withdraw balance, accNo: %v", tmpFlowTask.FlowId)
+	} else {
 
-	// //_otherInformation.bhdNomorRekPencairan
-	// benefitAccount, err := mambuservices.GetTDAccountById(latestTDAccount.Otherinformation.Bhdnomorrekpencairan)
-	// if err != nil {
-	// 	//Todo: log
-	// 	log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.Bhdnomorrekpencairan)
-	// 	//Finish current flow
-	// }
+		//_otherInformation.bhdNomorRekPencairan
+		benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+		if err != nil {
+			log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.Otherinformation.BhdNomorRekPencairan)
+			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
+		}
 
-	// if !needToWithdrawProfit(tmpTDAccount) {
-	// 	log.Log.Info("No need to withdraw profit, accNo: %v", tmpTDAccount.ID)
-	// } else {
-	// 	principalAmount := latestTDAccount.Rekening.RekeningPrincipalAmount //Not sure for this
-	// 	netProfit := latestTDAccount.Balances.Totalbalance - principalAmount
-	// 	mambuservices.WithdrawNetProfit(latestTDAccount, benefitAccount, netProfit)
-	// 	log.Log.Info("Finish withdraw profit for account: %v", tmpTDAccount.ID)
-	// 	mambuservices.DepositNetprofit(latestTDAccount, benefitAccount, netProfit)
-	// }
-
-	// log.Log.Info("WithdrawBalanceNode: OutputData: %v", tmpTDAccount)
-	// node.Node.Output <- tmpTDAccount
+		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", tmpTDAccount.Otherinformation.Tenor)
+		withrawResp, err := mambuservices.WithdrawTransaction(tmpTDAccount, benefitAccount, nodeLog, totalBalance, channelID)
+		if err != nil {
+			log.Log.Error("Failed to withdraw for td account: %v", tmpTDAccount.ID)
+			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu withdraw failed"))
+			//todo: Log failed transaction info here
+			return
+		}
+		log.Log.Info("Finish withdraw balance for accNo: %v, encodedKey:%v", tmpTDAccount.ID, withrawResp.EncodedKey)
+		depositResp, err := mambuservices.DepositTransaction(tmpTDAccount, benefitAccount, nodeLog, totalBalance, channelID)
+		if err != nil {
+			log.Log.Error("Failed to deposit for td account: %v", tmpTDAccount.ID)
+			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu deposit failed"))
+			//todo: Add reverse withdraw here
+			//todo: Log failed transaction info here
+		}
+		log.Log.Info("Finish deposit balance for accNo: %v, encodedKey:%v", tmpTDAccount.ID, depositResp.EncodedKey)
+		node.Node.Output <- tmpTDAccount
+	}
 }

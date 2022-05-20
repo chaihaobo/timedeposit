@@ -2,17 +2,17 @@
  * @Author: Hugo
  * @Date: 2022-05-17 12:42:12
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-17 12:42:49
+ * @Last Modified time: 2022-05-19 03:48:04
  */
 package mambuEntity
 
-type Transaction struct {
-	Metadata           Metadata
-	TransactionDetails TransactionDetails
-	Amount             string
+type TransactionReq struct {
+	Metadata           TransactionReqMetadata
+	TransactionDetails TransactionReqDetails
+	Amount             float64
 }
 
-type Metadata struct {
+type TransactionReqMetadata struct {
 	MessageType                    string
 	ExternalTransactionID          string
 	ExternalTransactionDetailID    string
@@ -28,7 +28,7 @@ type Metadata struct {
 	AcquirerIID                    string
 	ForwarderIID                   string
 	IssuerIID                      string
-	IssuerName                     string
+	IssuerlName                    string
 	DestinationIID                 string
 	SourceAccountNo                string
 	SourceAccountName              string
@@ -40,6 +40,6 @@ type Metadata struct {
 	TranDesc3                      string
 }
 
-type TransactionDetails struct {
+type TransactionReqDetails struct {
 	TransactionChannelID string
 }

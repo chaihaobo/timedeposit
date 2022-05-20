@@ -8,12 +8,9 @@ package timeDepositNode
 
 import (
 	"errors"
-	"time"
 
 	"gitlab.com/bns-engineering/td/common/log"
-	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/node"
-	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
@@ -25,7 +22,7 @@ type ProfitApplyNode struct {
 func (node *ProfitApplyNode) Process() {
 	CurNodeName := "profit_apply_node"
 	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
-	if !needToApplyProfit(tmpTDAccount) {
+	if !tmpTDAccount.IsCaseB() {
 		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
 		log.Log.Info("No need to apply profit, accNo: %v", tmpFlowTask.FlowId)
 	} else {
@@ -39,21 +36,4 @@ func (node *ProfitApplyNode) Process() {
 		}
 	}
 	node.Node.Output <- tmpTDAccount
-}
-
-// Checking whether this account need to change Maturity date
-func needToApplyProfit(tdAccInfo mambuEntity.TDAccount) bool {
-	isARO := tdAccInfo.Otherinformation.AroNonAro == "ARO"
-	activeState := tdAccInfo.Accountstate == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
-	if error != nil {
-		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.Rekeningtanggaljatohtempo)
-		return false
-	}
-
-	//Note: We should check whether maturityDate is null
-	return isARO &&
-		activeState &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
-		rekeningTanggalJatohTempoDate.Before(tdAccInfo.Maturitydate)
 }

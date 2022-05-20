@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-11 12:21:05
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 05:19:39
+ * @Last Modified time: 2022-05-19 04:17:51
  */
 package mambuservices
 
@@ -96,7 +96,10 @@ func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAcc
 	var resultTDAccount mambuEntity.TDAccount
 
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+	if err != nil ||
+		code != constant.HttpStatusCodeSucceed ||
+		code != constant.HttpStatusCodeSucceedNoContent ||
+		code != constant.HttpStatusCodeSucceedCreate {
 		commonLog.Log.Error("Create MaturityDate for td account failed! td acc id: %v, error:%v", accountID, respBody)
 		return resultTDAccount, errors.New("mambu process StartMaturityDate Error")
 	}
@@ -155,6 +158,31 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	_, code, err := util.HttpPatchData(postJsonStr, postUrl)
 	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
 		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
+		return false
+	}
+	return true
+}
+
+func CloseAccount(accID, notes string) bool {
+	postUrl := fmt.Sprintf(constant.CloseAccountUrl, accID)
+	commonLog.Log.Debug("CloseAccountUrl: %v", postUrl)
+
+	//Build the update maturity json struct
+	postJsonByte, _ := json.Marshal([]struct {
+		Action string `json:"action"`
+		Notes  string `json:"notes"`
+	}{
+		{
+			Action: "CLOSE",
+			Notes:  notes,
+		},
+	})
+
+	postJsonStr := string(postJsonByte)
+
+	_, code, err := util.HttpPatchData(postJsonStr, postUrl)
+	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accID)
 		return false
 	}
 	return true

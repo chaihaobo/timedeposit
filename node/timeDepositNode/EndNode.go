@@ -7,7 +7,8 @@
 package timeDepositNode
 
 import (
-	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/node"
 )
 
@@ -18,6 +19,10 @@ type EndNode struct {
 }
 
 func (node *EndNode) Process() {
-	tmpTDAccount := <-node.Node.Input
-	log.Log.Info("EndNode: InputData: %v", tmpTDAccount)
+	CurNodeName := "end_node"
+	_, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
+	
+	node.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
+	tmpFlowTask.EndStatus = constant.FlowFinished
+	dao.UpdateFlowTask(tmpFlowTask)
 }
