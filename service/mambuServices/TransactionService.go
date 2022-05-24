@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-12 10:48:09
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 11:04:27
+ * @Last Modified time: 2022-05-23 08:10:11
  */
 package mambuservices
 
@@ -16,7 +16,6 @@ import (
 	commonLog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/dao"
-	"gitlab.com/bns-engineering/td/model"
 	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
@@ -50,13 +49,12 @@ func GetTransactionByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEnt
 }
 
 func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
-	nodeLog model.TFlowNodeLog,
 	amount float64,
+	transactionID string,
 	channelID string) (mambuEntity.TransactionResp, error) {
 
-	transactionID := nodeLog.FlowId + "-" + nodeLog.NodeName + "-" + "Withdraw"
-	transactionDetailID := nodeLog.FlowId + "-" + nodeLog.NodeName + "-" + "Withdraw" + "-" + time.Now().Format("20060102150405")
-	custMessage := fmt.Sprintf("Withdraw for flowTask: %v, node: %v", nodeLog.FlowId, nodeLog.NodeName)
+	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
+	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
 	tmpTransaction := mambuEntity.TransactionReq{
 		Metadata: mambuEntity.TransactionReqMetadata{
 			MessageType:                    "TRANSACTION",
@@ -101,9 +99,9 @@ func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 
 	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, tdAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil ||
-		code != constant.HttpStatusCodeSucceed ||
-		code != constant.HttpStatusCodeSucceedNoContent ||
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
 		commonLog.Log.Error("Withdraw Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody)
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
@@ -122,12 +120,11 @@ func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 }
 
 func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
-	nodeLog model.TFlowNodeLog,
 	amount float64,
+	transactionID string,
 	channelID string) (mambuEntity.TransactionResp, error) {
-	transactionID := nodeLog.FlowId + "-" + nodeLog.NodeName + "-" + "Deposit"
-	transactionDetailID := nodeLog.FlowId + "-" + nodeLog.NodeName + "-" + "Deposit" + "-" + time.Now().Format("20060102150405")
-	custMessage := fmt.Sprintf("Deposit for flowTask: %v, node: %v", nodeLog.FlowId, nodeLog.NodeName)
+	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
+	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
 	tmpTransaction := mambuEntity.TransactionReq{
 		Metadata: mambuEntity.TransactionReqMetadata{
 			MessageType:                    "TRANSACTION",
@@ -172,9 +169,9 @@ func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 
 	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil ||
-		code != constant.HttpStatusCodeSucceed ||
-		code != constant.HttpStatusCodeSucceedNoContent ||
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
 		commonLog.Log.Error("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody)
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())

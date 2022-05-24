@@ -2,38 +2,49 @@
  * @Author: Hugo
  * @Date: 2022-05-16 04:14:01
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 05:06:05
+ * @Last Modified time: 2022-05-23 11:11:54
  */
 package timeDepositNode
 
 import (
 	"errors"
 
+	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/node"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 //Calc the Additional Profit for TD Account
 type ProfitApplyNode struct {
 	node.Node
+	// nodeName string
+}
+
+func NewProfitApplyNode() *ProfitApplyNode {
+	tmpNode := new(ProfitApplyNode)
+	// tmpNode.nodeName = "profit_apply_node"
+	tmpNode.Node.NodeRun = tmpNode
+	return tmpNode
 }
 
 func (node *ProfitApplyNode) Process() {
-	CurNodeName := "profit_apply_node"
-	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
+	node.RunNode("profit_apply_node")
+}
+
+// Update maturity date for this account
+func (node *ProfitApplyNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {
+	// Skip updating maturity date or not?
 	if !tmpTDAccount.IsCaseB() {
-		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
-		log.Log.Info("No need to apply profit, accNo: %v", tmpFlowTask.FlowId)
-	} else {
-		isApplySucceed := mambuservices.ApplyProfit(tmpTDAccount.ID, tmpFlowTask.FlowId)
-		if !isApplySucceed {
-			log.Log.Error("Apply profit failed for account: %v", tmpTDAccount.ID)
-			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call Mambu service failed"))
-		} else {
-			log.Log.Info("Finish apply profit for account: %v", tmpTDAccount.ID)
-			node.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
-		}
+		log.Log.Info("No need to apply profit, accNo: %v", tmpTDAccount.ID)
+		return constant.FlowNodeSkip, nil
 	}
-	node.Node.Output <- tmpTDAccount
+
+	isApplySucceed := mambuservices.ApplyProfit(tmpTDAccount.ID, flowID)
+	if !isApplySucceed {
+		log.Log.Error("Apply profit failed for account: %v", tmpTDAccount.ID)
+		return constant.FlowNodeFailed, errors.New("call Mambu service failed")
+	}
+	return constant.FlowNodeFinish, nil
 }

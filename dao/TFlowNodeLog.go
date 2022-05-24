@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-18 04:34:21
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 04:39:54
+ * @Last Modified time: 2022-05-23 06:23:32
  */
 package dao
 
@@ -20,7 +20,7 @@ func CreateFlowNodeLog(flowId, accountId, flowName, nodeName string) model.TFlow
 		FlowId:     flowId,
 		FlowName:   flowName,
 		NodeName:   nodeName,
-		NodeResult: constant.FlowNodeFailed,
+		NodeResult: string(constant.FlowNodeStart),
 		NodeMsg:    "",
 		CreateTime: time.Now(),
 		UpdateTime: time.Now(),

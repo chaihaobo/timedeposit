@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-05 08:59:52
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-18 04:16:07
+ * @Last Modified time: 2022-05-24 01:18:51
  */
 package flow
 
@@ -27,15 +27,15 @@ func registerType(typeStruct node.NodeRun) {
 
 func InitWorkflow() {
 	_workFlowDic = make(map[string]*goflow.Graph)
-	registerType(new(timeDepositNode.StartNode))
-	registerType(new(timeDepositNode.CalcAdditionalProfitNode))
-	registerType(new(timeDepositNode.CloseAccNode))
-	registerType(new(timeDepositNode.MaturityDateNode))
-	registerType(new(timeDepositNode.ProfitApplyNode))
-	registerType(new(timeDepositNode.TransferProfitNode))
-	registerType(new(timeDepositNode.UpdateAccNode))
-	registerType(new(timeDepositNode.WithdrawBalanceNode))
-	registerType(new(timeDepositNode.EndNode))
+	registerType(timeDepositNode.NewStartNode())
+	registerType(timeDepositNode.NewMaturityDateNode())
+	registerType(timeDepositNode.NewCalcAdditionalProfitNode())
+	registerType(timeDepositNode.NewCloseAccNode())
+	registerType(timeDepositNode.NewProfitApplyNode())
+	registerType(timeDepositNode.NewTransferProfitNode())
+	registerType(timeDepositNode.NewUpdateAccNode())
+	registerType(timeDepositNode.NewWithdrawBalanceNode())
+	registerType(timeDepositNode.NewEndNode())
 }
 
 func makeInstance(name string) node.NodeRun {
@@ -65,7 +65,6 @@ func NewProcessFlow(flowName string) *goflow.Graph {
 
 	// Our net has 1 inport mapped to greeter.Name
 	n.MapInPort("In", "start_node", "Input")
-	n.MapInPort("FlowTaskInfo", "start_node", "FlowTaskInfo")
 	return n
 }
 

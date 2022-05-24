@@ -2,9 +2,11 @@
  * @Author: Hugo
  * @Date: 2022-05-11 11:54:50
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 07:34:23
+ * @Last Modified time: 2022-05-20 08:30:33
  */
 package constant
+
+import "net/http"
 
 const (
 	ContentType = "application/json"
@@ -14,10 +16,10 @@ const (
 
 const (
 	HttpStatusCodeError            = -1
-	HttpStatusCodeSucceed          = 200
-	HttpStatusCodeSucceedCreate    = 201
-	HttpStatusCodeSucceedNoContent = 204
-	HttpStatusCodeBadRequest       = 400
+	HttpStatusCodeSucceed          = http.StatusOK
+	HttpStatusCodeSucceedCreate    = http.StatusCreated
+	HttpStatusCodeSucceedNoContent = http.StatusNoContent
+	HttpStatusCodeBadRequest       = http.StatusBadRequest
 )
 
 const (
@@ -27,5 +29,5 @@ const (
 
 const (
 	TransactionWithdraw = "WITHDRAWAL"
-	TransactionDeposit = "DEPOSIT"
+	TransactionDeposit  = "DEPOSIT"
 )

@@ -2,11 +2,12 @@
  * @Author: Hugo
  * @Date: 2022-05-11 12:19:27
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-20 04:20:40
+ * @Last Modified time: 2022-05-23 08:26:40
  */
 package mambuEntity
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -110,11 +111,11 @@ type Datanasabah struct {
 	NasabahAccountAddressType string `json:"nasabahAccountAddressType"`
 }
 type Rekening struct {
-	RekeningPrincipalAmount    float64 `json:"rekeningPrincipalAmount"`
-	RekeningNamaRekeningDebet  string  `json:"rekeningNamaRekeningDebet"`
-	RekeningTanggalJatohTempo  string  `json:"rekeningTanggalJatohTempo"`
-	RekeningTanggalBuka        string  `json:"rekeningTanggalBuka"`
-	RekeningNomorRekeningDebet string  `json:"rekeningNomorRekeningDebet"`
+	RekeningPrincipalAmount    string `json:"rekeningPrincipalAmount"`
+	RekeningNamaRekeningDebet  string `json:"rekeningNamaRekeningDebet"`
+	RekeningTanggalJatohTempo  string `json:"rekeningTanggalJatohTempo"`
+	RekeningTanggalBuka        string `json:"rekeningTanggalBuka"`
+	RekeningNomorRekeningDebet string `json:"rekeningNomorRekeningDebet"`
 }
 type OtherInformationCorporate struct {
 	InfoStatusKelengkapan           string `json:"infoStatusKelengkapan"`
@@ -166,13 +167,24 @@ func (tdAccInfo *TDAccount) IsCaseB1() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1_1() bool {
-	netProfit := tdAccInfo.Balances.TotalBalance - tdAccInfo.Rekening.RekeningPrincipalAmount
+	principal, err := strconv.ParseFloat(tdAccInfo.Rekening.RekeningPrincipalAmount, 64)
+	if err != nil {
+		log.Log.Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64, value:%v", tdAccInfo.Rekening.RekeningPrincipalAmount)
+		return false
+	}
+	netProfit := tdAccInfo.Balances.TotalBalance - principal
 	return tdAccInfo.IsCaseB1() && netProfit > 0
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
 	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialRate) == "TRUE"
-	return tdAccInfo.IsCaseB1_1() && bSpecialRate
+	specialRateExpireDate, err := time.Parse("2006-01-02", tdAccInfo.OtherInformation.SpecialERExpiration)
+	if err != nil {
+		log.Log.Error("Failed to convert SpecialERExpiration to time, value: %v", tdAccInfo.OtherInformation.SpecialERExpiration)
+	}
+	return tdAccInfo.IsCaseB1_1() &&
+		bSpecialRate &&
+		specialRateExpireDate.After(time.Now())
 }
 
 func (tdAccInfo *TDAccount) IsCaseB2() bool {

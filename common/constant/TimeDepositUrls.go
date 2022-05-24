@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-11 11:47:43
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 09:11:44
+ * @Last Modified time: 2022-05-23 02:33:42
  */
 package constant
 
@@ -25,7 +25,11 @@ const (
 )
 
 const (
-	SearchTransactionUrl    = "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
-	WithdrawTransactiontUrl = "/api/deposits/%v/withdrawal-transactions"
-	DepositTransactiontUrl  = "/api/deposits/%v/deposit-transactions"
+	SearchTransactionUrl    = DomainName + "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
+	WithdrawTransactiontUrl = DomainName + "/api/deposits/%v/withdrawal-transactions"
+	DepositTransactiontUrl  = DomainName + "/api/deposits/%v/deposit-transactions"
+)
+
+const (
+	HolidayInfoUrl = DomainName + "/api/organization/holidays"
 )

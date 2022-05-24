@@ -2,15 +2,17 @@
  * @Author: Hugo
  * @Date: 2022-05-16 04:15:54
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 11:23:10
+ * @Last Modified time: 2022-05-23 11:10:53
  */
 package timeDepositNode
 
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
+	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/node"
@@ -21,65 +23,82 @@ import (
 //Calc the Additional Profit for TD Account
 type CalcAdditionalProfitNode struct {
 	node.Node
+	// nodeName string
+}
+
+func NewCalcAdditionalProfitNode() *CalcAdditionalProfitNode {
+	tmpNode := new(CalcAdditionalProfitNode)
+	// tmpNode.nodeName = "transfer_profit_node"
+	tmpNode.Node.NodeRun = tmpNode
+	return tmpNode
 }
 
 func (node *CalcAdditionalProfitNode) Process() {
-	CurNodeName := "transfer_profit_node"
-	tmpTDAccount, tmpFlowTask, nodeLog := node.GetAccAndFlowLog(CurNodeName)
+	node.RunNode("transfer_profit_node")
+}
 
-	//Get latest info of td account
+func (node *CalcAdditionalProfitNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {
+	// Get the latest info of TD Account
 	newTDAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.ID)
 	if err != nil {
 		log.Log.Error("Failed to get info of td account: %v", tmpTDAccount.ID)
-		node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get td acc info failed"))
-		return
+		errMsg := "Failed to get detail info of td account"
+		log.Log.Error(errMsg)
+		return constant.FlowNodeFailed, errors.New(errMsg)
 	}
-	tmpTDAccount = newTDAccount
 
 	// Get last applied interest info
-	transList, err := mambuservices.GetTransactionByQueryParam(generateSearchParam(tmpTDAccount.EncodedKey))
+	transList, err := mambuservices.GetTransactionByQueryParam(generateSearchParam(newTDAccount.EncodedKey))
 	if err != nil || len(transList) <= 0 {
 		log.Log.Info("No applied profit, skip")
-		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
-		return
+		return constant.FlowNodeSkip, errors.New("No applied profit, skip")
 	}
 	lastAppliedInterestTrans := transList[0]
 
-	//Get benefit account
-	benefitAccount, err := mambuservices.GetTDAccountById(tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
+	// Get benefit account info
+	benefitAccount, err := mambuservices.GetTDAccountById(newTDAccount.OtherInformation.BhdNomorRekPencairan)
 	if err != nil {
-		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", tmpTDAccount.ID, tmpTDAccount.OtherInformation.BhdNomorRekPencairan)
-		node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu get benefit acc info failed"))
+		log.Log.Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", newTDAccount.ID, newTDAccount.OtherInformation.BhdNomorRekPencairan)
+		return constant.FlowNodeSkip, errors.New("call mambu get benefit acc info failed")
 	}
 
 	//Calculate additionalProfit & tax of additionalProfit
-	additionalProfit, additionalProfitTax := getAdditionProfitAndTax(tmpTDAccount, lastAppliedInterestTrans)
+	additionalProfit, additionalProfitTax := getAdditionProfitAndTax(newTDAccount, lastAppliedInterestTrans)
 
-	if tmpTDAccount.IsCaseB1_1_1_1() ||
-		tmpTDAccount.IsCaseB2_1_1() ||
-		(tmpTDAccount.IsCaseB3() && newTDAccount.Balances.TotalBalance > 0) {
-		withrawResp, err := mambuservices.WithdrawTransaction(tmpTDAccount, benefitAccount, nodeLog, additionalProfit, "BBN_BAGHAS_DEPMUDC")
+	if newTDAccount.IsCaseB1_1_1_1() ||
+		newTDAccount.IsCaseB2_1_1() ||
+		(newTDAccount.IsCaseB3() &&
+			newTDAccount.Balances.TotalBalance > 0 &&
+			strings.ToUpper(newTDAccount.OtherInformation.IsSpecialRate) == "TRUE") ||
+		(newTDAccount.IsCaseC() &&
+			newTDAccount.Balances.TotalBalance > 0 &&
+			strings.ToUpper(newTDAccount.OtherInformation.IsSpecialRate) == "TRUE") {
+		//Withdraw additional profit
+		withdrawTransID := flowID + "-" + nodeName + "-" + "Withdraw"
+		channelID := "BBN_BAGHAS_DEPMUDC"
+		withrawResp, err := mambuservices.WithdrawTransaction(newTDAccount, benefitAccount, additionalProfit, withdrawTransID, channelID)
 		if err != nil {
-			log.Log.Error("Failed to withdraw for td account: %v", tmpTDAccount.ID)
-			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu withdraw failed"))
-			//todo: Log failed transaction info here
-			return
+			log.Log.Error("Failed to withdraw for td account: %v", newTDAccount.ID)
+			return constant.FlowNodeFailed, errors.New("call mambu withdraw failed")
 		}
-		log.Log.Info("Finish withdraw balance for accNo: %v, encodedKey:%v", tmpTDAccount.ID, withrawResp.EncodedKey)
-		depositResp, err := mambuservices.DepositTransaction(tmpTDAccount, benefitAccount, nodeLog, additionalProfitTax, "PPH_PS42_DEPOSITO")
+		log.Log.Info("Finish withdraw balance for accNo: %v, encodedKey:%v", newTDAccount.ID, withrawResp.EncodedKey)
+		//Deposit additional profit
+		depositTransID := flowID + "-" + nodeName + "-" + "Deposit"
+		depositChannelID := "PPH_PS42_DEPOSITO"
+		depositResp, err := mambuservices.DepositTransaction(newTDAccount, benefitAccount, additionalProfitTax, depositTransID, depositChannelID)
 		if err != nil {
-			log.Log.Error("Failed to deposit for td account: %v", tmpTDAccount.ID)
-			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, errors.New("call mambu deposit failed"))
+			log.Log.Error("Failed to deposit for td account: %v", newTDAccount.ID)
 			//todo: Add reverse withdraw here
-			//todo: Log failed transaction info here
-		}
-		log.Log.Info("Finish deposit balance for accNo: %v, encodedKey:%v", tmpTDAccount.ID, depositResp.EncodedKey)
-		node.Node.Output <- tmpTDAccount
-	} else {
-		log.Log.Info("No need to withdraw profit, accNo: %v", tmpTDAccount.ID)
-		node.UpdateLogWhenSkipNode(tmpFlowTask, CurNodeName, nodeLog)
-	}
+			log.Log.Error("depositResp: %v", depositResp)
 
+			return constant.FlowNodeFailed, errors.New("call mambu deposit failed")
+		}
+		log.Log.Info("Finish deposit additional profit tax for accNo: %v, encodedKey:%v", tmpTDAccount.ID, depositResp.EncodedKey)
+		return constant.FlowNodeFinish, nil
+	} else {
+		log.Log.Info("No need to withdraw profit, accNo: %v", newTDAccount.ID)
+		return constant.FlowNodeSkip, nil
+	}
 }
 
 func getAdditionProfitAndTax(tmpTDAccount mambuEntity.TDAccount, lastAppliedInterestTrans mambuEntity.TransactionBrief) (float64, float64) {

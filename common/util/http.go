@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-11 11:17:19
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-17 09:14:35
+ * @Last Modified time: 2022-05-20 08:46:39
  */
 package util
 
@@ -43,11 +43,15 @@ func HttpPostData(postJsonStr, postUrl string) (string, int, error) {
 		commonLog.Log.Error("Calling Api Error! Url:%v, req:%v, error:%v", postUrl, postJsonStr, err)
 		return "exception!", constant.HttpStatusCodeError, err
 	}
+	commonLog.Log.Debug("request url:%v", postUrl)
+	commonLog.Log.Debug("req.body:%v", postJsonStr)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "exception!", constant.HttpStatusCodeError, err
 	}
+	commonLog.Log.Debug("resp.StatusCode:%v", resp.StatusCode)
+	commonLog.Log.Debug("resp.Body:%v", string(body))
 	return string(body), resp.StatusCode, nil
 }
 

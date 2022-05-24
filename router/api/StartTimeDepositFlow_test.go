@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-16 09:08:29
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-16 10:38:40
+ * @Last Modified time: 2022-05-23 11:25:01
  */
 package api
 
@@ -34,5 +34,6 @@ func TestStartTDFlow(t *testing.T) {
 func initConfig() {
 	config, _ := commonConfig.NewConfig("./../../config.json")
 	commonLog.InitLogConfig(config)
+	commonLog.Log.Info("===============Start Test Whole Flow==============")
 	flow.InitWorkflow()
 }

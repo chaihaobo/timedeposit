@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-11 12:21:05
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 04:17:51
+ * @Last Modified time: 2022-05-23 02:46:56
  */
 package mambuservices
 
@@ -31,7 +31,7 @@ func GetTDAccountById(tdAccountID string) (mambuEntity.TDAccount, error) {
 	commonLog.Log.Info("Query td account Info result: %v", resp)
 	err = json.Unmarshal([]byte(resp), &tdAccount)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v", resp)
+		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v, err:%v", resp, err.Error())
 		return tdAccount, err
 	}
 	return tdAccount, nil
@@ -71,7 +71,7 @@ func UndoMaturityDate(accountID string) bool {
 	postUrl := fmt.Sprintf(constant.UndoMaturityDateUrl, accountID)
 	commonLog.Log.Info("getUrl: %v", postUrl)
 	_, code, err := util.HttpPostData("", postUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+	if err != nil && code != constant.HttpStatusCodeSucceed && code != constant.HttpStatusCodeSucceedNoContent {
 		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
 		return false
 	}
@@ -96,9 +96,9 @@ func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAcc
 	var resultTDAccount mambuEntity.TDAccount
 
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil ||
-		code != constant.HttpStatusCodeSucceed ||
-		code != constant.HttpStatusCodeSucceedNoContent ||
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
 		commonLog.Log.Error("Create MaturityDate for td account failed! td acc id: %v, error:%v", accountID, respBody)
 		return resultTDAccount, errors.New("mambu process StartMaturityDate Error")
@@ -129,7 +129,7 @@ func ApplyProfit(accountID, note string) bool {
 	postJsonStr := string(postJsonByte)
 
 	_, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+	if err != nil && code != constant.HttpStatusCodeSucceed && code != constant.HttpStatusCodeSucceedNoContent {
 		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
 		return false
 	}
@@ -156,7 +156,9 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	postJsonStr := string(postJsonByte)
 
 	_, code, err := util.HttpPatchData(postJsonStr, postUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent {
 		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
 		return false
 	}
@@ -181,7 +183,9 @@ func CloseAccount(accID, notes string) bool {
 	postJsonStr := string(postJsonByte)
 
 	_, code, err := util.HttpPatchData(postJsonStr, postUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed || code != constant.HttpStatusCodeSucceedNoContent {
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent {
 		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accID)
 		return false
 	}

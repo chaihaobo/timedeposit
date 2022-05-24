@@ -2,7 +2,7 @@
  * @Author: Hugo
  * @Date: 2022-05-05 08:59:52
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-17 09:15:14
+ * @Last Modified time: 2022-05-23 11:39:00
  */
 package flow
 
@@ -19,9 +19,9 @@ func TestInitProcessFlow(t *testing.T) {
 	conf, _ := commonConfig.NewConfig("./../config.json")
 	log.InitLogConfig(conf)
 	InitWorkflow()
-	for key, value := range typeRegistry {
+	for key, _ := range typeRegistry {
 		log.Log.Info("%v", key)
-		log.Log.Info("%v", value)
+		// log.Log.Info("%v", value)
 	}
 }
 
