@@ -2,12 +2,13 @@
  * @Author: Hugo
  * @Date: 2022-04-29 10:24:31
  * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-24 02:35:16
+ * @Last Modified time: 2022-05-24 03:00:01
  */
 package node
 
 import (
 	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
@@ -33,6 +34,8 @@ func (tmpNode *Node) RunNode(CurNodeName string) {
 	tmpTDAccount := nodeDataInfo.TDAccountInfo
 	tmpFlowTask := nodeDataInfo.FlowTaskInfo
 
+	log.Log.Info("FlowID: %v, flowCurStatus:%v, flowStatus:%v, CurNodeName:%v", tmpFlowTask.FlowId, tmpFlowTask.CurStatus, tmpFlowTask.FlowStatus, CurNodeName)
+
 	if tmpFlowTask.CurStatus == string(constant.FlowNodeFailed) {
 		tmpNode.Output <- nodeDataInfo
 		return
@@ -49,41 +52,42 @@ func (tmpNode *Node) RunNode(CurNodeName string) {
 	if CurNodeName != "end_node" {
 		switch tmpNodeStatus {
 		case constant.FlowNodeSkip:
-			tmpNode.UpdateLogWhenSkipNode(&tmpFlowTask, nodeLog)
+			tmpNode.UpdateLogWhenSkipNode(tmpFlowTask, nodeLog)
 		case constant.FlowNodeFailed:
-			tmpNode.UpdateLogWhenNodeFailed(&tmpFlowTask, nodeLog, err)
+			tmpNode.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, err)
+			nodeDataInfo.FlowTaskInfo.CurStatus = string(constant.FlowNodeFailed)
 		case constant.FlowNodeFinish:
-			tmpNode.UpdateLogWhenNodeFinish(&tmpFlowTask, nodeLog)
+			tmpNode.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
 		}
 		tmpNode.Output <- nodeDataInfo
 	} else {
-		tmpNode.UpdateLogWhenNodeFinish(&tmpFlowTask, nodeLog)
+		tmpNode.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
 		tmpFlowTask.EndStatus = constant.FlowFinished
 		dao.UpdateFlowTask(tmpFlowTask)
 	}
 }
 
-func (*Node) UpdateLogWhenSkipNode(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
+func (*Node) UpdateLogWhenSkipNode(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeSkip)
-	dao.UpdateFlowTask(*tmpFlowTask)
+	dao.UpdateFlowTask(tmpFlowTask)
 
 	nodeLog.NodeResult = string(constant.FlowNodeSkip)
 	dao.UpdateFlowNodeLog(nodeLog)
 }
 
-func (node *Node) UpdateLogWhenNodeFailed(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog, err error) {
+func (node *Node) UpdateLogWhenNodeFailed(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog, err error) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeFailed)
 	tmpFlowTask.FlowStatus = constant.FlowFailed
-	dao.UpdateFlowTask(*tmpFlowTask)
+	dao.UpdateFlowTask(tmpFlowTask)
 
 	nodeLog.NodeResult = string(constant.FlowNodeFailed)
 	nodeLog.NodeMsg = err.Error()
 	dao.UpdateFlowNodeLog(nodeLog)
 }
 
-func (node *Node) UpdateLogWhenNodeFinish(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
+func (node *Node) UpdateLogWhenNodeFinish(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeFinish)
-	dao.UpdateFlowTask(*tmpFlowTask)
+	dao.UpdateFlowTask(tmpFlowTask)
 
 	nodeLog.NodeResult = string(constant.FlowNodeFinish)
 	dao.UpdateFlowNodeLog(nodeLog)
