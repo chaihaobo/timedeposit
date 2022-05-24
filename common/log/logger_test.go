@@ -14,6 +14,7 @@ func TestLogger(t *testing.T) {
 		config.Setup("../../config.yaml")
 		SetUp(config.TDConf)
 		zap.L().Info("ok", zap.String("123", "123"))
+		zap.L().Panic("error")
 
 	})
 }
