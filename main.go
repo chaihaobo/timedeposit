@@ -7,9 +7,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/util"
 	"go.uber.org/zap"
 	"net/http"
+	"os"
+	"os/signal"
+	"runtime"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/td/common/config"
@@ -29,7 +36,8 @@ func init() {
 }
 
 func main() {
-
+	cores := runtime.NumCPU()
+	runtime.GOMAXPROCS(cores)
 	gin.SetMode(config.TDConf.Server.RunMode)
 
 	routersInit := router.InitRouter()
@@ -39,6 +47,24 @@ func main() {
 		Addr:    endPoint,
 		Handler: routersInit,
 	}
-	zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
-	server.ListenAndServe()
+
+	go func() {
+		zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
+		// service connections
+		err := server.ListenAndServe()
+		if err != http.ErrServerClosed {
+			util.CheckAndExit(err)
+		}
+	}()
+
+	// graceful shutdown
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigs
+	// stop gin engine
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	util.CheckAndExit(server.Shutdown(ctx))
+
 }
