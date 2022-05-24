@@ -44,6 +44,12 @@ func (node *TransferProfitNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, f
 		return constant.FlowNodeFailed, errors.New(errMsg)
 	}
 
+	//Need to transfer profit or not.
+	if !newTDAccount.IsCaseB1_1() {
+		zap.L().Info(fmt.Sprintf("No need to withdraw profit, accNo: %v", newTDAccount.ID))
+		return constant.FlowNodeSkip, errors.New("No need to withdraw profit")
+	}
+
 	// Get the principal amount of td account
 	principal, err := strconv.ParseFloat(newTDAccount.Rekening.RekeningPrincipalAmount, 64)
 	if err != nil {
@@ -54,40 +60,36 @@ func (node *TransferProfitNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, f
 	//Calculate the profit
 	netProfit := newTDAccount.Balances.TotalBalance - principal
 
-	//Need to transfer profit or not.
-	if !newTDAccount.IsCaseB1_1() || netProfit <= 0 {
-		zap.L().Info(fmt.Sprintf("No need to withdraw profit, accNo: %v", newTDAccount.ID))
-		return constant.FlowNodeSkip, errors.New("No need to withdraw profit")
-	}
+	if netProfit > 0 {
+		// Get benefit account info
+		benefitAccount, err := mambuservices.GetTDAccountById(newTDAccount.OtherInformation.BhdNomorRekPencairan)
+		if err != nil {
+			zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", newTDAccount.ID, newTDAccount.OtherInformation.BhdNomorRekPencairan))
+			return constant.FlowNodeSkip, errors.New("call mambu get benefit acc info failed")
+		}
 
-	// Get benefit account info
-	benefitAccount, err := mambuservices.GetTDAccountById(newTDAccount.OtherInformation.BhdNomorRekPencairan)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", newTDAccount.ID, newTDAccount.OtherInformation.BhdNomorRekPencairan))
-		return constant.FlowNodeSkip, errors.New("call mambu get benefit acc info failed")
-	}
+		//Withdraw netProfit for deposit account
+		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", newTDAccount.OtherInformation.Tenor)
+		withdrawTransID := flowID + "-" + nodeName + "-" + "Withdraw"
+		withrawResp, err := mambuservices.WithdrawTransaction(newTDAccount, benefitAccount, netProfit, withdrawTransID, channelID)
+		if err != nil {
+			zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", newTDAccount.ID))
+			//Just return error, no need to reverse
+			return constant.FlowNodeFailed, errors.New("call mambu withdraw failed")
+		}
+		zap.L().Info(fmt.Sprintf("Finish withdraw balance for accNo: %v, encodedKey:%v", newTDAccount.ID, withrawResp.EncodedKey))
 
-	//Withdraw netProfit for deposit account
-	channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", newTDAccount.OtherInformation.Tenor)
-	withdrawTransID := flowID + "-" + nodeName + "-" + "Withdraw"
-	withrawResp, err := mambuservices.WithdrawTransaction(newTDAccount, benefitAccount, netProfit, withdrawTransID, channelID)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", newTDAccount.ID))
-		//Just return error, no need to reverse
-		return constant.FlowNodeFailed, errors.New("call mambu withdraw failed")
-	}
-	zap.L().Info(fmt.Sprintf("Finish withdraw balance for accNo: %v, encodedKey:%v", newTDAccount.ID, withrawResp.EncodedKey))
+		//Deposit netProfit to benefit account
+		depositTransID := flowID + "-" + nodeName + "-" + "Deposit"
+		depositResp, err := mambuservices.DepositTransaction(newTDAccount, benefitAccount, netProfit, depositTransID, channelID)
+		if err != nil {
+			zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", newTDAccount.ID))
+			//todo: Add reverse withdraw here
 
-	//Deposit netProfit to benefit account
-	depositTransID := flowID + "-" + nodeName + "-" + "Deposit"
-	depositResp, err := mambuservices.DepositTransaction(newTDAccount, benefitAccount, netProfit, depositTransID, channelID)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", newTDAccount.ID))
-		//todo: Add reverse withdraw here
-
-		return constant.FlowNodeFailed, errors.New("call mambu deposit failed")
+			return constant.FlowNodeFailed, errors.New("call mambu deposit failed")
+		}
+		zap.L().Info(fmt.Sprintf("Finish deposit balance for accNo: %v, encodedKey:%v", newTDAccount.ID, depositResp.EncodedKey))
 	}
-	zap.L().Info(fmt.Sprintf("Finish deposit balance for accNo: %v, encodedKey:%v", newTDAccount.ID, depositResp.EncodedKey))
 
 	return constant.FlowNodeFinish, nil
 }

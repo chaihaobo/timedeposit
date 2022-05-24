@@ -8,6 +8,9 @@ package db
 
 import (
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/util"
+	"sync"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,27 +18,19 @@ import (
 
 // Build the db handle for database
 var _db *gorm.DB
+var dbOnce sync.Once
 
 // Initial gorm
 func initDB() {
-	// Do some initial for database
-	// todo: move the init data to config file
-	username := "hugo"                  //username
-	password := "123456"                //password
-	host := "172.17.0.2"                //host
-	port := 3306                        //port
-	Dbname := "time_deposit_eod_engine" //database name
-
 	// Generate Mysql DSN
 	// Mysql dsn format： {username}:{password}@tcp({host}:{port})/{Dbname}?charset=utf8&parseTime=True&loc=Local
 	// replace values which like {username}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, Dbname)
-
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.TDConf.Db.Username, config.TDConf.Db.Password, config.TDConf.Db.Host, config.TDConf.Db.Port, config.TDConf.Db.Db)
 	var err error
 	// Connect Mysql, Get DB connection
 	_db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("Connect databse failed, error=" + err.Error())
+		util.CheckAndExit(err)
 	}
 
 	sqlDB, _ := _db.DB()
@@ -47,8 +42,8 @@ func initDB() {
 
 // Get db connection
 func GetDB() *gorm.DB {
-	if _db == nil {
+	dbOnce.Do(func() {
 		initDB()
-	}
+	})
 	return _db
 }

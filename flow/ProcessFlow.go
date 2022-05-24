@@ -53,7 +53,7 @@ func NewProcessFlow(flowName string) *goflow.Graph {
 	n := goflow.NewGraph()
 	for _, tmpNode := range flowNodes {
 		tmpNodeRun := makeInstance(tmpNode.NodePath)
-		fmt.Println("tmpNode.NodeName:", tmpNode.NodeName)
+		zap.L().Info("tmpNode.NodeName", zap.String("NodeName", tmpNode.NodeName))
 		n.Add(tmpNode.NodeName, tmpNodeRun)
 	}
 

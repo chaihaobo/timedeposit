@@ -13,7 +13,7 @@ import (
 	"gitlab.com/bns-engineering/td/model"
 )
 
-func CreateFlowTask(flowId, accountId, flowName string) model.TFlowTaskInfo {
+func CreateFlowTask(flowId, accountId, flowName string) *model.TFlowTaskInfo {
 	tFlowTask := model.TFlowTaskInfo{
 		FlowId:      flowId,
 		AccountId:   accountId,
@@ -29,10 +29,10 @@ func CreateFlowTask(flowId, accountId, flowName string) model.TFlowTaskInfo {
 	}
 	db := db.GetDB()
 	db.Save(&tFlowTask)
-	return tFlowTask
+	return &tFlowTask
 }
 
-func UpdateFlowTask(flowTask model.TFlowTaskInfo) {
+func UpdateFlowTask(flowTask *model.TFlowTaskInfo) {
 	db := db.GetDB()
 	flowTask.UpdateTime = time.Now()
 	db.Save(flowTask)

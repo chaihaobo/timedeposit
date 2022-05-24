@@ -7,6 +7,14 @@ log:
   MaxBackups: 5
   MaxAge: 28
   Level: DEBUG
+db:
+  username: root
+  password:
+  host: localhost
+  port: 3306
+  db: time_deposit_eod_engine
+  maxOpenConn: 100
+  maxIdleConn: 20
 server:
   RunMode: debug
   HttpPort: 8000

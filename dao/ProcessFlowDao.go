@@ -7,7 +7,7 @@
 package dao
 
 import (
-	"fmt"
+	"go.uber.org/zap"
 
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model"
@@ -17,12 +17,10 @@ func GetProcessFlowByName(flowName string) ([]model.TFlowNode, []model.TFlowNode
 	db := db.GetDB()
 	var flowNodes []model.TFlowNode
 	result := db.Where("flow_name = ?", flowName).Find(&flowNodes)
-	fmt.Println(result.Error)
-	fmt.Println(result.RowsAffected)
+	zap.L().Info("flow node result", zap.Int64("RowsAffected", result.RowsAffected), zap.Error(result.Error))
 
 	var flowNodeRelation []model.TFlowNodeRelation
 	result = db.Where("flow_name = ?", flowName).Find(&flowNodeRelation)
-	fmt.Println(result.Error)
-	fmt.Println(result.RowsAffected)
+	zap.L().Info("flow node relation", zap.Int64("RowsAffected", result.RowsAffected), zap.Error(result.Error))
 	return flowNodes, flowNodeRelation
 }

@@ -16,7 +16,7 @@ import (
 )
 
 type NodeData struct {
-	FlowTaskInfo  model.TFlowTaskInfo
+	FlowTaskInfo  *model.TFlowTaskInfo
 	TDAccountInfo mambuEntity.TDAccount // input port
 }
 type Node struct {
@@ -68,7 +68,7 @@ func (tmpNode *Node) RunNode(CurNodeName string) {
 	}
 }
 
-func (*Node) UpdateLogWhenSkipNode(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
+func (*Node) UpdateLogWhenSkipNode(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeSkip)
 	dao.UpdateFlowTask(tmpFlowTask)
 
@@ -76,7 +76,7 @@ func (*Node) UpdateLogWhenSkipNode(tmpFlowTask model.TFlowTaskInfo, nodeLog mode
 	dao.UpdateFlowNodeLog(nodeLog)
 }
 
-func (node *Node) UpdateLogWhenNodeFailed(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog, err error) {
+func (node *Node) UpdateLogWhenNodeFailed(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog, err error) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeFailed)
 	tmpFlowTask.FlowStatus = constant.FlowFailed
 	dao.UpdateFlowTask(tmpFlowTask)
@@ -86,7 +86,7 @@ func (node *Node) UpdateLogWhenNodeFailed(tmpFlowTask model.TFlowTaskInfo, nodeL
 	dao.UpdateFlowNodeLog(nodeLog)
 }
 
-func (node *Node) UpdateLogWhenNodeFinish(tmpFlowTask model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
+func (node *Node) UpdateLogWhenNodeFinish(tmpFlowTask *model.TFlowTaskInfo, nodeLog model.TFlowNodeLog) {
 	tmpFlowTask.CurStatus = string(constant.FlowNodeFinish)
 	dao.UpdateFlowTask(tmpFlowTask)
 

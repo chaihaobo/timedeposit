@@ -32,6 +32,15 @@ type TDConfig struct {
 		ReadTimeout  int
 		WriteTimeout int
 	}
+	Db *struct {
+		Username    string
+		Password    string
+		Host        string
+		Port        int
+		Db          string
+		MaxOpenConn int
+		MaxIdleConn int
+	}
 }
 
 func Setup(path string) *TDConfig {

@@ -41,41 +41,46 @@ func StartTDFlow(c *gin.Context) {
 	zap.L().Info("=======================================")
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		tmpFlow := flow.GetProcessFlow("time_deposit_flow")
-		inputNodeDataChan := make(chan node.NodeData)
-		tmpFlow.SetInPort("In", inputNodeDataChan)
-
-		// Run the net
-		wait := goflow.Run(tmpFlow)
-
-		// Now we can send some names and see what happens
-		zap.L().Info(fmt.Sprintf("Start Run Flow for Account: %v", tmpTDAcc.ID))
-		flowID := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), tmpTDAcc.ID)
-		flowTaskInfo := dao.CreateFlowTask(flowID, tmpTDAcc.ID, "time_deposit_flow")
-		newTDAccount, err := mambuservices.GetTDAccountById(tmpTDAcc.ID)
-		if err != nil {
-			zap.L().Error(fmt.Sprintf("Failed to get info of td account: %v", tmpTDAcc.ID))
-			flowTaskInfo.EndStatus = constant.FlowFailed
-			flowTaskInfo.CurStatus = string(constant.FlowNodeFailed)
-			flowTaskInfo.FlowStatus = constant.FlowFailed
-			dao.UpdateFlowTask(flowTaskInfo)
-			continue
-		}
-
-		inputNodeDataChan <- node.NodeData{
-			FlowTaskInfo:  flowTaskInfo,
-			TDAccountInfo: newTDAccount,
-		}
-
-		// Send end of input
-		close(inputNodeDataChan)
-		// Wait until the net has completed its job
-		result := <-wait
-		zap.L().Info(fmt.Sprintf("Flow End result: %v", result))
-
-		zap.L().Info(fmt.Sprintf("Flow Run Finishd for Account: %v", tmpTDAcc.ID))
+		RunFlow(&tmpTDAcc)
 	}
 
+}
+
+//RunFlow run flow by account
+func RunFlow(tmpTDAcc *mambuEntity.TDAccount) {
+	tmpFlow := flow.GetProcessFlow("time_deposit_flow")
+	inputNodeDataChan := make(chan node.NodeData)
+	tmpFlow.SetInPort("In", inputNodeDataChan)
+
+	// Run the net
+	wait := goflow.Run(tmpFlow)
+
+	// Now we can send some names and see what happens
+	zap.L().Info(fmt.Sprintf("Start Run Flow for Account: %v", tmpTDAcc.ID))
+	flowID := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), tmpTDAcc.ID)
+	flowTaskInfo := dao.CreateFlowTask(flowID, tmpTDAcc.ID, "time_deposit_flow")
+	newTDAccount, err := mambuservices.GetTDAccountById(tmpTDAcc.ID)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Failed to get info of td account: %v", tmpTDAcc.ID))
+		flowTaskInfo.EndStatus = constant.FlowFailed
+		flowTaskInfo.CurStatus = string(constant.FlowNodeFailed)
+		flowTaskInfo.FlowStatus = constant.FlowFailed
+		dao.UpdateFlowTask(flowTaskInfo)
+		return
+	}
+
+	inputNodeDataChan <- node.NodeData{
+		FlowTaskInfo:  flowTaskInfo,
+		TDAccountInfo: newTDAccount,
+	}
+
+	// Send end of input
+	close(inputNodeDataChan)
+	// Wait until the net has completed its job
+	result := <-wait
+	zap.L().Info(fmt.Sprintf("Flow End result: %v", result))
+
+	zap.L().Info(fmt.Sprintf("Flow Run Finishd for Account: %v", tmpTDAcc.ID))
 }
 
 func generateSearchTDAccountParam() mambuEntity.SearchParam {
