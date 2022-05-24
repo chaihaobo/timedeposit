@@ -9,9 +9,11 @@ package mambuservices
 import (
 	"encoding/json"
 	"fmt"
+	logger "gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 	"testing"
 
-	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/config"
 	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
@@ -33,8 +35,7 @@ func TestGetTDAccountById(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	conf, _ := commonConfig.NewConfig("./../../config.json")
-	log.InitLogConfig(conf)
+	logger.SetUp(config.Setup("../../config.yaml"))
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetTDAccountById(tt.args.tdAccountID)
@@ -43,7 +44,7 @@ func TestGetTDAccountById(t *testing.T) {
 				return
 			}
 			fmt.Println("=====result struct================")
-			zap.L().Info("%v", got)
+			zap.L().Info(fmt.Sprintf("%v", got))
 			// if !reflect.DeepEqual(got, tt.want) {
 			// 	t.Errorf("GetTDAccountById() = %v, want %v", got, tt.want)
 			// }
@@ -119,8 +120,7 @@ func TestGetTDAccountListById(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	conf, _ := commonConfig.NewConfig("./../../config.json")
-	log.InitLogConfig(conf)
+	logger.SetUp(config.Setup("../../config.yaml"))
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetTDAccountListByQueryParam(tt.args.searchParam)
@@ -131,9 +131,9 @@ func TestGetTDAccountListById(t *testing.T) {
 			for index, tmpTDAcc := range got {
 				b, err := json.Marshal(tmpTDAcc)
 				if err != nil {
-					zap.L().Error("Json Convert Error! srcData:%v", tmpTDAcc)
+					zap.L().Error(fmt.Sprintf("Json Convert Error! srcData:%v", tmpTDAcc))
 				}
-				zap.L().Info("QueryTDAccInfo: %v, %v", index, string(b))
+				zap.L().Info(fmt.Sprintf("QueryTDAccInfo: %v, %v", index, string(b)))
 			}
 		})
 	}

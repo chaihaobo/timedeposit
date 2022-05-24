@@ -7,9 +7,12 @@
 package mambuservices
 
 import (
+	"fmt"
+	logger "gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 	"testing"
 
-	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/config"
 )
 
 func TestGetHolidayList(t *testing.T) {
@@ -20,13 +23,12 @@ func TestGetHolidayList(t *testing.T) {
 		// TODO: Add test cases.
 		{name: "Test get holiday info"},
 	}
-	conf, _ := commonConfig.NewConfig("./../../config.json")
-	log.InitLogConfig(conf)
+	logger.SetUp(config.Setup("../../config.yaml"))
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GetHolidayList(); len(got) > 0 {
 				for _, tmpHoliday := range got {
-					zap.L().Info("holiday:%v", tmpHoliday.String())
+					zap.L().Info(fmt.Sprintf("holiday:%v", tmpHoliday.String()))
 				}
 			}
 		})
