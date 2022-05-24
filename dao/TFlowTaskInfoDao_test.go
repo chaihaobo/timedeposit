@@ -7,7 +7,6 @@
 package dao
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -35,7 +34,9 @@ func TestCreateFlowTask(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := CreateFlowTask(tt.args.flowId, tt.args.accountId, tt.args.flowName)
-			fmt.Println(got)
+			if got != nil {
+				t.Error("create flow task error")
+			}
 		})
 	}
 }

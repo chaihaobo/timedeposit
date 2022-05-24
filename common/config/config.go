@@ -12,9 +12,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var TDConf = new(TDConfig)
+var TDConf = new(config)
 
-type TDConfig struct {
+type config struct {
 	Hugo   string
 	System *struct {
 		Mode string
@@ -43,7 +43,7 @@ type TDConfig struct {
 	}
 }
 
-func Setup(path string) *TDConfig {
+func Setup(path string) *config {
 	configViper := viper.New()
 	configViper.SetConfigFile(path)
 	configViper.SetConfigType("yaml")

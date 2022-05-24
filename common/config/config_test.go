@@ -7,23 +7,16 @@
 package config
 
 import (
-	"log"
 	"testing"
 )
 
 func TestNewConfig(t *testing.T) {
 
 	t.Run("test config read", func(t *testing.T) {
-		var err error
-		var conf Config
-		conf, err = NewConfig("./../../config.yaml")
-		if err != nil {
-			log.Println(err)
-			return
+		config := Setup("../../config.yaml")
+		if config.Hugo == "" {
+			t.Error("test config read fail")
 		}
-		log.Println(TDConf.Hugo)
-		log.Println(conf)
-		log.Println(TDConf.Server.RunMode)
 
 	})
 
