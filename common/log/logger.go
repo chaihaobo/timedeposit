@@ -1,57 +1,125 @@
-/*
- * @Author: Hugo
- * @Date: 2022-04-29 10:24:24
- * @Last Modified by:   Hugo
- * @Last Modified time: 2022-04-29 10:24:24
- */
-package log
+package logger
 
 import (
-	"encoding/json"
+	"github.com/natefinch/lumberjack"
+	"gitlab.com/bns-engineering/td/common/config"
+	"io"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"os"
+	"runtime/debug"
+	"strings"
+	"time"
 
-	"github.com/astaxie/beego/logs"
-	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var (	
-	Log *logs.BeeLogger // Log handler
-)
+var lg *zap.Logger
 
-// InitLogConfig initial the log configuration
-func InitLogConfig(configData commonConfig.Config) {
-	Log = logs.NewLogger(100000)                        // create log hanlder, set the buffer size
-	logFileName := configData.GetString("log.filename") // log file name
-	maxlines := configData.GetInt("log.maxlines")       // max lines for log file
-	maxsize := configData.GetInt("log.maxsize")         // max size of log file
-	maxdays := configData.GetInt("log.maxdays")         // log file expire time
-	logLevel := configData.GetString("log.logLevel")    // log level
+// InitLogger init logger
+func SetUp(cfg *config.TDConfig) (err error) {
+	writeSyncer := getLogWriter(cfg.Log.Filename, cfg.Log.Maxsize, cfg.Log.MaxBackups, cfg.Log.MaxAge)
+	encoder := getEncoder()
+	var l = new(zapcore.Level)
+	err = l.UnmarshalText([]byte(cfg.Log.Level))
+	if err != nil {
+		return
+	}
+	core := zapcore.NewCore(encoder, writeSyncer, l)
 
-	logConifgMap := make(map[string]interface{})
-	logConifgMap["filename"] = logFileName
-	logConifgMap["maxlines"] = maxlines
-	logConifgMap["maxsize"] = maxsize
-	logConifgMap["maxdays"] = maxdays
-
-	// load the config map
-	jsonConfig, _ := json.Marshal(logConifgMap)
-
-	Log.SetLogger("file", string(jsonConfig)) // Set the log type：log into file
-	Log.SetLevel(getLogLevel(logLevel))       // set the log level
-	Log.EnableFuncCallDepth(true)             // whether to show the line number?
+	lg = zap.New(core, zap.AddCaller())
+	zap.ReplaceGlobals(lg) // replace package zap global logger instance
+	return
 }
 
-// Get log level
-func getLogLevel(logLevel string) int {
-	switch logLevel {
-	case "INFO":
-		return logs.LevelInfo
-	case "WARN":
-		return logs.LevelWarn
-	case "DEBUG":
-		return logs.LevelDebug
-	case "ERROR":
-		return logs.LevelError
-	default:
-		return logs.LevelInformational
+func getEncoder() zapcore.Encoder {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderConfig.TimeKey = "time"
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
+	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	return zapcore.NewJSONEncoder(encoderConfig)
+}
+
+func getLogWriter(filename string, maxSize, maxBackup, maxAge int) zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   filename,
+		MaxSize:    maxSize,
+		MaxBackups: maxBackup,
+		MaxAge:     maxAge,
+	}
+	return zapcore.AddSync(io.MultiWriter(lumberJackLogger, os.Stdout))
+}
+
+// GinLogger use gin logger
+func GinLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		query := c.Request.URL.RawQuery
+		c.Next()
+
+		cost := time.Since(start)
+		lg.Info(path,
+			zap.Int("status", c.Writer.Status()),
+			zap.String("method", c.Request.Method),
+			zap.String("path", path),
+			zap.String("query", query),
+			zap.String("ip", c.ClientIP()),
+			zap.String("user-agent", c.Request.UserAgent()),
+			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
+			zap.Duration("cost", cost),
+		)
+	}
+}
+
+// GinRecovery recover panic
+func GinRecovery(stack bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				// Check for a broken connection, as it is not really a
+				// condition that warrants a panic stack trace.
+				var brokenPipe bool
+				if ne, ok := err.(*net.OpError); ok {
+					if se, ok := ne.Err.(*os.SyscallError); ok {
+						if strings.Contains(strings.ToLower(se.Error()), "broken pipe") || strings.Contains(strings.ToLower(se.Error()), "connection reset by peer") {
+							brokenPipe = true
+						}
+					}
+				}
+
+				httpRequest, _ := httputil.DumpRequest(c.Request, false)
+				if brokenPipe {
+					lg.Error(c.Request.URL.Path,
+						zap.Any("error", err),
+						zap.String("request", string(httpRequest)),
+					)
+					// If the connection is dead, we can't write a status to it.
+					c.Error(err.(error)) // nolint: errcheck
+					c.Abort()
+					return
+				}
+
+				if stack {
+					lg.Error("[Recovery from panic]",
+						zap.Any("error", err),
+						zap.String("request", string(httpRequest)),
+						zap.String("stack", string(debug.Stack())),
+					)
+				} else {
+					lg.Error("[Recovery from panic]",
+						zap.Any("error", err),
+						zap.String("request", string(httpRequest)),
+					)
+				}
+				c.AbortWithStatus(http.StatusInternalServerError)
+			}
+		}()
+		c.Next()
 	}
 }

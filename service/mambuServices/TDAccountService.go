@@ -10,10 +10,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	commonLog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
@@ -22,16 +22,16 @@ import (
 func GetTDAccountById(tdAccountID string) (mambuEntity.TDAccount, error) {
 	var tdAccount mambuEntity.TDAccount
 	getUrl := fmt.Sprintf(constant.GetTDAccountUrl, tdAccountID)
-	commonLog.Log.Info("getUrl: %v", getUrl)
+	zap.L().Info(fmt.Sprintf("getUrl: %v", getUrl))
 	resp, code, err := util.HttpGetData(getUrl)
 	if err != nil || code != constant.HttpStatusCodeSucceed {
-		commonLog.Log.Error("Query td account Info failed! td acc id: %v", tdAccountID)
+		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID))
 		return tdAccount, err
 	}
-	commonLog.Log.Info("Query td account Info result: %v", resp)
+	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", resp))
 	err = json.Unmarshal([]byte(resp), &tdAccount)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v, err:%v", resp, err.Error())
+		zap.L().Error(fmt.Sprintf("Convert Json to TDAccount Failed. json: %v, err:%v", resp, err.Error()))
 		return tdAccount, err
 	}
 	return tdAccount, nil
@@ -41,26 +41,26 @@ func GetTDAccountById(tdAccountID string) (mambuEntity.TDAccount, error) {
 func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEntity.TDAccount, error) {
 	tdAccountList := []mambuEntity.TDAccount{}
 	postUrl := constant.SearchTDAccountListUrl
-	commonLog.Log.Debug("postUrl: %v", postUrl)
+	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
-		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", searchParam)
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", searchParam))
 		return tdAccountList, nil
 	}
 	postJsonStr := string(queryParamByte)
-	commonLog.Log.Debug("PostUrl:%v", postUrl)
-	commonLog.Log.Debug("postJsonStr:%v", postJsonStr)
+	zap.L().Debug(fmt.Sprintf("PostUrl:%v", postUrl))
+	zap.L().Debug(fmt.Sprintf("postJsonStr:%v", postJsonStr))
 	resp, code, err := util.HttpPostData(postJsonStr, postUrl)
-	commonLog.Log.Debug("responseStr:%v", resp)
+	zap.L().Debug(fmt.Sprintf("responseStr:%v", resp))
 
 	if err != nil || code != constant.HttpStatusCodeSucceed {
-		commonLog.Log.Error("Search td account Info List failed! queryParam: %v", postJsonStr)
+		zap.L().Error(fmt.Sprintf("Search td account Info List failed! queryParam: %v", postJsonStr))
 		return tdAccountList, err
 	}
-	commonLog.Log.Debug("Query td account Info result: %v", resp)
+	zap.L().Debug(fmt.Sprintf("Query td account Info result: %v", resp))
 	err = json.Unmarshal([]byte(resp), &tdAccountList)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v", resp)
+		zap.L().Error(fmt.Sprintf("Convert Json to TDAccount Failed. json: %v", resp))
 		return tdAccountList, err
 	}
 	return tdAccountList, nil
@@ -69,10 +69,10 @@ func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuE
 // Disable MaturityDate
 func UndoMaturityDate(accountID string) bool {
 	postUrl := fmt.Sprintf(constant.UndoMaturityDateUrl, accountID)
-	commonLog.Log.Info("getUrl: %v", postUrl)
+	zap.L().Info(fmt.Sprintf("getUrl: %v", postUrl))
 	_, code, err := util.HttpPostData("", postUrl)
 	if err != nil && code != constant.HttpStatusCodeSucceed && code != constant.HttpStatusCodeSucceedNoContent {
-		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
+		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
 	}
 	return true
@@ -81,7 +81,7 @@ func UndoMaturityDate(accountID string) bool {
 //Create New Maturity Date for this TD account
 func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAccount, error) {
 	postUrl := fmt.Sprintf(constant.StartMaturityDateUrl, accountID)
-	commonLog.Log.Info("StartMaturityDateUrl: %v", postUrl)
+	zap.L().Info(fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))
 
 	//Build the update maturity json struct
 	postJsonByte, _ := json.Marshal(struct {
@@ -100,14 +100,14 @@ func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAcc
 		code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
-		commonLog.Log.Error("Create MaturityDate for td account failed! td acc id: %v, error:%v", accountID, respBody)
+		zap.L().Error(fmt.Sprintf("Create MaturityDate for td account failed! td acc id: %v, error:%v", accountID, respBody))
 		return resultTDAccount, errors.New("mambu process StartMaturityDate Error")
 	}
 
-	commonLog.Log.Debug("Create MaturityDate for td account succeed. Result: %v", respBody)
+	zap.L().Debug(fmt.Sprintf("Create MaturityDate for td account succeed. Result: %v", respBody))
 	err = json.Unmarshal([]byte(respBody), &resultTDAccount)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v", respBody)
+		zap.L().Error(fmt.Sprintf("Convert Json to TDAccount Failed. json: %v", respBody))
 		return resultTDAccount, errors.New("mambu process StartMaturityDate Error, the response data error")
 	}
 	return resultTDAccount, nil
@@ -116,7 +116,7 @@ func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAcc
 // Apply profit
 func ApplyProfit(accountID, note string) bool {
 	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
-	commonLog.Log.Debug("applyProfitUrl: %v", postUrl)
+	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
 	//Build the update maturity json struct
 	postJsonByte, _ := json.Marshal(struct {
@@ -130,7 +130,7 @@ func ApplyProfit(accountID, note string) bool {
 
 	_, code, err := util.HttpPostData(postJsonStr, postUrl)
 	if err != nil && code != constant.HttpStatusCodeSucceed && code != constant.HttpStatusCodeSucceedNoContent {
-		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
+		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
 	}
 	return true
@@ -138,7 +138,7 @@ func ApplyProfit(accountID, note string) bool {
 
 func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
-	commonLog.Log.Debug("applyProfitUrl: %v", postUrl)
+	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
 	//Build the update maturity json struct
 	postJsonByte, _ := json.Marshal([]struct {
@@ -159,7 +159,7 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	if err != nil &&
 		code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent {
-		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accountID)
+		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
 	}
 	return true
@@ -167,7 +167,7 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 
 func CloseAccount(accID, notes string) bool {
 	postUrl := fmt.Sprintf(constant.CloseAccountUrl, accID)
-	commonLog.Log.Debug("CloseAccountUrl: %v", postUrl)
+	zap.L().Debug(fmt.Sprintf("CloseAccountUrl: %v", postUrl))
 
 	//Build the update maturity json struct
 	postJsonByte, _ := json.Marshal([]struct {
@@ -186,7 +186,7 @@ func CloseAccount(accID, notes string) bool {
 	if err != nil &&
 		code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent {
-		commonLog.Log.Error("Undo MaturityDate for td account failed! td acc id: %v", accID)
+		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accID))
 		return false
 	}
 	return true

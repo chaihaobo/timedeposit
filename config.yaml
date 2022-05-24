@@ -1,0 +1,14 @@
+hugo: test
+system:
+  mode: development
+log:
+  filename: TimeDepositEODEngine.log
+  maxsize: 100000000
+  MaxBackups: 5
+  MaxAge: 28
+  Level: DEBUG
+server:
+  RunMode: debug
+  HttpPort: 8000
+  ReadTimeout: 60
+  WriteTimeout: 60

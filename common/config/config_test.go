@@ -7,20 +7,24 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"testing"
 )
 
 func TestNewConfig(t *testing.T) {
-	var err error
-	var conf Config
-	conf, err = NewConfig("./../../config.json")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	fmt.Println(conf.GetString("hugo"))
-	fmt.Println(conf.GetString("system.mode"))
-	fmt.Println(conf.GetString("log.prefix"))
+
+	t.Run("test config read", func(t *testing.T) {
+		var err error
+		var conf Config
+		conf, err = NewConfig("./../../config.yaml")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println(TDConf.Hugo)
+		log.Println(conf)
+		log.Println(TDConf.Server.RunMode)
+
+	})
+
 }

@@ -8,26 +8,27 @@ package flow
 
 import (
 	"fmt"
+	logger "gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 	"testing"
 
 	"github.com/trustmaster/goflow"
 	commonConfig "gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
 )
 
 func TestInitProcessFlow(t *testing.T) {
-	conf, _ := commonConfig.NewConfig("./../config.json")
-	log.InitLogConfig(conf)
+	conf := commonConfig.Setup("./../config.json")
+	logger.SetUp(conf)
 	InitWorkflow()
 	for key, _ := range typeRegistry {
-		log.Log.Info("%v", key)
-		// log.Log.Info("%v", value)
+		zap.L().Info(fmt.Sprintf("%v", key))
+		// zap.L().Info("%v", value)
 	}
 }
 
 func TestNewProcessFlow(t *testing.T) {
-	conf, _ := commonConfig.NewConfig("./../config.json")
-	log.InitLogConfig(conf)
+	conf := commonConfig.Setup("./../config.json")
+	logger.SetUp(conf)
 
 	type args struct {
 		flowName string

@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	commonConfig "gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
 	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
@@ -44,7 +43,7 @@ func TestGetTDAccountById(t *testing.T) {
 				return
 			}
 			fmt.Println("=====result struct================")
-			log.Log.Info("%v", got)
+			zap.L().Info("%v", got)
 			// if !reflect.DeepEqual(got, tt.want) {
 			// 	t.Errorf("GetTDAccountById() = %v, want %v", got, tt.want)
 			// }
@@ -132,9 +131,9 @@ func TestGetTDAccountListById(t *testing.T) {
 			for index, tmpTDAcc := range got {
 				b, err := json.Marshal(tmpTDAcc)
 				if err != nil {
-					log.Log.Error("Json Convert Error! srcData:%v", tmpTDAcc)
+					zap.L().Error("Json Convert Error! srcData:%v", tmpTDAcc)
 				}
-				log.Log.Info("QueryTDAccInfo: %v, %v", index, string(b))
+				zap.L().Info("QueryTDAccInfo: %v, %v", index, string(b))
 			}
 		})
 	}

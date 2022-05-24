@@ -7,13 +7,13 @@
 package util
 
 import (
+	"go.uber.org/zap"
 	"io/ioutil"
 
 	"net/http"
 	"strings"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	commonLog "gitlab.com/bns-engineering/td/common/log"
 )
 
 // Get Membu Api Calling Headers
@@ -32,7 +32,7 @@ func HttpPostData(postJsonStr, postUrl string) (string, int, error) {
 	data := strings.NewReader(postJsonStr)
 	req, err := http.NewRequest("POST", postUrl, data)
 	if err != nil {
-		commonLog.Log.Error("Calling Api Error! Url:%v, req:%v, error:%v", postUrl, postJsonStr, err)
+		zap.L().Error("Calling Api Error", zap.String("postUrl", postUrl), zap.String("postJsonStr", postJsonStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
 	req.Header = headers
@@ -40,18 +40,16 @@ func HttpPostData(postJsonStr, postUrl string) (string, int, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		commonLog.Log.Error("Calling Api Error! Url:%v, req:%v, error:%v", postUrl, postJsonStr, err)
+		zap.L().Error("Calling Api Error", zap.String("postUrl", postUrl), zap.String("postJsonStr", postJsonStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
-	commonLog.Log.Debug("request url:%v", postUrl)
-	commonLog.Log.Debug("req.body:%v", postJsonStr)
+	zap.L().Debug("request", zap.String("url", postUrl), zap.String("body", postJsonStr))
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "exception!", constant.HttpStatusCodeError, err
 	}
-	commonLog.Log.Debug("resp.StatusCode:%v", resp.StatusCode)
-	commonLog.Log.Debug("resp.Body:%v", string(body))
+	zap.L().Debug("response", zap.Int("code", resp.StatusCode), zap.String("body", string(body)))
 	return string(body), resp.StatusCode, nil
 }
 
@@ -62,7 +60,7 @@ func HttpPatchData(postJsonStr, postUrl string) (string, int, error) {
 	data := strings.NewReader(postJsonStr)
 	req, err := http.NewRequest("PATCH", postUrl, data)
 	if err != nil {
-		commonLog.Log.Error("Calling Api Error! Url:%v, req:%v, error:%v", postUrl, postJsonStr, err)
+		zap.L().Error("Calling Api Error", zap.String("postUrl", postUrl), zap.String("postJsonStr", postJsonStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
 	req.Header = headers
@@ -70,7 +68,7 @@ func HttpPatchData(postJsonStr, postUrl string) (string, int, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		commonLog.Log.Error("Calling Api Error! Url:%v, req:%v, error:%v", postUrl, postJsonStr, err)
+		zap.L().Error("Calling Api Error", zap.String("postUrl", postUrl), zap.String("postJsonStr", postJsonStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
 	defer resp.Body.Close()
@@ -88,7 +86,7 @@ func HttpGetData(getUrlStr string) (string, int, error) {
 	data := strings.NewReader("")
 	req, err := http.NewRequest("GET", getUrlStr, data)
 	if err != nil {
-		commonLog.Log.Error("Calling Get Api Error! Url:%v, error:%v", getUrlStr, err)
+		zap.L().Error("Calling Get Api Error!", zap.String("url", getUrlStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
 	req.Header = headers
@@ -96,7 +94,7 @@ func HttpGetData(getUrlStr string) (string, int, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		commonLog.Log.Error("Calling Get Api Error! Url:%v, error:%v", getUrlStr, err)
+		zap.L().Error("Calling Get Api Error!", zap.String("url", getUrlStr), zap.Error(err))
 		return "exception!", constant.HttpStatusCodeError, err
 	}
 	defer resp.Body.Close()

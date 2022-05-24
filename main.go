@@ -8,47 +8,37 @@ package main
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	commonConfig "gitlab.com/bns-engineering/td/common/config"
-	commonLog "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/flow"
 	"gitlab.com/bns-engineering/td/router"
 )
 
-const (
-	filename = "./config.json"
-)
-
-var config commonConfig.Config
-
-func initConfig() {
-	config, _ = commonConfig.NewConfig("./config.json")
-}
-
 // Initial configuration for this app
 func init() {
-	initConfig()
-	commonLog.InitLogConfig(config)
+	config.Setup("./config.yaml")
+	err := logger.SetUp(config.TDConf)
+	if err != nil {
+		zap.L().Error("logger init error", zap.Error(err))
+	}
 	flow.InitWorkflow()
 }
 
 func main() {
 
-	gin.SetMode(config.GetString("server.RunMode"))
+	gin.SetMode(config.TDConf.Server.RunMode)
 
 	routersInit := router.InitRouter()
-	endPoint := fmt.Sprintf(":%d", config.GetInt("ServerSetting.HttpPort"))
+	endPoint := fmt.Sprintf(":%d", config.TDConf.Server.HttpPort)
 
 	server := &http.Server{
 		Addr:    endPoint,
 		Handler: routersInit,
 	}
-	commonLog.Log.Info("[info] start http server listening %s", endPoint)
+	zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
 	server.ListenAndServe()
-}
-
-func getConfig() (commonConfig.Config, error) {
-	return commonConfig.NewConfig("./config.json")
 }

@@ -8,12 +8,12 @@ package api
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/trustmaster/goflow"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/flow"
@@ -27,18 +27,18 @@ func StartTDFlow(c *gin.Context) {
 	tmpQueryParam := generateSearchTDAccountParam()
 	tmpTDAccountList, err := mambuservices.GetTDAccountListByQueryParam(tmpQueryParam)
 	if err != nil {
-		log.Log.Error("Query mambu service for TD Account List failed! error: %v", err)
+		zap.L().Error(fmt.Sprintf("Query mambu service for TD Account List failed! error: %v", err))
 		return
 	}
 	if len(tmpTDAccountList) == 0 {
-		log.Log.Info("Query mambu service for TD Account List get empty! No TD Account need to process")
+		zap.L().Info("Query mambu service for TD Account List get empty! No TD Account need to process")
 		return
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		log.Log.Info("Before Run Flow for Account: %v", tmpTDAcc.ID)
+		zap.L().Info(fmt.Sprintf("Before Run Flow for Account: %v", tmpTDAcc.ID))
 	}
-	log.Log.Info("=======================================")
+	zap.L().Info("=======================================")
 
 	for _, tmpTDAcc := range tmpTDAccountList {
 		tmpFlow := flow.GetProcessFlow("time_deposit_flow")
@@ -49,12 +49,12 @@ func StartTDFlow(c *gin.Context) {
 		wait := goflow.Run(tmpFlow)
 
 		// Now we can send some names and see what happens
-		log.Log.Info("Start Run Flow for Account: %v", tmpTDAcc.ID)
+		zap.L().Info(fmt.Sprintf("Start Run Flow for Account: %v", tmpTDAcc.ID))
 		flowID := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), tmpTDAcc.ID)
 		flowTaskInfo := dao.CreateFlowTask(flowID, tmpTDAcc.ID, "time_deposit_flow")
 		newTDAccount, err := mambuservices.GetTDAccountById(tmpTDAcc.ID)
 		if err != nil {
-			log.Log.Error("Failed to get info of td account: %v", tmpTDAcc.ID)
+			zap.L().Error(fmt.Sprintf("Failed to get info of td account: %v", tmpTDAcc.ID))
 			flowTaskInfo.EndStatus = constant.FlowFailed
 			flowTaskInfo.CurStatus = string(constant.FlowNodeFailed)
 			flowTaskInfo.FlowStatus = constant.FlowFailed
@@ -71,9 +71,9 @@ func StartTDFlow(c *gin.Context) {
 		close(inputNodeDataChan)
 		// Wait until the net has completed its job
 		result := <-wait
-		log.Log.Info("Flow End result: %v", result)
+		zap.L().Info(fmt.Sprintf("Flow End result: %v", result))
 
-		log.Log.Info("Flow Run Finishd for Account: %v", tmpTDAcc.ID)
+		zap.L().Info(fmt.Sprintf("Flow Run Finishd for Account: %v", tmpTDAcc.ID))
 	}
 
 }

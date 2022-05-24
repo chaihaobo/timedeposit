@@ -10,39 +10,40 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	commonLog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/dao"
-	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 // Get Transaction Info from mambu api with key of account
 func GetTransactionByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEntity.TransactionBrief, error) {
 	tmpTransList := []mambuEntity.TransactionBrief{}
 	postUrl := constant.SearchTransactionUrl
-	commonLog.Log.Debug("postUrl: %v", postUrl)
+	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
-		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", searchParam)
+		zap.L().Error("Convert searchParam to JsonStr Failed.", zap.Any("searchParam", searchParam))
 		return tmpTransList, nil
 	}
 	postJsonStr := string(queryParamByte)
-	commonLog.Log.Debug("PostUrl:%v", postUrl)
-	commonLog.Log.Debug("postJsonStr:%v", postJsonStr)
+
+	zap.L().Debug("transaction service", zap.String("postUrl", postUrl))
+	zap.L().Debug("transaction service", zap.String("postJsonStr", postJsonStr))
 	resp, code, err := util.HttpPostData(postJsonStr, postUrl)
-	commonLog.Log.Debug("responseStr:%v", resp)
+	zap.L().Debug("transaction service response", zap.String("resp", resp))
 
 	if err != nil || code != constant.HttpStatusCodeSucceed {
-		commonLog.Log.Error("Search td account Info List failed! queryParam: %v", postJsonStr)
+		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
 		return tmpTransList, err
 	}
-	commonLog.Log.Debug("Query td account Info result: %v", resp)
+	zap.L().Debug("Query td account Info result", zap.String("result", resp))
 	err = json.Unmarshal([]byte(resp), &tmpTransList)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TDAccount Failed. json: %v", resp)
+		zap.L().Error("Convert Json to TDAccount Failed.", zap.String("resp", resp))
 		return tmpTransList, err
 	}
 	return tmpTransList, nil
@@ -91,7 +92,7 @@ func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
-		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte)
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
@@ -103,15 +104,15 @@ func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 		code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
-		commonLog.Log.Error("Withdraw Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody)
+		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New(respBody)
 	}
 
-	commonLog.Log.Debug("Withdraw Transaction for td account succeed. Result: %v", respBody)
+	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", respBody))
 	err = json.Unmarshal([]byte(respBody), &transactionResp)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TransactionResp Failed. json: %v", respBody)
+		zap.L().Error(fmt.Sprintf("Convert Json to TransactionResp Failed. json: %v", respBody))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("mambu process Withdraw Transaction Error, the response data error")
 	}
@@ -161,7 +162,7 @@ func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
-		commonLog.Log.Error("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte)
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
@@ -173,15 +174,15 @@ func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 		code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent &&
 		code != constant.HttpStatusCodeSucceedCreate {
-		commonLog.Log.Error("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody)
+		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New(respBody)
 	}
 
-	commonLog.Log.Debug("Deposit Transaction for td account succeed. Result: %v", respBody)
+	zap.L().Debug(fmt.Sprintf("Deposit Transaction for td account succeed. Result: %v", respBody))
 	err = json.Unmarshal([]byte(respBody), &transactionResp)
 	if err != nil {
-		commonLog.Log.Error("Convert Json to TransactionResp Failed. json: %v", respBody)
+		zap.L().Error(fmt.Sprintf("Convert Json to TransactionResp Failed. json: %v", respBody))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("mambu process Deposit Transaction Error, the response data error")
 	}

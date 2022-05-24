@@ -9,9 +9,9 @@ package timeDepositNode
 import (
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/node"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
@@ -41,14 +41,14 @@ func (node *CloseAccNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID 
 		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", tmpTDAccount.ID, flowID)
 		isApplySucceed := mambuservices.CloseAccount(tmpTDAccount.ID, notes)
 		if !isApplySucceed {
-			log.Log.Error("close account failed for account: %v", tmpTDAccount.ID)
+			zap.L().Error(fmt.Sprintf("close account failed for account: %v", tmpTDAccount.ID))
 			return constant.FlowNodeFailed, errors.New("call Mambu service failed")
 		} else {
-			log.Log.Info("Finish close account for account: %v", tmpTDAccount.ID)
+			zap.L().Info(fmt.Sprintf("Finish close account for account: %v", tmpTDAccount.ID))
 			return constant.FlowNodeFinish, nil
 		}
 	} else {
-		log.Log.Info("No need to close account, accNo: %v", flowID)
+		zap.L().Info(fmt.Sprintf("No need to close account, accNo: %v", flowID))
 		return constant.FlowNodeSkip, nil
 	}
 }

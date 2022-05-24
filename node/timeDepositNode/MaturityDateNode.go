@@ -9,11 +9,11 @@ package timeDepositNode
 import (
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"strconv"
 	"time"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/node"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
@@ -41,21 +41,21 @@ func (node *MaturityDateNode) Process() {
 func (node *MaturityDateNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {
 	// Skip updating maturity date or not?
 	if !tmpTDAccount.IsCaseA() {
-		log.Log.Info("No need to update maturity date, accNo: %v", tmpTDAccount.ID)
+		zap.L().Info(fmt.Sprintf("No need to update maturity date, accNo: %v", tmpTDAccount.ID))
 		return constant.FlowNodeSkip, nil
 	}
 
 	//Undo Maturity Date
 	undoMaturityResult := mambuservices.UndoMaturityDate(tmpTDAccount.ID)
 	if !undoMaturityResult {
-		log.Log.Info("Undo Maturity Date for account failed: %v", tmpTDAccount.ID)
+		zap.L().Info(fmt.Sprintf("Undo Maturity Date for account failed: %v", tmpTDAccount.ID))
 		return constant.FlowNodeFailed, errors.New("undo Maturity Date Failed")
 	}
 
 	//generate new Maturity Date
 	maturityDate, err := generateMaturityDateStr(tmpTDAccount.OtherInformation.Tenor, tmpTDAccount.MaturityDate)
 	if err != nil {
-		log.Log.Info("Generate New Maturity Date failed, Account: %v", tmpTDAccount.ID)
+		zap.L().Info(fmt.Sprintf("Generate New Maturity Date failed, Account: %v", tmpTDAccount.ID))
 		return constant.FlowNodeFailed, err
 	}
 	note := fmt.Sprintf("TDE-AUTO-%v", flowID)
@@ -63,7 +63,7 @@ func (node *MaturityDateNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flo
 	//create new maturity date
 	_, err = mambuservices.ChangeMaturityDate(tmpTDAccount.ID, maturityDate, note)
 	if err != nil {
-		log.Log.Error("Update maturity date failed for account: %v", tmpTDAccount.ID)
+		zap.L().Error(fmt.Sprintf("Update maturity date failed for account: %v", tmpTDAccount.ID))
 		return constant.FlowNodeFailed, errors.New("start New Maturity Date Failed")
 	}
 	return constant.FlowNodeFinish, nil
@@ -73,7 +73,7 @@ func (node *MaturityDateNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flo
 func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, error) {
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
-		log.Log.Error("Error for convert tenor to int, tenor: %v", tenor)
+		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
 		return "", errors.New("convert tenor to int failed")
 	}
 	//Todo: note, should add logic for holidays

@@ -8,11 +8,11 @@ package flow
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"reflect"
 	"sync"
 
 	"github.com/trustmaster/goflow"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/node"
 	"gitlab.com/bns-engineering/td/node/timeDepositNode"
@@ -46,7 +46,7 @@ func makeInstance(name string) node.NodeRun {
 func NewProcessFlow(flowName string) *goflow.Graph {
 	flowNodes, flowNodeRelations := dao.GetProcessFlowByName(flowName)
 	if len(flowNodes) == 0 || len(flowNodeRelations) == 0 {
-		log.Log.Error("Get Flow Nodes Info Error! flowName=%v, len(flowNodes)=%v, len(flowNodeRelations)=%v", flowName, len(flowNodes), len(flowNodeRelations))
+		zap.L().Error(fmt.Sprintf("Get Flow Nodes Info Error! flowName=%v, len(flowNodes)=%v, len(flowNodeRelations)=%v", flowName, len(flowNodes), len(flowNodeRelations)))
 		return nil
 	}
 

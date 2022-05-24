@@ -7,11 +7,11 @@
 package mambuEntity
 
 import (
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"time"
 
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 )
 
@@ -131,7 +131,7 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 	activeState := tdAccInfo.AccountState == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
-		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 
@@ -147,7 +147,7 @@ func (tdAccInfo *TDAccount) IsCaseB() bool {
 	activeState := tdAccInfo.AccountState == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
-		log.Log.Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate, accNo: %v, rekeningTanggalJatohTempo:%v", tdAccInfo.ID, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 	isStopARO := tdAccInfo.OtherInformation.StopAro != "FALSE"
@@ -169,7 +169,7 @@ func (tdAccInfo *TDAccount) IsCaseB1() bool {
 func (tdAccInfo *TDAccount) IsCaseB1_1() bool {
 	principal, err := strconv.ParseFloat(tdAccInfo.Rekening.RekeningPrincipalAmount, 64)
 	if err != nil {
-		log.Log.Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64, value:%v", tdAccInfo.Rekening.RekeningPrincipalAmount)
+		zap.L().Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64", zap.String("value", tdAccInfo.Rekening.RekeningPrincipalAmount))
 		return false
 	}
 	netProfit := tdAccInfo.Balances.TotalBalance - principal
@@ -180,7 +180,7 @@ func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
 	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialRate) == "TRUE"
 	specialRateExpireDate, err := time.Parse("2006-01-02", tdAccInfo.OtherInformation.SpecialERExpiration)
 	if err != nil {
-		log.Log.Error("Failed to convert SpecialERExpiration to time, value: %v", tdAccInfo.OtherInformation.SpecialERExpiration)
+		zap.L().Error("Failed to convert SpecialERExpiration to time", zap.String("value", tdAccInfo.OtherInformation.SpecialERExpiration))
 	}
 	return tdAccInfo.IsCaseB1_1() &&
 		bSpecialRate &&

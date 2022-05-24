@@ -19,8 +19,8 @@ import (
 )
 
 func TestTransferProfitNode_RunProcess(t *testing.T) {
-	conf, _ := config.NewConfig("./../../config.json")
-	log.InitLogConfig(conf)
+	conf := config.Setup("./../../config.json")
+	logger.SetUp(conf)
 
 	testAccountID := "11114361436"
 	testTDAccount, err := mambuservices.GetTDAccountById(testAccountID)

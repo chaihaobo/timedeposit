@@ -7,11 +7,12 @@
 package node
 
 import (
+	"fmt"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	"go.uber.org/zap"
 )
 
 type NodeData struct {
@@ -34,7 +35,7 @@ func (tmpNode *Node) RunNode(CurNodeName string) {
 	tmpTDAccount := nodeDataInfo.TDAccountInfo
 	tmpFlowTask := nodeDataInfo.FlowTaskInfo
 
-	log.Log.Info("FlowID: %v, flowCurStatus:%v, flowStatus:%v, CurNodeName:%v", tmpFlowTask.FlowId, tmpFlowTask.CurStatus, tmpFlowTask.FlowStatus, CurNodeName)
+	zap.L().Info(fmt.Sprintf("FlowID: %v, flowCurStatus:%v, flowStatus:%v, CurNodeName:%v", tmpFlowTask.FlowId, tmpFlowTask.CurStatus, tmpFlowTask.FlowStatus, CurNodeName))
 
 	if tmpFlowTask.CurStatus == string(constant.FlowNodeFailed) {
 		tmpNode.Output <- nodeDataInfo

@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	commonConfig "gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
 )
 
 func TestGetHolidayList(t *testing.T) {
@@ -27,7 +26,7 @@ func TestGetHolidayList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GetHolidayList(); len(got) > 0 {
 				for _, tmpHoliday := range got {
-					log.Log.Info("holiday:%v", tmpHoliday.String())
+					zap.L().Info("holiday:%v", tmpHoliday.String())
 				}
 			}
 		})

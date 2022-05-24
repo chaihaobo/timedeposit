@@ -7,10 +7,11 @@
 package api
 
 import (
+	commonConfig "gitlab.com/bns-engineering/td/common/config"
+	logger "gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 	"testing"
 
-	commonConfig "gitlab.com/bns-engineering/td/common/config"
-	commonLog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/flow"
 )
 
@@ -32,8 +33,8 @@ func TestStartTDFlow(t *testing.T) {
 }
 
 func initConfig() {
-	config, _ := commonConfig.NewConfig("./../../config.json")
-	commonLog.InitLogConfig(config)
-	commonLog.Log.Info("===============Start Test Whole Flow==============")
+	conf := commonConfig.Setup("./../config.json")
+	logger.SetUp(conf)
+	zap.L().Info("===============Start Test Whole Flow==============")
 	flow.InitWorkflow()
 }

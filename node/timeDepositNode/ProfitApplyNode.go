@@ -8,9 +8,10 @@ package timeDepositNode
 
 import (
 	"errors"
+	"fmt"
+	"go.uber.org/zap"
 
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/node"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
@@ -37,13 +38,13 @@ func (node *ProfitApplyNode) Process() {
 func (node *ProfitApplyNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {
 	// Skip updating maturity date or not?
 	if !tmpTDAccount.IsCaseB() {
-		log.Log.Info("No need to apply profit, accNo: %v", tmpTDAccount.ID)
+		zap.L().Info(fmt.Sprintf("No need to apply profit, accNo: %v", tmpTDAccount.ID))
 		return constant.FlowNodeSkip, nil
 	}
 
 	isApplySucceed := mambuservices.ApplyProfit(tmpTDAccount.ID, flowID)
 	if !isApplySucceed {
-		log.Log.Error("Apply profit failed for account: %v", tmpTDAccount.ID)
+		zap.L().Error(fmt.Sprintf("Apply profit failed for account: %v", tmpTDAccount.ID))
 		return constant.FlowNodeFailed, errors.New("call Mambu service failed")
 	}
 	return constant.FlowNodeFinish, nil

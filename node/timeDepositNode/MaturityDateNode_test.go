@@ -12,16 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 )
 
 func TestMaturityDateNode_RunProcess(t *testing.T) {
-	conf, _ := config.NewConfig("./../../config.json")
-	log.InitLogConfig(conf)
 
 	testAccountID := "11114361436"
 	testTDAccount, err := mambuservices.GetTDAccountById(testAccountID)
