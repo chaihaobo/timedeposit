@@ -23,18 +23,13 @@ import (
 //Calc the Additional Profit for TD Account
 type CalcAdditionalProfitNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewCalcAdditionalProfitNode() *CalcAdditionalProfitNode {
 	tmpNode := new(CalcAdditionalProfitNode)
-	// tmpNode.nodeName = "transfer_profit_node"
+	tmpNode.Name = constant.CalAdditionalProfitNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *CalcAdditionalProfitNode) Process() {
-	node.RunNode("transfer_profit_node")
 }
 
 func (node *CalcAdditionalProfitNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {

@@ -20,18 +20,13 @@ import (
 //Close this TD Account
 type CloseAccNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewCloseAccNode() *CloseAccNode {
 	tmpNode := new(CloseAccNode)
-	// tmpNode.nodeName = "close_account_node"
+	tmpNode.Name = constant.CloseAccountNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *CloseAccNode) Process() {
-	node.RunNode("close_account_node")
 }
 
 func (node *CloseAccNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {

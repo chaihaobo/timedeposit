@@ -59,7 +59,7 @@ func NewProcessFlow(flowName string) *goflow.Graph {
 
 	// Connect them with a channel
 	for _, tmpNodeRelation := range flowNodeRelations {
-		fmt.Println("tmpNodeRelation.NodeName:", tmpNodeRelation.NodeName)
+		zap.L().Info("tmpNodeRelation.NodeName", zap.String("nodeName", tmpNodeRelation.NodeName))
 		n.Connect(tmpNodeRelation.NodeName, "Output", tmpNodeRelation.NextNode, "Input")
 	}
 

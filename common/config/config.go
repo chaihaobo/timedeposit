@@ -8,8 +8,8 @@ package config
 
 import (
 	"fmt"
-
 	"github.com/spf13/viper"
+	"os"
 )
 
 var TDConf = new(TDConfig)
@@ -44,9 +44,13 @@ type TDConfig struct {
 }
 
 func Setup(path string) *TDConfig {
+	envConfigPath := os.Getenv("TD_CONFIG_PATH")
 	configViper := viper.New()
 	configViper.SetConfigFile(path)
 	configViper.SetConfigType("yaml")
+	if "" != envConfigPath {
+		configViper.SetConfigFile(envConfigPath)
+	}
 
 	var err error
 	if err = configViper.ReadInConfig(); err != nil {

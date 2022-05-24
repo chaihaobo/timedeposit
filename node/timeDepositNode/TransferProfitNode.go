@@ -20,18 +20,13 @@ import (
 
 type TransferProfitNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewTransferProfitNode() *TransferProfitNode {
 	tmpNode := new(TransferProfitNode)
-	// tmpNode.nodeName = "transfer_profit_node"
+	tmpNode.Name = constant.TransferProfitNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *TransferProfitNode) Process() {
-	node.RunNode("transfer_profit_node")
 }
 
 func (node *TransferProfitNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {

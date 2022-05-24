@@ -17,19 +17,13 @@ type EndNode struct {
 	// Input <-chan string // input port
 	// Input <-chan node.NodeData
 	node.Node
-	// nodeName string
 }
 
 func NewEndNode() *EndNode {
 	tmpNode := new(EndNode)
-	// tmpNode.No.nodeName = "end_node"
-	tmpNode.NodeRun = tmpNode
+	tmpNode.Name = constant.EndNode
+	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-// In start node, will try to get the detail info of this td account.
-func (tmpNode *EndNode) Process() {
-	tmpNode.RunNode("end_node")
 }
 
 // Update maturity date for this account

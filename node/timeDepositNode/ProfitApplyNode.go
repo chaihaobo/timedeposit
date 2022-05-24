@@ -20,18 +20,13 @@ import (
 //Calc the Additional Profit for TD Account
 type ProfitApplyNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewProfitApplyNode() *ProfitApplyNode {
 	tmpNode := new(ProfitApplyNode)
-	// tmpNode.nodeName = "profit_apply_node"
+	tmpNode.Name = constant.ProfitApplyNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *ProfitApplyNode) Process() {
-	node.RunNode("profit_apply_node")
 }
 
 // Update maturity date for this account

@@ -22,6 +22,7 @@ type NodeData struct {
 type Node struct {
 	Input   <-chan NodeData
 	Output  chan<- NodeData // output port
+	Name    string
 	NodeRun NodeRun
 }
 
@@ -30,40 +31,41 @@ type NodeRun interface {
 	Process()
 }
 
-func (tmpNode *Node) RunNode(CurNodeName string) {
-	nodeDataInfo := <-tmpNode.Input
+func (node *Node) Process() {
+	nodeDataInfo := <-node.Input
 	tmpTDAccount := nodeDataInfo.TDAccountInfo
 	tmpFlowTask := nodeDataInfo.FlowTaskInfo
 
-	zap.L().Info(fmt.Sprintf("FlowID: %v, flowCurStatus:%v, flowStatus:%v, CurNodeName:%v", tmpFlowTask.FlowId, tmpFlowTask.CurStatus, tmpFlowTask.FlowStatus, CurNodeName))
+	zap.L().Info(fmt.Sprintf("FlowID: %v, flowCurStatus:%v, flowStatus:%v, CurNodeName:%v", tmpFlowTask.FlowId, tmpFlowTask.CurStatus, tmpFlowTask.FlowStatus, node.Name))
 
 	if tmpFlowTask.CurStatus == string(constant.FlowNodeFailed) {
-		tmpNode.Output <- nodeDataInfo
+		node.Output <- nodeDataInfo
 		return
 	}
 
-	tmpFlowTask.CurNodeName = CurNodeName
+	tmpFlowTask.CurNodeName = node.Name
 	tmpFlowTask.CurStatus = string(constant.FlowNodeStart)
 	tmpFlowTask.FlowStatus = constant.FlowRunning
 	dao.UpdateFlowTask(tmpFlowTask)
 
-	nodeLog := dao.CreateFlowNodeLog(tmpFlowTask.FlowId, tmpTDAccount.ID, tmpFlowTask.FlowName, CurNodeName)
+	nodeLog := dao.CreateFlowNodeLog(tmpFlowTask.FlowId, tmpTDAccount.ID, tmpFlowTask.FlowName, node.Name)
 
-	tmpNodeStatus, err := tmpNode.NodeRun.RunProcess(tmpTDAccount, tmpFlowTask.FlowId, CurNodeName)
-	if CurNodeName != "end_node" {
+	tmpNodeStatus, err := node.NodeRun.RunProcess(tmpTDAccount, tmpFlowTask.FlowId, node.Name)
+	if node.Name != "end_node" {
 		switch tmpNodeStatus {
 		case constant.FlowNodeSkip:
-			tmpNode.UpdateLogWhenSkipNode(tmpFlowTask, nodeLog)
+			node.UpdateLogWhenSkipNode(tmpFlowTask, nodeLog)
 		case constant.FlowNodeFailed:
-			tmpNode.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, err)
+			node.UpdateLogWhenNodeFailed(tmpFlowTask, nodeLog, err)
 			nodeDataInfo.FlowTaskInfo.CurStatus = string(constant.FlowNodeFailed)
 		case constant.FlowNodeFinish:
-			tmpNode.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
+			node.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
 		}
-		tmpNode.Output <- nodeDataInfo
+		node.Output <- nodeDataInfo
 	} else {
-		tmpNode.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
+		node.UpdateLogWhenNodeFinish(tmpFlowTask, nodeLog)
 		tmpFlowTask.EndStatus = constant.FlowFinished
+		tmpFlowTask.FlowStatus = constant.FlowFinished
 		dao.UpdateFlowTask(tmpFlowTask)
 	}
 }

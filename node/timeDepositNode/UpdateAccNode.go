@@ -20,18 +20,13 @@ import (
 
 type UpdateAccNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewUpdateAccNode() *UpdateAccNode {
 	tmpNode := new(UpdateAccNode)
-	// tmpNode.nodeName = "update_account_node"
+	tmpNode.Name = constant.UpdateAccountNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *UpdateAccNode) Process() {
-	node.RunNode("update_account_node")
 }
 
 func (node *UpdateAccNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {

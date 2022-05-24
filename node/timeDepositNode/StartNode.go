@@ -15,12 +15,6 @@ import (
 //AA Time Deposit Engine IWT start Time Deposit
 type StartNode struct {
 	node.Node
-	// nodeName string
-}
-
-// In start node, will try to get the detail info of this td account.
-func (node *StartNode) Process() {
-	node.RunNode("start_node")
 }
 
 // Update maturity date for this account
@@ -30,7 +24,7 @@ func (node *StartNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID str
 
 func NewStartNode() *StartNode {
 	tmpNode := new(StartNode)
-	// tmpNode.nodeName = "start_node"
+	tmpNode.Name = constant.StartNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
 }

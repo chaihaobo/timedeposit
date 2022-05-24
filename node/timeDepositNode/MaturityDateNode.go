@@ -23,18 +23,13 @@ import (
 //Modify the Maturity Date for TD Account
 type MaturityDateNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewMaturityDateNode() *MaturityDateNode {
 	tmpNode := new(MaturityDateNode)
-	// tmpNode.nodeName = "maturity_date_node"
+	tmpNode.Name = constant.MaturityDateNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *MaturityDateNode) Process() {
-	node.RunNode("maturity_date_node")
 }
 
 // Update maturity date for this account

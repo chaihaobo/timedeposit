@@ -19,18 +19,13 @@ import (
 
 type WithdrawBalanceNode struct {
 	node.Node
-	// nodeName string
 }
 
 func NewWithdrawBalanceNode() *WithdrawBalanceNode {
 	tmpNode := new(WithdrawBalanceNode)
-	// tmpNode.nodeName = "withdraw_balance_node"
+	tmpNode.Name = constant.WithdrawBalanceNode
 	tmpNode.Node.NodeRun = tmpNode
 	return tmpNode
-}
-
-func (node *WithdrawBalanceNode) Process() {
-	node.RunNode("withdraw_balance_node")
 }
 
 func (node *WithdrawBalanceNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, flowID string, nodeName string) (constant.FlowNodeStatus, error) {
