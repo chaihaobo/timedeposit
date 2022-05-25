@@ -23,7 +23,8 @@ func InitRouter() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.POST("/timeDeposite/start", api.StartTDFlow)
 
-	// apiTimeDeposit := r.Group("/api/timeDeposit")
+	transactionGroup := r.Group("/transaction")
+	transactionGroup.POST("/retry/:transactionId", api.TransactionRetry)
 
 	return r
 }

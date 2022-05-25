@@ -102,7 +102,7 @@ func BuildTransactionReq(tdAccount mambuEntity.TDAccount, transactionID string, 
 			TerminalType:                   config.TDConf.TransactionReqMetaData.TerminalType,
 			TerminalID:                     config.TDConf.TransactionReqMetaData.TerminalID,
 			TerminalLocation:               config.TDConf.TransactionReqMetaData.TerminalLocation,
-			TerminalRRN:                    config.TDConf.TransactionReqMetaData.TerminalRRN, //TODO:MODIY
+			TerminalRRN:                    generationTerminalRRN(),
 			ProductCode:                    config.TDConf.TransactionReqMetaData.ProductCode,
 			AcquirerIID:                    config.TDConf.TransactionReqMetaData.AcquirerIID,
 			ForwarderIID:                   config.TDConf.TransactionReqMetaData.ForwarderIID,
@@ -124,6 +124,11 @@ func BuildTransactionReq(tdAccount mambuEntity.TDAccount, transactionID string, 
 		},
 	}
 	return tmpTransaction
+}
+
+func generationTerminalRRN() string {
+	return "TDE-" + util.RandomSnowFlakeId()
+
 }
 
 func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,

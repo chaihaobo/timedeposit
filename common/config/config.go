@@ -49,7 +49,6 @@ type TDConfig struct {
 		TerminalType                   string
 		TerminalID                     string
 		TerminalLocation               string
-		TerminalRRN                    string
 		ProductCode                    string
 		AcquirerIID                    string
 		ForwarderIID                   string

@@ -56,5 +56,6 @@ func CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transTy
 	}
 	db := db.GetDB()
 	db.Save(&tFlowTask)
+	SaveFailTransactionLog(&tFlowTask)
 	return tFlowTask
 }
