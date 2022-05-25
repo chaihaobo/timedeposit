@@ -37,7 +37,7 @@ func CreateSucceedFlowTransaction(transactionResp mambuEntity.TransactionResp) m
 	return tFlowTask
 }
 
-func CreateFailedTransaction(transactionReq mambuEntity.TransactionReq, transType string, errorMsg string) model.TFlowTransactions {
+func CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) model.TFlowTransactions {
 	tFlowTask := model.TFlowTransactions{
 		TransId:            transactionReq.Metadata.ExternalTransactionID,
 		TerminalRrn:        transactionReq.Metadata.TerminalRRN,

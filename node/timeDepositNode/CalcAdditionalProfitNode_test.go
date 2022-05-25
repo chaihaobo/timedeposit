@@ -22,7 +22,7 @@ func TestCalcAdditionalProfitNode_RunProcess(t *testing.T) {
 	type args struct {
 		tmpTDAccount mambuEntity.TDAccount
 		flowID       string
-		nodeName string
+		nodeName     string
 	}
 	tests := []struct {
 		name    string

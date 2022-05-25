@@ -7,8 +7,8 @@
 package config
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"os"
 )
 
@@ -41,6 +41,25 @@ type TDConfig struct {
 		MaxOpenConn int
 		MaxIdleConn int
 	}
+	TransactionReqMetaData *struct {
+		MessageType                    string
+		ExternalOriTransactionID       string
+		ExternalOriTransactionDetailID string
+		TransactionType                string
+		TerminalType                   string
+		TerminalID                     string
+		TerminalLocation               string
+		TerminalRRN                    string
+		ProductCode                    string
+		AcquirerIID                    string
+		ForwarderIID                   string
+		IssuerIID                      string
+		IssuerIName                    string
+		DestinationIID                 string
+		Currency                       string
+		TranDesc1                      string
+		TranDesc3                      string
+	}
 }
 
 func Setup(path string) *TDConfig {
@@ -55,14 +74,14 @@ func Setup(path string) *TDConfig {
 	var err error
 	if err = configViper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			fmt.Println("Config file not found. Please check the file path...")
+			zap.L().Error("Config file not found. Please check the file path...")
 		} else {
-			fmt.Println("Config file read error...")
+			zap.L().Error("Config file read error...")
 		}
 	}
 	err = configViper.Unmarshal(TDConf)
 	if err != nil {
-		fmt.Println("config unmarshal error")
+		zap.L().Error("config unmarshal error")
 	}
 	return TDConf
 }

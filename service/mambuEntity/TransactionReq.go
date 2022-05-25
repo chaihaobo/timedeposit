@@ -28,7 +28,7 @@ type TransactionReqMetadata struct {
 	AcquirerIID                    string
 	ForwarderIID                   string
 	IssuerIID                      string
-	IssuerlName                    string
+	IssuerIName                    string
 	DestinationIID                 string
 	SourceAccountNo                string
 	SourceAccountName              string
