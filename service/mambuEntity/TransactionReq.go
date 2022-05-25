@@ -7,39 +7,39 @@
 package mambuEntity
 
 type TransactionReq struct {
-	Metadata           TransactionReqMetadata
-	TransactionDetails TransactionReqDetails
-	Amount             float64
+	Metadata           TransactionReqMetadata `json:"_metadata"`
+	TransactionDetails TransactionReqDetails  `json:"transactionDetails"`
+	Amount             float64                `json:"amount"`
 }
 
 type TransactionReqMetadata struct {
-	MessageType                    string
-	ExternalTransactionID          string
-	ExternalTransactionDetailID    string
-	ExternalOriTransactionID       string
-	ExternalOriTransactionDetailID string
-	TransactionType                string
-	TransactionDateTime            string
-	TerminalType                   string
-	TerminalID                     string
-	TerminalLocation               string
-	TerminalRRN                    string
-	ProductCode                    string
-	AcquirerIID                    string
-	ForwarderIID                   string
-	IssuerIID                      string
-	IssuerIName                    string
-	DestinationIID                 string
-	SourceAccountNo                string
-	SourceAccountName              string
-	BeneficiaryAccountNo           string
-	BeneficiaryAccountName         string
-	Currency                       string
-	TranDesc1                      string
-	TranDesc2                      string
-	TranDesc3                      string
+	MessageType                    string `json:"messageType"`
+	ExternalTransactionID          string `json:"externalTransactionID"`
+	ExternalTransactionDetailID    string `json:"externalTransactionDetailID"`
+	ExternalOriTransactionID       string `json:"externalOriTransactionID"`
+	ExternalOriTransactionDetailID string `json:"externalOriTransactionDetailID"`
+	TransactionType                string `json:"transactionType"`
+	TransactionDateTime            string `json:"transactionDateTime"`
+	TerminalType                   string `json:"terminalType"`
+	TerminalID                     string `json:"terminalID"`
+	TerminalLocation               string `json:"terminalLocation"`
+	TerminalRRN                    string `json:"terminalRRN"`
+	ProductCode                    string `json:"productCode"`
+	AcquirerIID                    string `json:"acquirerIID"`
+	ForwarderIID                   string `json:"forwarderIID"`
+	IssuerIID                      string `json:"issuerIID"`
+	IssuerIName                    string `json:"issuerIName"`
+	DestinationIID                 string `json:"destinationIID"`
+	SourceAccountNo                string `json:"sourceAccountNo"`
+	SourceAccountName              string `json:"sourceAccountName"`
+	BeneficiaryAccountNo           string `json:"beneficiaryAccountNo"`
+	BeneficiaryAccountName         string `json:"beneficiaryAccountName"`
+	Currency                       string `json:"currency"`
+	TranDesc1                      string `json:"tranDesc1"`
+	TranDesc2                      string `json:"tranDesc2"`
+	TranDesc3                      string `json:"tranDesc3"`
 }
 
 type TransactionReqDetails struct {
-	TransactionChannelID string
+	TransactionChannelID string `json:"transactionChannelID"`
 }

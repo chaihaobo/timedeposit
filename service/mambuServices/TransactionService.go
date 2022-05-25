@@ -90,10 +90,9 @@ func RetryDepositTransaction(tdAccount mambuEntity.TDAccount, benefitAccount mam
 
 	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil &&
-		code != constant.HttpStatusCodeSucceed &&
+	if err != nil || (code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent &&
-		code != constant.HttpStatusCodeSucceedCreate {
+		code != constant.HttpStatusCodeSucceedCreate) {
 		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
 		return transactionResp, errors.New(respBody)
 	}

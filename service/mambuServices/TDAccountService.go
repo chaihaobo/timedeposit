@@ -25,7 +25,7 @@ func GetTDAccountById(tdAccountID string) (mambuEntity.TDAccount, error) {
 	zap.L().Info(fmt.Sprintf("getUrl: %v", getUrl))
 	resp, code, err := util.HttpGetData(getUrl)
 	if err != nil || code != constant.HttpStatusCodeSucceed {
-		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID))
+		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID, zap.Error(err)))
 		return tdAccount, err
 	}
 	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", resp))

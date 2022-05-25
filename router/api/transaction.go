@@ -21,6 +21,11 @@ func TransactionRetry(c *gin.Context) {
 		c.JSON(http.StatusOK, error("this transaction id not exist"))
 		return
 	}
+
+	if failTransactionLog.RetryStatus == dao.RetrySuccessStatus {
+		c.JSON(http.StatusOK, error("this transaction already success"))
+		return
+	}
 	transactionSplit := strings.Split(transactionId, "-")
 	flowId, nodeName, transactionType := transactionSplit[0], transactionSplit[1], transactionSplit[2]
 	zap.L().Info("retry transaction info", zap.String("flowId", flowId), zap.String("nodeName", nodeName), zap.String("transactionType", transactionType))
