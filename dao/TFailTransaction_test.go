@@ -23,7 +23,7 @@ func TestFailTransactionCreate(t *testing.T) {
 		transactions := &model.TFlowTransactions{
 			Id:                 1,
 			TransId:            flowID + "-" + nodeName + "-" + "Deposit",
-			TerminalRrn:        config.TDConf.TransactionReqMetaData.TerminalRRN,
+			TerminalRrn:        "test",
 			SourceAccountNo:    "123456",
 			SourceAccountName:  "test",
 			BenefitAccountNo:   "2222222",

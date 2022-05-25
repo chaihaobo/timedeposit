@@ -4,7 +4,7 @@
 package api
 
 const (
-	SUCCESS_CODE = 200
+	SuccessCode = 200
 )
 
 type Response struct {
@@ -19,7 +19,7 @@ func success() *Response {
 
 func successData(data interface{}) *Response {
 	return &Response{
-		Code:    SUCCESS_CODE,
+		Code:    SuccessCode,
 		Data:    data,
 		Message: "success",
 	}
