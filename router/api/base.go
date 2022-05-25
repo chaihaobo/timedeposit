@@ -5,6 +5,7 @@ package api
 
 const (
 	SuccessCode = 200
+	ErrorCode   = 500
 )
 
 type Response struct {
@@ -15,6 +16,13 @@ type Response struct {
 
 func success() *Response {
 	return successData(nil)
+}
+
+func error(message string) *Response {
+	return &Response{
+		Code:    ErrorCode,
+		Message: message,
+	}
 }
 
 func successData(data interface{}) *Response {

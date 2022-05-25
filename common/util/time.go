@@ -6,7 +6,10 @@
  */
 package util
 
-import "time"
+import (
+	"github.com/uniplaces/carbon"
+	"time"
+)
 
 func GetDaysBetweenTime(startTime, endTime time.Time) int {
 	if startTime.Before(endTime) {
@@ -18,9 +21,7 @@ func GetDaysBetweenTime(startTime, endTime time.Time) int {
 
 // Check whether 2 days in a same day
 func InSameDay(t1, t2 time.Time) bool {
-	y1, m1, d1 := time.Unix(t1.Unix(), 0).Date()
-	y2, m2, d2 := time.Unix(t2.Unix(), 0).Date()
-	return y1 == y2 && m1 == m2 && d1 == d2
+	return carbon.NewCarbon(t1).IsSameDay(carbon.NewCarbon(t2))
 }
 
 // Get the date string of current time

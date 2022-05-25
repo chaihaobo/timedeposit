@@ -163,7 +163,7 @@ func (tdAccInfo *TDAccount) IsCaseB1() bool {
 	aroType := tdAccInfo.OtherInformation.AroType
 	return tdAccInfo.IsCaseB() &&
 		isStopARO &&
-		aroType == "Principal Only"
+		aroType == "PRINCIPALONLY"
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1_1() bool {

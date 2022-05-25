@@ -9,12 +9,11 @@ package mambuservices
 import (
 	"encoding/json"
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/config"
 	logger "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"testing"
-
-	"gitlab.com/bns-engineering/td/common/config"
-	mambuEntity "gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
 func TestGetTDAccountById(t *testing.T) {

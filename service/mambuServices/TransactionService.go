@@ -50,6 +50,59 @@ func GetTransactionByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEnt
 	return tmpTransList, nil
 }
 
+func RetryWithDrawTransaction(account mambuEntity.TDAccount, amount float64, transactionID string, channelID string) (*mambuEntity.TransactionResp, error) {
+	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
+	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
+	tmpTransaction := BuildTransactionReq(account, transactionID, transactionDetailID, custMessage, amount, channelID)
+	var transactionResp = new(mambuEntity.TransactionResp)
+	queryParamByte, err := json.Marshal(tmpTransaction)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
+		return nil, errors.New("build withdraw parameters failed")
+	}
+	postJsonStr := string(queryParamByte)
+	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, account.ID)
+	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent &&
+		code != constant.HttpStatusCodeSucceedCreate {
+		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v, error:%v", account.ID, respBody))
+		return transactionResp, errors.New(respBody)
+	}
+	err = json.Unmarshal([]byte(respBody), &transactionResp)
+	return transactionResp, nil
+
+}
+
+func RetryDepositTransaction(tdAccount mambuEntity.TDAccount, benefitAccount mambuEntity.TDAccount, amount float64, transactionID string, channelID string) (*mambuEntity.TransactionResp, error) {
+	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
+	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
+	tmpTransaction := BuildTransactionReq(tdAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
+	var transactionResp = new(mambuEntity.TransactionResp)
+	queryParamByte, err := json.Marshal(tmpTransaction)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
+		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		return nil, errors.New("build withdraw parameters failed")
+	}
+	postJsonStr := string(queryParamByte)
+
+	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
+	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent &&
+		code != constant.HttpStatusCodeSucceedCreate {
+		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
+		return transactionResp, errors.New(respBody)
+	}
+
+	zap.L().Debug(fmt.Sprintf("Deposit Transaction for td account succeed. Result: %v", respBody))
+	err = json.Unmarshal([]byte(respBody), &transactionResp)
+	return transactionResp, nil
+}
+
 func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 	amount float64,
 	transactionID string,

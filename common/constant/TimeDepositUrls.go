@@ -19,7 +19,7 @@ const (
 	StartMaturityDateUrl = DomainName + "/api/deposits/%v:startMaturity"
 
 	ApplyProfitUrl     = DomainName + "/api/deposits/%v:applyInterest"
-	UpdateTDAccountUrl = DomainName + "https://cbs-dev1.aladinbank.id/api/deposits/%v"
+	UpdateTDAccountUrl = DomainName + "/api/deposits/%v"
 
 	CloseAccountUrl = DomainName + "/api/deposits/%v:changeState"
 )

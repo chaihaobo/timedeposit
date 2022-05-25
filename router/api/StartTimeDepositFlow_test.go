@@ -25,7 +25,7 @@ func init() {
 func TestRunFlow(t *testing.T) {
 	t.Run("run flow by account", func(t *testing.T) {
 		RunFlow(&mambuEntity.TDAccount{
-			ID: "11747126703",
+			ID: "11249460359",
 		})
 
 		t.Log("run flow by account success")

@@ -53,3 +53,17 @@ func GetFailTransactionLog(transactionId string) *model.TFailTransactions {
 		return nil
 	}
 }
+
+func FailTransactionLogRetryFail(failTransaction *model.TFailTransactions) {
+	failTransaction.RetryTimes++
+	failTransaction.RetryStatus = RetryFailStatus
+	failTransaction.UpdateTime = time.Now()
+	db.GetDB().Save(failTransaction)
+}
+
+func FailTransactionLogRetrySuccess(failTransaction *model.TFailTransactions) {
+	failTransaction.RetryTimes++
+	failTransaction.RetryStatus = RetrySuccessStatus
+	failTransaction.UpdateTime = time.Now()
+	db.GetDB().Save(failTransaction)
+}
