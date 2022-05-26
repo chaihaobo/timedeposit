@@ -41,5 +41,5 @@ type TransactionReqMetadata struct {
 }
 
 type TransactionReqDetails struct {
-	TransactionChannelID string `json:"transactionChannelID"`
+	TransactionChannelID string `json:"transactionChannelId"`
 }

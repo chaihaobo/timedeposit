@@ -30,7 +30,7 @@ func SetUp(cfg *config.TDConfig) (err error) {
 	}
 	core := zapcore.NewCore(encoder, writeSyncer, l)
 
-	lg = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+	lg = zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(lg) // replace package zap global logger instance
 	return
 }
