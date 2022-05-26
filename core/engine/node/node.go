@@ -8,17 +8,22 @@ import (
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
+const (
+	NodeResultSuccess NodeResult = "success"
+)
+
 type INode interface {
 	Run() (INodeResult, error)
-	SetUp(flowId string, accountId string)
+	SetUp(flowId string, accountId string, nodeName string)
 }
 
 type Node struct {
 	FlowId    string
 	AccountId string
+	NodeName  string
 }
 
-func (node *Node) SetUp(flowId string, accountId string) {
+func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 	node.FlowId = flowId
 	node.AccountId = accountId
 }
@@ -29,17 +34,11 @@ func (node *Node) GetMambuAccount() (*mambuEntity.TDAccount, error) {
 }
 
 type INodeResult interface {
-	GetNodeResult() string
+	GetNodeResult() NodeResult
 }
 
-type NodeResult struct {
-	result string
-}
+type NodeResult string
 
-func (nodeResult *NodeResult) GetNodeResult() string {
-	return nodeResult.result
-}
-
-func NewNodeResult(result string) *NodeResult {
-	return &NodeResult{result}
+func (nodeResult NodeResult) GetNodeResult() NodeResult {
+	return nodeResult
 }

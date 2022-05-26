@@ -19,7 +19,17 @@ func registerNode(nodeList ...node.INode) {
 }
 
 func SetUp() {
-	startNode := &node.StartNode{Node: &node.Node{}}
-	endNode := &node.EndNode{Node: &node.Node{}}
-	registerNode(startNode, endNode)
+	registerNode(
+		&node.StartNode{Node: &node.Node{}},
+		&node.EndNode{Node: &node.Node{}},
+		&node.UndoMaturityNode{Node: &node.Node{}},
+		&node.StartNewMaturityNode{Node: &node.Node{}},
+		&node.ApplyProfitNode{Node: &node.Node{}},
+		&node.WithdrawNetprofitNode{Node: &node.Node{}},
+		&node.DepositNetprofitNode{Node: &node.Node{}},
+		&node.WithdrawBalanceNode{Node: &node.Node{}},
+		&node.DepositBalanceNode{Node: &node.Node{}},
+		&node.PatchAccountNode{Node: &node.Node{}},
+		&node.CloseAccountNode{Node: &node.Node{}},
+	)
 }

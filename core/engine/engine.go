@@ -52,7 +52,7 @@ func Run(flowId string) {
 		currentNode := getNodeInNodeList(flowNodes, nodeName)
 
 		runNode := getINode(currentNode.NodePath)
-		runNode.SetUp(flowId, flowTaskInfo.AccountId)
+		runNode.SetUp(flowId, flowTaskInfo.AccountId, nodeName)
 		//update run status to running
 		taskRunning(flowTaskInfo, nodeName)
 
@@ -66,12 +66,13 @@ func Run(flowId string) {
 			taskError(flowTaskInfo)
 			break
 		}
+		nodeResult := string(run.GetNodeResult())
 		zap.L().Info("flow node run finish", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
-			zap.String("result", run.GetNodeResult()),
+			zap.String("result", nodeResult),
 			zap.Int64("useTime", useRuntime.Milliseconds()),
 		)
-		taskNodeFinish(flowTaskInfo, run.GetNodeResult())
-		result := run.GetNodeResult()
+		taskNodeFinish(flowTaskInfo, nodeResult)
+		result := nodeResult
 		relation := getNextNodeRelation(nodeName, result, relationList)
 		if relation == nil {
 			zap.L().Info("flow run finished")
@@ -117,6 +118,7 @@ func taskNodeFinish(info *model.TFlowTaskInfo, result string) {
 func taskError(taskInfo *model.TFlowTaskInfo) {
 	taskInfo.CurStatus = string(constant.FlowNodeFailed)
 	taskInfo.FlowStatus = constant.FlowFailed
+	taskInfo.EndStatus = constant.FlowFailed
 	taskInfo.UpdateTime = time.Now()
 	repository.GetFlowTaskInfoRepository().Update(taskInfo)
 
@@ -130,7 +132,7 @@ func saveNodeRunLog(flowId string, flowName string, nodeName string, nodeResult 
 	log.CreateTime = time.Now()
 	log.UpdateTime = time.Now()
 	if nodeResult != nil {
-		log.NodeResult = nodeResult.GetNodeResult()
+		log.NodeResult = string(nodeResult.GetNodeResult())
 	}
 	if err != nil {
 		log.NodeMsg = err.Error()

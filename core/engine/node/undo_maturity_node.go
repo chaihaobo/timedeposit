@@ -24,6 +24,8 @@ func (node *UndoMaturityNode) Run() (INodeResult, error) {
 		if !undoMaturityResult {
 			return nil, errors.New("undo Maturity Date Failed")
 		}
+	} else {
+		zap.L().Info("not match! skip it")
 	}
-	return NewNodeResult("success"), nil
+	return NodeResultSuccess, nil
 }

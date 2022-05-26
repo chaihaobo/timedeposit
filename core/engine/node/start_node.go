@@ -14,5 +14,5 @@ type StartNode struct {
 func (node *StartNode) Run() (INodeResult, error) {
 	zap.L().Info("starting start node")
 
-	return NewNodeResult("success"), nil
+	return NodeResultSuccess, nil
 }

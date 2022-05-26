@@ -38,7 +38,7 @@ func (node *WithdrawBalanceNode) RunProcess(tmpTDAccount mambuEntity.TDAccount, 
 	}
 
 	totalBalance := newTDAccount.Balances.TotalBalance
-	if !(newTDAccount.IsCaseB() && totalBalance > 0) {
+	if !(newTDAccount.IsCaseB3() && totalBalance > 0) {
 		zap.L().Info(fmt.Sprintf("No need to withdraw balance, accNo: %v", flowID))
 		return constant.FlowNodeSkip, nil
 	} else {

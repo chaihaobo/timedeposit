@@ -14,5 +14,5 @@ type EndNode struct {
 func (node *EndNode) Run() (INodeResult, error) {
 	zap.L().Info("starting End node")
 
-	return NewNodeResult("success"), nil
+	return NodeResultSuccess, nil
 }
