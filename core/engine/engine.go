@@ -15,9 +15,17 @@ import (
 	"time"
 )
 
-func Start(account string) {
+const (
+	FlowName  = "eod_flow"
+	FirstNode = "start_node"
+)
+
+func Start(accountId string) {
 	//create task info
+	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
+	createFlowTaskInfo(flowId, accountId)
 	//run flow by task flow id
+	Run(flowId)
 }
 
 func Run(flowId string) {
@@ -47,7 +55,10 @@ func Run(flowId string) {
 		runNode.SetUp(flowId, flowTaskInfo.AccountId)
 		//update run status to running
 		taskRunning(flowTaskInfo, nodeName)
+
+		runStartTime := time.Now()
 		run, err := runNode.Run()
+		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowName, nodeName, run, err)
 		if err != nil {
 			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
@@ -55,7 +66,10 @@ func Run(flowId string) {
 			taskError(flowTaskInfo)
 			break
 		}
-		zap.L().Info("flow node run finish", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName), zap.String("result", run.GetNodeResult()))
+		zap.L().Info("flow node run finish", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
+			zap.String("result", run.GetNodeResult()),
+			zap.Int64("useTime", useRuntime.Milliseconds()),
+		)
 		taskNodeFinish(flowTaskInfo, run.GetNodeResult())
 		result := run.GetNodeResult()
 		relation := getNextNodeRelation(nodeName, result, relationList)
@@ -69,9 +83,26 @@ func Run(flowId string) {
 
 }
 
+func createFlowTaskInfo(flowId string, accountId string) string {
+	taskInfo := new(model.TFlowTaskInfo)
+	taskInfo.FlowId = flowId
+	taskInfo.FlowStatus = constant.FlowStart
+	taskInfo.FlowName = FlowName
+	taskInfo.AccountId = accountId
+	taskInfo.CurNodeName = FirstNode
+	taskInfo.CurStatus = string(constant.FlowNodeStart)
+	taskInfo.StartTime = time.Now()
+	taskInfo.EndTime = time.Now()
+	taskInfo.CreateTime = time.Now()
+	taskInfo.UpdateTime = time.Now()
+	repository.GetFlowTaskInfoRepository().Update(taskInfo)
+	return taskInfo.FlowId
+}
+
 func flowRunFinish(info *model.TFlowTaskInfo) {
 	info.FlowStatus = constant.FlowFinished
 	info.UpdateTime = time.Now()
+	info.EndTime = time.Now()
 	repository.GetFlowTaskInfoRepository().Update(info)
 }
 
