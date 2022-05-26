@@ -35,7 +35,7 @@ func Run(flowId string) {
 		return
 	}
 	if flowTaskInfo.CurStatus != string(constant.FlowNodeFailed) && flowTaskInfo.CurStatus != string(constant.FlowNodeStart) {
-		zap.L().Error("flow is already runing or finished", zap.String("curStatus", flowTaskInfo.CurStatus))
+		zap.L().Error("flow is already running or finished", zap.String("curStatus", flowTaskInfo.CurStatus))
 		return
 	}
 
