@@ -19,14 +19,17 @@ func GetAccountById(tdAccountID string) (*mambuEntity.TDAccount, error) {
 	getUrl := fmt.Sprintf(constant.GetTDAccountUrl, tdAccountID)
 	resp, code, err := util.HttpGetData(getUrl)
 	if err != nil || code != constant.HttpStatusCodeSucceed {
-		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID, zap.Error(err)))
-		return tdAccount, err
+		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID), zap.Error(err))
+		if err == nil {
+			err = errors.New("query account status code is not succeed")
+		}
+		return nil, err
 	}
 	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", resp))
 	err = json.Unmarshal([]byte(resp), &tdAccount)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert Json to TDAccount Failed. json: %v, err:%v", resp, err.Error()))
-		return tdAccount, err
+		return nil, err
 	}
 	return tdAccount, nil
 }

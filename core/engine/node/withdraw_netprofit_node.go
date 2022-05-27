@@ -17,7 +17,7 @@ type WithdrawNetprofitNode struct {
 }
 
 func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
-	zap.L().Info("starting start node")
+
 	account, err := node.GetMambuAccount()
 	if err != nil {
 		return nil, err

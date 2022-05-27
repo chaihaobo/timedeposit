@@ -16,7 +16,6 @@ type WithdrawBalanceNode struct {
 }
 
 func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
-	zap.L().Info("starting start node")
 	account, err := node.GetMambuAccount()
 	if err != nil {
 		return nil, err

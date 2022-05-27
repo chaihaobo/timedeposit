@@ -61,8 +61,9 @@ func Run(flowId string) {
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowName, nodeName, run, err)
 		if err != nil {
-			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
-			zap.L().Error(fmt.Sprintf("%v", errors.WithStack(err)))
+			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
+				zap.String("error", fmt.Sprintf("%v", errors.WithStack(err))),
+			)
 			taskError(flowTaskInfo)
 			break
 		}
@@ -135,7 +136,8 @@ func saveNodeRunLog(flowId string, flowName string, nodeName string, nodeResult 
 		log.NodeResult = string(nodeResult.GetNodeResult())
 	}
 	if err != nil {
-		log.NodeMsg = err.Error()
+		log.NodeMsg = fmt.Sprintf("%v", errors.WithStack(err))
+		log.NodeResult = "exception"
 	}
 	repository.GetFlowNodeLogRepository().Save(log)
 
