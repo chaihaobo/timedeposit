@@ -6,7 +6,6 @@ package node
 import (
 	"errors"
 	"fmt"
-	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 )
@@ -16,7 +15,7 @@ type WithdrawBalanceNode struct {
 }
 
 func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount()
+	account, err := node.GetMambuAccount(node.AccountId)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +23,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 	totalBalance := account.Balances.TotalBalance
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
 		// Get benefit account info
-		benefitAccount, err := accountservice.GetAccountById(account.OtherInformation.BhdNomorRekPencairan)
+		benefitAccount, err := node.GetMambuAccount(account.OtherInformation.BhdNomorRekPencairan)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", account.ID, account.OtherInformation.BhdNomorRekPencairan))
 			return nil, errors.New("call mambu get benefit acc info failed")

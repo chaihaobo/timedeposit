@@ -4,7 +4,9 @@
 package node
 
 import (
+	"encoding/json"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
+	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 )
 
@@ -29,9 +31,30 @@ func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 	node.NodeName = nodeName
 }
 
-func (node *Node) GetMambuAccount() (*mambuEntity.TDAccount, error) {
-	id, err := accountservice.GetAccountById(node.AccountId)
-	return id, err
+func (node *Node) GetMambuAccount(accountId string, realTime ...bool) (*mambuEntity.TDAccount, error) {
+	isReal := false
+	for _, rel := range realTime {
+		if rel {
+			isReal = true
+			break
+		}
+	}
+	if isReal {
+		account, err := accountservice.GetAccountById(accountId)
+		if err == nil {
+			//save account to redis
+			marshal, _ := json.Marshal(account)
+			repository.GetRedisRepository().Set(accountId, string(marshal))
+		}
+		return account, err
+	} else {
+		//read from redis
+		accountString := repository.GetRedisRepository().Get(accountId)
+		account := new(mambuEntity.TDAccount)
+		err := json.Unmarshal([]byte(accountString), account)
+		return account, err
+	}
+
 }
 
 type INodeResult interface {

@@ -15,6 +15,11 @@ db:
   db: time_deposit_eod_engine
   maxOpenConn: 100
   maxIdleConn: 20
+redis:
+  addr: 192.168.31.58:6379
+  password: 123456
+  poolSize: 10
+  db: 0
 server:
   RunMode: debug
   HttpPort: 8000

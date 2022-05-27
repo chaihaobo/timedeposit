@@ -59,6 +59,12 @@ type TDConfig struct {
 		TranDesc1                      string
 		TranDesc3                      string
 	}
+	Redis *struct {
+		Addr     string
+		Password string
+		PoolSize int
+		DB       int
+	}
 }
 
 func Setup(path string) *TDConfig {
