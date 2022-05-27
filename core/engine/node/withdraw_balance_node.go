@@ -15,7 +15,7 @@ type WithdrawBalanceNode struct {
 }
 
 func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 	totalBalance := account.Balances.TotalBalance
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
 		// Get benefit account info
-		benefitAccount, err := node.GetMambuAccount(account.OtherInformation.BhdNomorRekPencairan)
+		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", account.ID, account.OtherInformation.BhdNomorRekPencairan))
 			return nil, errors.New("call mambu get benefit acc info failed")

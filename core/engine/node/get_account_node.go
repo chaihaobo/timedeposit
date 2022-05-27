@@ -1,6 +1,6 @@
 // Package node
 // @author： Boice
-// @createTime：2022/5/26 11:07
+// @createTime：2022/5/27 15:15
 package node
 
 import (
@@ -9,12 +9,11 @@ import (
 	"gitlab.com/bns-engineering/td/repository"
 )
 
-type StartNode struct {
+type GetAccountNode struct {
 	*Node
 }
 
-func (node *StartNode) Run() (INodeResult, error) {
-	//query account save account to log
+func (node *GetAccountNode) Run() (INodeResult, error) {
 	account, err := node.GetMambuAccount(node.AccountId, true)
 	if err != nil {
 		return nil, err
@@ -24,5 +23,5 @@ func (node *StartNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 	repository.GetFlowNodeQueryLogRepository().SaveLog(node.FlowId, node.NodeName, constant.QueryTDAccount, string(marshal))
-	return NodeResultSuccess, err
+	return NodeResultSuccess, nil
 }

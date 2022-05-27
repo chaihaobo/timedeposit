@@ -16,7 +16,7 @@ type PatchAccountNode struct {
 }
 
 func (node *PatchAccountNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ type CloseAccountNode struct {
 }
 
 func (node *CloseAccountNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}

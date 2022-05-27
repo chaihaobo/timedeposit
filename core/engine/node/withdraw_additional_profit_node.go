@@ -15,7 +15,7 @@ type WithdrawAdditionalProfitNode struct {
 }
 
 func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
 		lastAppliedInterestTrans := transList[0]
 
 		// Get benefit account info
-		benefitAccount, err := node.GetMambuAccount(account.OtherInformation.BhdNomorRekPencairan)
+		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
 		if err != nil {
 			zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 			return nil, errors.New("call mambu get benefit acc info failed")

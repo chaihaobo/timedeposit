@@ -18,7 +18,7 @@ type SearchLastProfitAppliedNode struct {
 }
 
 func (node *SearchLastProfitAppliedNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}

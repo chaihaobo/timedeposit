@@ -20,7 +20,7 @@ type StartNewMaturityNode struct {
 
 func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 
-	account, err := node.GetMambuAccount(node.AccountId)
+	account, err := node.GetMambuAccount(node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	"go.uber.org/zap"
 )
 
 const (
@@ -32,34 +33,63 @@ func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 	node.NodeName = nodeName
 }
 
-func (node *Node) GetMambuAccount(accountId string, realTime ...bool) (*mambuEntity.TDAccount, error) {
-	isReal := false
-	for _, rel := range realTime {
-		if rel {
-			isReal = true
-			break
+func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
+	if !realTime {
+		//from redis
+		account := repository.GetRedisRepository().GetBenefitAccount(accountId)
+		if account != nil {
+			return account, nil
+		}
+		//from db
+		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryBenefitAccount)
+		if log != nil {
+			saveDBAccount := new(mambuEntity.TDAccount)
+			data := log.Data
+			err := json.Unmarshal([]byte(data), saveDBAccount)
+			if err != nil {
+				zap.L().Error("account from db can not map to struct")
+			}
+			if saveDBAccount.ID != "" {
+				return saveDBAccount, nil
+			}
 		}
 	}
-	if isReal {
-		account, err := accountservice.GetAccountById(accountId)
-		if err == nil {
-			//save account to redis
-			marshal, _ := json.Marshal(account)
-			repository.GetRedisRepository().Set(accountId, string(marshal))
-		}
-		return account, err
-	} else {
-		//read from redis
-		accountString := repository.GetRedisRepository().Get(accountId)
-		// if redis can not read,read from database
-		if accountString == "" {
-			log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryTDAccount)
-			accountString = log.Data
-		}
-		account := new(mambuEntity.TDAccount)
-		err := json.Unmarshal([]byte(accountString), account)
-		return account, err
+	//real
+	id, err := accountservice.GetAccountById(accountId)
+	if err == nil {
+		err = repository.GetRedisRepository().SaveBenefitAccount(id)
 	}
+	return id, err
+
+}
+
+func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
+	if !realTime {
+		//from redis
+		account := repository.GetRedisRepository().GetTDAccount(accountId)
+		if account != nil {
+			return account, nil
+		}
+		//from db
+		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryTDAccount)
+		if log != nil {
+			saveDBAccount := new(mambuEntity.TDAccount)
+			data := log.Data
+			err := json.Unmarshal([]byte(data), saveDBAccount)
+			if err != nil {
+				zap.L().Error("account from db can not map to struct")
+			}
+			if saveDBAccount.ID != "" {
+				return saveDBAccount, nil
+			}
+		}
+	}
+	//real
+	id, err := accountservice.GetAccountById(accountId)
+	if err == nil {
+		err = repository.GetRedisRepository().SaveTDAccount(id)
+	}
+	return id, err
 
 }
 
