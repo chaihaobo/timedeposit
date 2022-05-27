@@ -38,7 +38,6 @@ func Run(flowId string) {
 		zap.L().Error("flow is already running or finished", zap.String("curStatus", flowTaskInfo.CurStatus))
 		return
 	}
-
 	flowName := flowTaskInfo.FlowName
 	nodeName := flowTaskInfo.CurNodeName
 
@@ -57,6 +56,7 @@ func Run(flowId string) {
 		taskRunning(flowTaskInfo, nodeName)
 
 		runStartTime := time.Now()
+		zap.L().Info("flow node run start", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
 		run, err := runNode.Run()
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowName, nodeName, run, err)

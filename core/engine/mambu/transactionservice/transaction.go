@@ -13,8 +13,79 @@ import (
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
+	"strconv"
 	"time"
 )
+
+func GetTransactionByQueryParam(enCodeKey string) ([]mambuEntity.TransactionBrief, error) {
+	searchParam := generateTransactionSearchParam(enCodeKey)
+	tmpTransList := []mambuEntity.TransactionBrief{}
+	postUrl := constant.SearchTransactionUrl
+	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
+	queryParamByte, err := json.Marshal(searchParam)
+	if err != nil {
+		zap.L().Error("Convert searchParam to JsonStr Failed.", zap.Any("searchParam", searchParam))
+		return tmpTransList, nil
+	}
+	postJsonStr := string(queryParamByte)
+
+	zap.L().Debug("transaction service", zap.String("postUrl", postUrl))
+	zap.L().Debug("transaction service", zap.String("postJsonStr", postJsonStr))
+	resp, code, err := util.HttpPostData(postJsonStr, postUrl)
+	zap.L().Debug("transaction service response", zap.String("resp", resp))
+
+	if err != nil || code != constant.HttpStatusCodeSucceed {
+		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
+		return tmpTransList, err
+	}
+	zap.L().Debug("Query td account Info result", zap.String("result", resp))
+	err = json.Unmarshal([]byte(resp), &tmpTransList)
+	if err != nil {
+		zap.L().Error("Convert Json to TDAccount Failed.", zap.String("resp", resp))
+		return tmpTransList, err
+	}
+	return tmpTransList, nil
+}
+
+func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInterestTrans mambuEntity.TransactionBrief) (float64, float64) {
+	specialER, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.SpecialER, 64)
+	ER := tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate
+	appliedInterest := lastAppliedInterestTrans.Amount
+	additionalProfit := (specialER/ER)*appliedInterest - appliedInterest
+	taxRate, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.NisbahPajak, 64)
+	taxRateReal := taxRate / 100
+	additionalProfitTax := additionalProfit * taxRateReal
+	return additionalProfit, additionalProfitTax
+}
+
+func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
+	tmpQueryParam := mambuEntity.SearchParam{
+		FilterCriteria: []mambuEntity.FilterCriteria{
+			{
+				Field:    "parentAccountKey",
+				Operator: "EQUALS",
+				Value:    encodedKey,
+			},
+			{
+				Field:    "type",
+				Operator: "EQUALS",
+				Value:    "INTEREST_APPLIED",
+			},
+			{
+				Field: "creationDate",
+				//todo: Remember to set the value to today!
+				Operator:    "BETWEEN",
+				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), //today
+				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
+			},
+		},
+		SortingCriteria: mambuEntity.SortingCriteria{
+			Field: "id",
+			Order: "DESC",
+		},
+	}
+	return tmpQueryParam
+}
 
 func WithdrawTransaction(tdAccount, benefitAccount *mambuEntity.TDAccount,
 	amount float64,

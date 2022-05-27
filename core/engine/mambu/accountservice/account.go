@@ -127,3 +127,30 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	}
 	return true
 }
+
+func CloseAccount(accID, notes string) bool {
+	postUrl := fmt.Sprintf(constant.CloseAccountUrl, accID)
+	zap.L().Debug(fmt.Sprintf("CloseAccountUrl: %v", postUrl))
+
+	//Build the update maturity json struct
+	postJsonByte, _ := json.Marshal([]struct {
+		Action string `json:"action"`
+		Notes  string `json:"notes"`
+	}{
+		{
+			Action: "CLOSE",
+			Notes:  notes,
+		},
+	})
+
+	postJsonStr := string(postJsonByte)
+
+	_, code, err := util.HttpPatchData(postJsonStr, postUrl)
+	if err != nil &&
+		code != constant.HttpStatusCodeSucceed &&
+		code != constant.HttpStatusCodeSucceedNoContent {
+		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accID))
+		return false
+	}
+	return true
+}

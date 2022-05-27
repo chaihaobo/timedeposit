@@ -6,7 +6,7 @@ package node
 import (
 	"errors"
 	"fmt"
-	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
+	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"go.uber.org/zap"
 )
 
@@ -24,7 +24,7 @@ func (node *CloseAccountNode) Run() (INodeResult, error) {
 	if (account.IsCaseB3() && totalBalance > 0) ||
 		(account.IsCaseC() && totalBalance > 0) {
 		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", account.ID, account)
-		isApplySucceed := mambuservices.CloseAccount(account.ID, notes)
+		isApplySucceed := accountservice.CloseAccount(account.ID, notes)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("close account failed for account: %v", account.ID))
 			return nil, errors.New("call Mambu service failed")

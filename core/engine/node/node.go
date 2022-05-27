@@ -26,6 +26,7 @@ type Node struct {
 func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 	node.FlowId = flowId
 	node.AccountId = accountId
+	node.NodeName = nodeName
 }
 
 func (node *Node) GetMambuAccount() (*mambuEntity.TDAccount, error) {
