@@ -6,9 +6,20 @@ package node
 import (
 	"reflect"
 	"testing"
+
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 )
 
 func TestStartNewMaturityNode_Run(t *testing.T) {
+	
+	config.Setup("./../../../config.yaml")
+	err := logger.SetUp(config.TDConf)
+	if err != nil {
+		zap.L().Error("logger init error", zap.Error(err))
+	}
+
 	type fields struct {
 		Node *Node
 	}
