@@ -29,6 +29,7 @@ func SetUp() {
 		&node.DepositNetprofitNode{Node: &node.Node{}},
 		&node.WithdrawBalanceNode{Node: &node.Node{}},
 		&node.DepositBalanceNode{Node: &node.Node{}},
+		&node.SearchLastProfitAppliedNode{Node: &node.Node{}},
 		&node.WithdrawAdditionalProfitNode{Node: &node.Node{}},
 		&node.DepositAdditionalProfitNode{Node: &node.Node{}},
 		&node.PatchAccountNode{Node: &node.Node{}},
