@@ -57,7 +57,9 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 	//real
 	id, err := accountservice.GetAccountById(accountId)
 	if err == nil {
+		marshal, _ := json.Marshal(id)
 		err = repository.GetRedisRepository().SaveBenefitAccount(id)
+		repository.GetFlowNodeQueryLogRepository().SaveLog(node.FlowId, node.NodeName, constant.QueryBenefitAccount, string(marshal))
 	}
 	return id, err
 
@@ -87,7 +89,9 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity
 	//real
 	id, err := accountservice.GetAccountById(accountId)
 	if err == nil {
+		marshal, _ := json.Marshal(id)
 		err = repository.GetRedisRepository().SaveTDAccount(id)
+		repository.GetFlowNodeQueryLogRepository().SaveLog(node.FlowId, node.NodeName, constant.QueryTDAccount, string(marshal))
 	}
 	return id, err
 

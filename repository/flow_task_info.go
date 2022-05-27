@@ -4,6 +4,7 @@
 package repository
 
 import (
+	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model"
 	"time"
@@ -18,6 +19,8 @@ func GetFlowTaskInfoRepository() IFlowTaskInfoRepository {
 type IFlowTaskInfoRepository interface {
 	Get(flowId string) *model.TFlowTaskInfo
 	Update(flowTaskInfo *model.TFlowTaskInfo)
+	FailFlowList(pageNo int, pageSize int) ([]*model.TFlowTaskInfo, int64)
+	AllFailFlowIdList() []string
 }
 
 type FlowTaskInfoRepository struct{}
@@ -35,6 +38,22 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) Get(flowId string) *model.
 func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(flowTaskInfo *model.TFlowTaskInfo) {
 	flowTaskInfo.UpdateTime = time.Now()
 	db.GetDB().Save(flowTaskInfo)
+}
+
+func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int) ([]*model.TFlowTaskInfo, int64) {
+	failTaskInfoList := make([]*model.TFlowTaskInfo, 0)
+	db.GetDB().Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc").
+		Limit(pageSize).Offset((pageNo - 1) * pageSize).
+		Find(&failTaskInfoList)
+	var total int64
+	db.GetDB().Model(new(model.TFlowTaskInfo)).Count(&total)
+	return failTaskInfoList, total
+}
+
+func (flowTaskInfoRepository *FlowTaskInfoRepository) AllFailFlowIdList() []string {
+	failFlowIdList := make([]string, 0)
+	db.GetDB().Model(new(model.TFlowTaskInfo)).Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc").Pluck("flow_id", &failFlowIdList)
+	return failFlowIdList
 }
 
 func init() {

@@ -6,7 +6,11 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/thoas/go-funk"
 	"gitlab.com/bns-engineering/td/core/engine"
+	"gitlab.com/bns-engineering/td/model"
+	"gitlab.com/bns-engineering/td/repository"
+	"gitlab.com/bns-engineering/td/router/api/dto"
 	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 	"go.uber.org/zap"
 	"net/http"
@@ -39,4 +43,45 @@ func StartFlow(c *gin.Context) {
 		}
 	}
 
+}
+
+func FailFlowList(c *gin.Context) {
+	page := dto.DefaultPage()
+	_ = c.BindJSON(page)
+	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(page.PageNo, page.PageSize)
+	result := funk.Map(list, func(taskInfo *model.TFlowTaskInfo) *dto.FailFlowModel {
+		d := new(dto.FailFlowModel)
+		d.Id = taskInfo.Id
+		d.FlowId = taskInfo.FlowId
+		d.AccountId = taskInfo.AccountId
+		d.CurStatus = taskInfo.CurStatus
+		d.CurNodeName = taskInfo.CurNodeName
+		d.CreateTime = taskInfo.CreateTime
+		return d
+	})
+	c.JSON(http.StatusOK, successData(dto.NewPageResult(total, result)))
+}
+
+func Retry(c *gin.Context) {
+	m := new(dto.RetryFlowModel)
+	_ = c.BindJSON(m)
+	list := m.FlowIdList
+	for _, flowId := range list {
+		_ = engine.Pool.Submit(func() {
+			engine.Run(flowId)
+		})
+	}
+	c.JSON(http.StatusOK, success())
+}
+
+func RetryAll(c *gin.Context) {
+	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList()
+
+	for _, flowId := range failFlowIdList {
+		zap.L().Info("retry flow", zap.String("flowId", flowId))
+		_ = engine.Pool.Submit(func() {
+			engine.Run(flowId)
+		})
+	}
+	c.JSON(http.StatusOK, success())
 }

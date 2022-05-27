@@ -64,6 +64,14 @@ func Run(flowId string) {
 		runStartTime := time.Now()
 		zap.L().Info("flow node run start", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
 		run, err := runNode.Run()
+		if err != nil {
+			zap.L().Info("node run fail,now retry 3 times", zap.String("current node name", nodeName))
+			retry(func() error {
+				run, err = runNode.Run()
+				return err
+			}, 3)
+		}
+
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowName, nodeName, run, err)
 		if err != nil {
@@ -89,6 +97,20 @@ func Run(flowId string) {
 		nodeName = relation.NextNode
 	}
 
+}
+
+func retry(retryFun func() error, times int) {
+	zap.L().Info("now retry start ..............", zap.Int("allTime", times))
+	for count := 0; count <= times; count++ {
+		zap.L().Info("start retry..........", zap.Int("times", count))
+		err := retryFun()
+		if err != nil {
+			zap.L().Info("retry fail........ ", zap.Int("times", count), zap.Error(err))
+		} else {
+			zap.L().Info("retry success use count ", zap.Int("times", count))
+		}
+
+	}
 }
 
 func createFlowTaskInfo(flowId string, accountId string) string {
