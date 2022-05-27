@@ -14,6 +14,7 @@ var flowNodeQueryLogRepository *FlowNodeQueryLogRepository
 type IFlowNodeQueryLogRepository interface {
 	SaveLog(flowId string, nodeName string, queryType string, data string)
 	GetLog(flowId string, nodeName string, queryType string) *model.TFlowNodeQueryLog
+	GetNewLog(flowId string, queryType string) *model.TFlowNodeQueryLog
 }
 
 type FlowNodeQueryLogRepository struct {
@@ -33,6 +34,15 @@ func (f *FlowNodeQueryLogRepository) SaveLog(flowId string, nodeName string, que
 func (f *FlowNodeQueryLogRepository) GetLog(flowId string, nodeName string, queryType string) *model.TFlowNodeQueryLog {
 	log := new(model.TFlowNodeQueryLog)
 	db.GetDB().Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).First(log)
+	if log.ID > 0 {
+		return log
+	}
+	return nil
+}
+
+func (f *FlowNodeQueryLogRepository) GetNewLog(flowId string, queryType string) *model.TFlowNodeQueryLog {
+	log := new(model.TFlowNodeQueryLog)
+	db.GetDB().Where("flow_id", flowId).Where("query_type", queryType).First(log)
 	if log.ID > 0 {
 		return log
 	}

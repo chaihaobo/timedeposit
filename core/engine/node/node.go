@@ -6,6 +6,7 @@ package node
 import (
 	"encoding/json"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
+	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 )
@@ -50,6 +51,11 @@ func (node *Node) GetMambuAccount(accountId string, realTime ...bool) (*mambuEnt
 	} else {
 		//read from redis
 		accountString := repository.GetRedisRepository().Get(accountId)
+		// if redis can not read,read from database
+		if accountString == "" {
+			log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryTDAccount)
+			accountString = log.Data
+		}
 		account := new(mambuEntity.TDAccount)
 		err := json.Unmarshal([]byte(accountString), account)
 		return account, err

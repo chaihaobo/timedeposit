@@ -5,4 +5,5 @@ package constant
 
 const (
 	QueryLastProfitApplied = "QueryLastProfitApplied"
+	QueryTDAccount         = "QueryTDAccount"
 )
