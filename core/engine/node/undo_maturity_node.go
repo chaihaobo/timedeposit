@@ -14,7 +14,7 @@ type UndoMaturityNode struct {
 }
 
 func (node *UndoMaturityNode) Run() (INodeResult, error) {
-
+	zap.L().Info("starting undo maturity node")
 	account, err := node.GetMambuAccount()
 	if err != nil {
 		return nil, err
