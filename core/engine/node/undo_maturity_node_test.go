@@ -4,11 +4,23 @@
 package node
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 )
 
 func TestUndoMaturityNode_Run(t *testing.T) {
+
+	config.Setup("./../../../config.yaml")
+	err := logger.SetUp(config.TDConf)
+	if err != nil {
+		zap.L().Error("logger init error", zap.Error(err))
+	}
+
 	type fields struct {
 		Node *Node
 	}
@@ -20,11 +32,11 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name : "Undo maturity test",
+			name : "Undo maturity test: 11747126703",
 			fields: fields{
 				Node : &Node{
 					FlowId    : "testFlowID",
-					AccountId : "11249460359",
+					AccountId : "11747126703",
 					NodeName  : "undo_maturity_node",
 				},
 			},
@@ -45,7 +57,9 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UndoMaturityNode.Run() = %v, want %v", got, tt.want)
+				return
 			}
+			fmt.Println("Run Undo Maturity Finished! result:", got)
 		})
 	}
 }
