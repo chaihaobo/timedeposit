@@ -1,26 +1,14 @@
 // Package node
 // @author： Boice
-// @createTime：2022/5/26 17:24
+// @createTime：2022/5/26 17:59
 package node
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
-
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
-	"go.uber.org/zap"
 )
 
-func TestUndoMaturityNode_Run(t *testing.T) {
-
-	config.Setup("./../../../config.yaml")
-	err := logger.SetUp(config.TDConf)
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
-
+func TestStartNewMaturityNode_Run(t *testing.T) {
 	type fields struct {
 		Node *Node
 	}
@@ -43,23 +31,20 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			want :NodeResultSuccess,
 			wantErr: false,
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := &UndoMaturityNode{
+			node := &StartNewMaturityNode{
 				Node: tt.fields.Node,
 			}
 			got, err := node.Run()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("UndoMaturityNode.Run() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("StartNewMaturityNode.Run() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("UndoMaturityNode.Run() = %v, want %v", got, tt.want)
-				return
+				t.Errorf("StartNewMaturityNode.Run() = %v, want %v", got, tt.want)
 			}
-			fmt.Println("Run Undo Maturity Finished! result:", got)
 		})
 	}
 }
