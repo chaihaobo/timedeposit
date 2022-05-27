@@ -5,6 +5,7 @@ package engine
 
 import (
 	"fmt"
+	"github.com/panjf2000/ants/v2"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/core/engine/flow"
@@ -12,6 +13,7 @@ import (
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
+	"sync"
 	"time"
 )
 
@@ -20,7 +22,11 @@ const (
 	FirstNode = "start_node"
 )
 
+var Pool *ants.Pool
+var poolOnce sync.Once
+
 func Start(accountId string) {
+
 	//create task info
 	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
 	createFlowTaskInfo(flowId, accountId)
@@ -176,4 +182,5 @@ func getNodeInNodeList(flowNodeList []*model.TFlowNode, nodeName string) *model.
 
 func init() {
 	flow.SetUp()
+	Pool, _ = ants.NewPool(100)
 }

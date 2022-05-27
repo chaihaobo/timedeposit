@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/core/engine"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -66,5 +67,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	util.CheckAndExit(server.Shutdown(ctx))
+	engine.Pool.Release()
 
 }
