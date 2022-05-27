@@ -150,12 +150,10 @@ func (tdAccInfo *TDAccount) IsCaseB() bool {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
-	isStopARO := tdAccInfo.OtherInformation.StopAro == "FALSE"
 	return isARO &&
 		activeState &&
 		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
-		rekeningTanggalJatohTempoDate.Before(tdAccInfo.MaturityDate) &&
-		!isStopARO
+		rekeningTanggalJatohTempoDate.Before(tdAccInfo.MaturityDate)
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1() bool {
