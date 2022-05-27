@@ -24,7 +24,7 @@ func (r *RedisRepository) Set(key string, value string) {
 }
 
 func (r *RedisRepository) Get(key string) string {
-	return cache.GetRedis().Get(context.Background(), key).String()
+	return cache.GetRedis().Get(context.Background(), key).Val()
 }
 
 func GetRedisRepository() IRedisRepository {
