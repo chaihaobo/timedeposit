@@ -35,6 +35,7 @@ func SaveMambuRequestLog(context context.Context, requestType string) mambu_http
 			NodeName(nodeName).
 			Type(requestType).
 			RequestUrl(url).
+			AccountId(accountId).
 			RequestBody(requestBody).
 			ResponseCode(code).
 			ResponseBody(responseBody).
