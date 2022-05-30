@@ -9,6 +9,7 @@ type TMambuRequestLog struct {
 	ID           int64     `gorm:"column:id" db:"column:id" json:"id" form:"id"`
 	FlowId       string    `gorm:"column:flow_id" db:"column:flow_id" json:"flow_id" form:"flow_id"`
 	NodeName     string    `gorm:"column:node_name" db:"column:node_name" json:"node_name" form:"node_name"`
+	AccountId    string    `gorm:"column:account_id" db:"column:account_id" json:"account_id" form:"account_id"`
 	Type         string    `gorm:"column:type" db:"column:type" json:"type" form:"type"`
 	RequestUrl   string    `gorm:"column:request_url" db:"column:request_url" json:"request_url" form:"request_url"`
 	RequestBody  string    `gorm:"column:request_body" db:"column:request_body" json:"request_body" form:"request_body"`
@@ -82,6 +83,11 @@ func (b *TMambuRequestLogsBuilder) CreateTime(createTime time.Time) *TMambuReque
 
 func (b *TMambuRequestLogsBuilder) UpdateTime(updateTime time.Time) *TMambuRequestLogsBuilder {
 	b.tMambuRequestLogs.UpdateTime = updateTime
+	return b
+}
+
+func (b *TMambuRequestLogsBuilder) AccountId(accountId string) *TMambuRequestLogsBuilder {
+	b.tMambuRequestLogs.AccountId = accountId
 	return b
 }
 

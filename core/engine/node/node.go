@@ -35,7 +35,7 @@ func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 }
 
 func (node *Node) GetContext() context.Context {
-	return context.WithValue(context.WithValue(context.Background(), "flowId", node.FlowId), "nodeName", node.NodeName)
+	return context.WithValue(context.WithValue(context.WithValue(context.Background(), "flowId", node.FlowId), "nodeName", node.NodeName), "accountId", node.AccountId)
 }
 
 func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {

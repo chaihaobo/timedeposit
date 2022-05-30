@@ -44,4 +44,4 @@ transactionReqMetaData:
   destinationIID: 947
   currency: IDR
   tranDesc1: Opening Deposito Account
-  tranDesc3:
+  tranDesc3: eod-engine

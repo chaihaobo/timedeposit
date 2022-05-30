@@ -15,14 +15,19 @@ func SaveMambuRequestLog(context context.Context, requestType string) mambu_http
 	return func(url string, code int, requestBody string, responseBody string, err error) {
 		var flowId = ""
 		var nodeName = ""
+		var accountId = ""
 		if context != nil {
 			contextFlowId := context.Value("flowId")
 			contextNodeName := context.Value("nodeName")
+			contextAccountId := context.Value("accountId")
 			if contextFlowId != nil {
 				flowId = contextFlowId.(string)
 			}
 			if contextNodeName != nil {
 				nodeName = contextNodeName.(string)
+			}
+			if contextAccountId != nil {
+				accountId = contextAccountId.(string)
 			}
 
 		}

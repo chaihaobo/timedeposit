@@ -30,6 +30,7 @@ func Start(accountId string) {
 	// create task info
 	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
 	createFlowTaskInfo(flowId, accountId)
+	zap.L().Info("create task info success!", zap.String("flowId", flowId))
 	// run flow by task flow id
 	Run(flowId)
 }

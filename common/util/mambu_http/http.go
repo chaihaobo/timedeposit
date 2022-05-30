@@ -47,7 +47,7 @@ func Patch(url, body string, resultBind interface{}, callback RequestCallbackFun
 	if err != nil {
 		return err
 	}
-	if code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
+	if err == nil && code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
 		zap.L().Error("http response status code is not success", zap.Int("status", code))
 		err = errors.WithStack(errors.New("http response status not success"))
 	}
@@ -72,10 +72,8 @@ func Post(url, body string, resultBind interface{}, callback RequestCallbackFun)
 		_ = json.Unmarshal([]byte(response), resultBind)
 	}
 	logError(err)
-	if err != nil {
-		return err
-	}
-	if code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
+
+	if err == nil && code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
 		zap.L().Error("http response status code is not success", zap.Int("status", code))
 		err = errors.WithStack(errors.New("http response status not success"))
 	}
@@ -97,10 +95,7 @@ func Get(url string, resultBind interface{}, callback RequestCallbackFun) error 
 		_ = json.Unmarshal([]byte(response), resultBind)
 	}
 	logError(err)
-	if err != nil {
-		return err
-	}
-	if code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
+	if err == nil && code != http.StatusOK && code != http.StatusNoContent && code != http.StatusCreated {
 		zap.L().Error("http response status code is not success", zap.Int("status", code))
 		err = errors.WithStack(errors.New("http response status not success"))
 	}

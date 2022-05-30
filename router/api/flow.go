@@ -8,18 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
 	"gitlab.com/bns-engineering/td/core/engine"
+	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/router/api/dto"
-	mambuservices "gitlab.com/bns-engineering/td/service/mambuServices"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 func StartFlow(c *gin.Context) {
-	//Get all td accounts which need to process
+	// Get all td accounts which need to process
 	tmpQueryParam := generateSearchTDAccountParam()
-	tmpTDAccountList, err := mambuservices.GetTDAccountListByQueryParam(tmpQueryParam)
+	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Query mambu service for TD Account List failed! error: %v", err))
 		return
@@ -30,18 +30,13 @@ func StartFlow(c *gin.Context) {
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		zap.L().Info(fmt.Sprintf("Before Run Flow for Account: %v", tmpTDAcc.ID))
-	}
-	zap.L().Info("=======================================")
-
-	for _, tmpTDAcc := range tmpTDAccountList {
-		err := engine.Pool.Submit(func() {
+		_ = engine.Pool.Submit(func() {
 			engine.Start(tmpTDAcc.ID)
 		})
-		if err != nil {
-			c.String(http.StatusInternalServerError, "%s", err.Error())
-		}
+		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
+
 	}
+	c.JSON(http.StatusOK, success())
 
 }
 

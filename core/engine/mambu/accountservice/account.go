@@ -16,6 +16,28 @@ import (
 	"time"
 )
 
+// Get TDAccount List from mambu api
+func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEntity.TDAccount, error) {
+	tdAccountList := []mambuEntity.TDAccount{}
+	postUrl := constant.UrlOf(constant.SearchTDAccountListUrl)
+	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
+	queryParamByte, err := json.Marshal(searchParam)
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", searchParam))
+		return tdAccountList, nil
+	}
+	postJsonStr := string(queryParamByte)
+	zap.L().Debug(fmt.Sprintf("PostUrl:%v", postUrl))
+	zap.L().Debug(fmt.Sprintf("postJsonStr:%v", postJsonStr))
+	err = mambu_http.Post(postUrl, postJsonStr, &tdAccountList, mambu.SaveMambuRequestLog(nil, "GetTDAccountListByQueryParam"))
+
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Search td account Info List failed! queryParam: %v", postJsonStr))
+		return tdAccountList, err
+	}
+	return tdAccountList, nil
+}
+
 func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.TDAccount, error) {
 	var tdAccount = new(mambuEntity.TDAccount)
 	getUrl := fmt.Sprintf(constant.UrlOf(constant.GetTDAccountUrl), tdAccountID)
