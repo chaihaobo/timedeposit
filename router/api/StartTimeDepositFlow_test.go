@@ -45,15 +45,7 @@ func TestStartTDFlow(t *testing.T) {
 
 func TestRunFlow(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		fmt.Printf("%d \n", i)
-		err := engine.Pool.Submit(func() {
-
-			fmt.Printf("%d \n", i)
-
-		})
-		if err != nil {
-			fmt.Printf("result %s", err.Error())
-		}
+		_ = engine.Pool.Invoke(fmt.Sprintf("%d\n", i))
 
 	}
 
