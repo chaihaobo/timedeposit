@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
@@ -17,7 +18,6 @@ import (
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
-	"strconv"
 	"time"
 )
 
@@ -45,14 +45,21 @@ func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]ma
 }
 
 func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInterestTrans mambuEntity.TransactionBrief) (float64, float64) {
-	specialER, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.SpecialER, 64)
-	ER := tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate
-	appliedInterest := lastAppliedInterestTrans.Amount
-	additionalProfit := (specialER/ER)*appliedInterest - appliedInterest
-	taxRate, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.NisbahPajak, 64)
-	taxRateReal := taxRate / 100
-	additionalProfitTax := additionalProfit * taxRateReal
-	return additionalProfit, additionalProfitTax
+	// specialER, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.SpecialER, 64)
+	// ER := tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate
+	// appliedInterest := lastAppliedInterestTrans.Amount
+	// additionalProfit := (specialER/ER)*appliedInterest - appliedInterest
+	// taxRate, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.NisbahPajak, 64)
+	// taxRateReal := taxRate / 100
+	// additionalProfitTax := additionalProfit * taxRateReal
+	specialER, _ := decimal.NewFromString(tmpTDAccount.OtherInformation.SpecialER)
+	ER := decimal.NewFromFloat(tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate)
+	appliedInterest := decimal.NewFromFloat(lastAppliedInterestTrans.Amount)
+	additionalProfit := specialER.Div(ER).Sub(appliedInterest)
+	taxRate, _ := decimal.NewFromString(tmpTDAccount.OtherInformation.NisbahPajak)
+	taxRateReal := taxRate.Div(decimal.NewFromInt(100))
+	additionalProfitTax := additionalProfit.Mul(taxRateReal)
+	return additionalProfit.Round(4).InexactFloat64(), additionalProfitTax.Round(4).InexactFloat64()
 }
 
 func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
