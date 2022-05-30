@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/common/util/http"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"time"
@@ -89,13 +90,12 @@ func ApplyProfit(accountID, note string) bool {
 		InterestApplicationDate time.Time `json:"interestApplicationDate"`
 		Notes                   string    `json:"notes"`
 	}{
-		InterestApplicationDate: time.Now(),
+		InterestApplicationDate: time.Now().In(time.FixedZone("CST", 7*3600)),
 		Notes:                   note,
 	})
 	postJsonStr := string(postJsonByte)
-
-	_, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil && code != constant.HttpStatusCodeSucceed && code != constant.HttpStatusCodeSucceedNoContent {
+	err := http.Post(postUrl, postJsonStr, nil, nil)
+	if err != nil {
 		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
 	}

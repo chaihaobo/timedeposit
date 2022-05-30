@@ -4,6 +4,7 @@
 package http
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/guonaihong/gout"
 	"github.com/pkg/errors"
@@ -11,7 +12,6 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 type RequestCallbackFun func(url string, code int, requestBody string, responseBody string, err error)
@@ -30,16 +30,14 @@ func getMambuHeader() map[string][]string {
 
 func Post(url, body string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
-	data := strings.NewReader(body)
-	req, _ := http.NewRequest("POST", url, data)
-	req.Header = getMambuHeader()
 	call := gout.POST(url).SetHeader(getMambuHeader()).
-		Debug(true).SetJSON(body)
+		RequestUse(new(logRequestMiddler)).
+		ResponseUse(new(logResponseMiddler)).
+		SetJSON(body)
 	if resultBind != nil {
 		call.BindJSON(resultBind)
 	}
 	err := call.Code(&code).Do()
-
 	logError(err)
 	if callback != nil {
 		marshal, _ := json.Marshal(resultBind)
@@ -80,9 +78,10 @@ func (d *logResponseMiddler) ModifyResponse(response *http.Response) error {
 		zap.Int("response code", code),
 		zap.String("response body", string(all)),
 	)
-	if code != http.StatusOK {
+	if code != http.StatusOK && code != http.StatusNoContent {
 		return errors.WithStack(errors.New("http response status not success"))
 	}
+	response.Body = ioutil.NopCloser(bytes.NewReader(all))
 	return nil
 }
 
@@ -98,5 +97,6 @@ func (d *logRequestMiddler) ModifyRequest(request *http.Request) error {
 		zap.Any("request headers", request.Header),
 		zap.String("request body", string(all)),
 	)
+	request.Body = ioutil.NopCloser(bytes.NewReader(all))
 	return nil
 }
