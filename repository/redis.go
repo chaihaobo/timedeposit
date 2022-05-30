@@ -34,7 +34,7 @@ func (r *RedisRepository) SaveTDAccount(account *mambuEntity.TDAccount) error {
 	if err != nil {
 		return err
 	}
-	cache.GetRedis().Set(context.Background(), tdAccountPrefix+account.ID, string(marshal), time.Hour)
+	cache.GetRedis().Set(context.Background(), tdAccountPrefix+account.ID, string(marshal), time.Hour).Result()
 	return nil
 }
 

@@ -4,13 +4,17 @@
 package http
 
 import (
+	"encoding/json"
 	"github.com/guonaihong/gout"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
+
+type RequestCallbackFun func(url string, code int, requestBody string, responseBody string, err error)
 
 //
 //  getMambuHeader mambu base header
@@ -19,33 +23,48 @@ import (
 //
 func getMambuHeader() map[string][]string {
 	return map[string][]string{
-		"Content-Type": {constant.ContentType},
-		"Accept":       {constant.Accept},
-		"Apikey":       {constant.Apikey},
+		"Accept": {constant.Accept},
+		"Apikey": {constant.Apikey},
 	}
 }
 
-func Post(postJsonStr, postUrl string, resultBind interface{}) (int, error) {
+func Post(url, body string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
-	err := gout.POST(postUrl).
-		Debug(true).
-		SetHeader(getMambuHeader()).
-		SetJSON(postJsonStr).
-		Code(&code).BindJSON(resultBind).
-		Do()
+	data := strings.NewReader(body)
+	req, _ := http.NewRequest("POST", url, data)
+	req.Header = getMambuHeader()
+	call := gout.POST(url).SetHeader(getMambuHeader()).
+		Debug(true).SetJSON(body)
+	if resultBind != nil {
+		call.BindJSON(resultBind)
+	}
+	err := call.Code(&code).Do()
+
 	logError(err)
-	return code, err
+	if callback != nil {
+		marshal, _ := json.Marshal(resultBind)
+		callback(url, code, body, string(marshal), err)
+	}
+	return err
 }
 
-func Get(urlStr string, resultBind interface{}) (int, error) {
+func Get(urlStr string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
-	err := gout.GET(urlStr).SetHeader(getMambuHeader()).Code(&code).BindJSON(resultBind).RequestUse().Do()
+	err := gout.GET(urlStr).SetHeader(getMambuHeader()).Code(&code).BindJSON(resultBind).
+		RequestUse(new(logRequestMiddler)).
+		ResponseUse(new(logResponseMiddler)).Do()
 	logError(err)
-	return code, err
+	if callback != nil {
+		marshal, _ := json.Marshal(resultBind)
+		callback(urlStr, code, "", string(marshal), err)
+	}
+	return err
 }
 
 func logError(err error) {
-	zap.L().Error("call api error", zap.Error(errors.WithStack(err)))
+	if err != nil {
+		zap.L().Error("call api error", zap.Error(errors.WithStack(err)))
+	}
 }
 
 type logResponseMiddler struct {
@@ -60,6 +79,24 @@ func (d *logResponseMiddler) ModifyResponse(response *http.Response) error {
 	zap.L().Info("http response==============", zap.String("url", response.Request.URL.String()),
 		zap.Int("response code", code),
 		zap.String("response body", string(all)),
+	)
+	if code != http.StatusOK {
+		return errors.WithStack(errors.New("http response status not success"))
+	}
+	return nil
+}
+
+type logRequestMiddler struct {
+}
+
+func (d *logRequestMiddler) ModifyRequest(request *http.Request) error {
+	all, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		return err
+	}
+	zap.L().Info("http request", zap.String("url", request.URL.String()),
+		zap.Any("request headers", request.Header),
+		zap.String("request body", string(all)),
 	)
 	return nil
 }
