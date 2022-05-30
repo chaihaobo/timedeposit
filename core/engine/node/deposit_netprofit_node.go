@@ -6,6 +6,7 @@ package node
 import (
 	"errors"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 	"strconv"
@@ -29,7 +30,7 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 			return nil, errors.New(errMsg)
 		}
 		// Calculate the profit
-		netProfit := account.Balances.TotalBalance - principal
+		netProfit := decimal.NewFromFloat(account.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(4).InexactFloat64()
 		if netProfit > 0 {
 			// Get benefit account info
 			benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)

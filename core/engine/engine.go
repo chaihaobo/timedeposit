@@ -13,7 +13,6 @@ import (
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
-	"sync"
 	"time"
 )
 
@@ -22,8 +21,8 @@ const (
 	FirstNode = "start_node"
 )
 
-var Pool *ants.Pool
-var poolOnce sync.Once
+var Pool *ants.PoolWithFunc
+var RetryPool *ants.PoolWithFunc
 
 func Start(accountId string) {
 
@@ -203,5 +202,11 @@ func getNodeInNodeList(flowNodeList []*model.TFlowNode, nodeName string) *model.
 
 func init() {
 	flow.SetUp()
-	Pool, _ = ants.NewPool(100)
+	Pool, _ = ants.NewPoolWithFunc(100, func(accountId interface{}) {
+		Start(accountId.(string))
+	})
+
+	RetryPool, _ = ants.NewPoolWithFunc(100, func(flowId interface{}) {
+		Run(flowId.(string))
+	})
 }

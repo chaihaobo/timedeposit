@@ -6,6 +6,7 @@ package node
 import (
 	"errors"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 )
@@ -19,7 +20,7 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	totalBalance := account.Balances.TotalBalance
+	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(4).InexactFloat64()
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
 		// Get benefit account info
 		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)

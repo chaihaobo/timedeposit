@@ -59,7 +59,7 @@ func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInt
 	taxRate, _ := decimal.NewFromString(tmpTDAccount.OtherInformation.NisbahPajak)
 	taxRateReal := taxRate.Div(decimal.NewFromInt(100))
 	additionalProfitTax := additionalProfit.Mul(taxRateReal)
-	return additionalProfit.Round(4).InexactFloat64(), additionalProfitTax.Round(4).InexactFloat64()
+	return additionalProfit.RoundFloor(4).InexactFloat64(), additionalProfitTax.RoundFloor(4).InexactFloat64()
 }
 
 func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {

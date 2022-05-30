@@ -30,9 +30,7 @@ func StartFlow(c *gin.Context) {
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		_ = engine.Pool.Submit(func() {
-			engine.Start(tmpTDAcc.ID)
-		})
+		_ = engine.Pool.Invoke(tmpTDAcc.ID)
 		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
 
 	}
@@ -62,9 +60,7 @@ func Retry(c *gin.Context) {
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
 	for _, flowId := range list {
-		_ = engine.Pool.Submit(func() {
-			engine.Run(flowId)
-		})
+		_ = engine.RetryPool.Invoke(flowId)
 	}
 	c.JSON(http.StatusOK, success())
 }
@@ -74,9 +70,7 @@ func RetryAll(c *gin.Context) {
 
 	for _, flowId := range failFlowIdList {
 		zap.L().Info("retry flow", zap.String("flowId", flowId))
-		_ = engine.Pool.Submit(func() {
-			engine.Run(flowId)
-		})
+		_ = engine.RetryPool.Invoke(flowId)
 	}
 	c.JSON(http.StatusOK, success())
 }
