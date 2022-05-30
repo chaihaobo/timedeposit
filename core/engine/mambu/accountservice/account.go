@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/common/util/http"
@@ -84,13 +85,13 @@ func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAcc
 func ApplyProfit(accountID, note string) bool {
 	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
-
 	// Build the update maturity json struct
+
 	postJsonByte, _ := json.Marshal(struct {
 		InterestApplicationDate time.Time `json:"interestApplicationDate"`
 		Notes                   string    `json:"notes"`
 	}{
-		InterestApplicationDate: time.Now().In(time.FixedZone("CST", 7*3600)),
+		InterestApplicationDate: carbon.NewCarbon(time.Now().In(time.FixedZone("CST", 7*3600))).StartOfDay().Time,
 		Notes:                   note,
 	})
 	postJsonStr := string(postJsonByte)
