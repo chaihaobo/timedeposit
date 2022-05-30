@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util"
@@ -73,10 +74,10 @@ func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
 			},
 			{
 				Field: "creationDate",
-				//todo: Remember to set the value to today!
+				// todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
-				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), //today
-				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   //tomorrow
+				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), // today
+				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
 			},
 		},
 		SortingCriteria: mambuEntity.SortingCriteria{
@@ -173,7 +174,7 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, transactionID string,
 			ExternalOriTransactionID:       config.TDConf.TransactionReqMetaData.ExternalOriTransactionID,
 			ExternalOriTransactionDetailID: config.TDConf.TransactionReqMetaData.ExternalOriTransactionDetailID,
 			TransactionType:                config.TDConf.TransactionReqMetaData.TransactionType,
-			TransactionDateTime:            time.Now().Format("2006-01-02 15:04:05"),
+			TransactionDateTime:            carbon.Now().String(),
 			TerminalType:                   config.TDConf.TransactionReqMetaData.TerminalType,
 			TerminalID:                     config.TDConf.TransactionReqMetaData.TerminalID,
 			TerminalLocation:               config.TDConf.TransactionReqMetaData.TerminalLocation,

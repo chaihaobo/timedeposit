@@ -28,7 +28,7 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 			zap.L().Error(errMsg)
 			return nil, errors.New(errMsg)
 		}
-		//Calculate the profit
+		// Calculate the profit
 		netProfit := account.Balances.TotalBalance - principal
 		if netProfit > 0 {
 			// Get benefit account info
@@ -37,13 +37,13 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 				zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", account.ID, account.OtherInformation.BhdNomorRekPencairan))
 				return nil, errors.New("call mambu get benefit acc info failed")
 			}
-			//Deposit netProfit to benefit account
+			// Deposit netProfit to benefit account
 			channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 			depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 			depositResp, err := transactionservice.DepositTransaction(account, benefitAccount, netProfit, depositTransID, channelID)
 			if err != nil {
 				zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
-				//todo: Add reverse withdraw here
+				// todo: Add reverse withdraw here
 
 				return nil, errors.New("call mambu deposit failed")
 			}
@@ -53,5 +53,5 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 		zap.L().Info("not match! skip it")
 	}
 
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 }

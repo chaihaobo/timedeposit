@@ -13,7 +13,7 @@ import (
 )
 
 func TestStartNewMaturityNode_Run(t *testing.T) {
-	
+
 	config.Setup("./../../../config.yaml")
 	err := logger.SetUp(config.TDConf)
 	if err != nil {
@@ -31,15 +31,15 @@ func TestStartNewMaturityNode_Run(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name : "Undo maturity test: 11747126703",
+			name: "Undo maturity test: 11747126703",
 			fields: fields{
-				Node : &Node{
-					FlowId    : "testFlowID",
-					AccountId : "11747126703",
-					NodeName  : "start_new_maturity_node",
+				Node: &Node{
+					FlowId:    "testFlowID",
+					AccountId: "11747126703",
+					NodeName:  "start_new_maturity_node",
 				},
 			},
-			want :NodeResultSuccess,
+			want:    ResultSuccess,
 			wantErr: false,
 		},
 	}

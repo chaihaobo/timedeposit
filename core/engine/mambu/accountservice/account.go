@@ -21,7 +21,7 @@ func GetAccountById(tdAccountID string) (*mambuEntity.TDAccount, error) {
 	if err != nil || code != constant.HttpStatusCodeSucceed {
 		zap.L().Error(fmt.Sprintf("Query td account Info failed! td acc id: %v", tdAccountID), zap.String("body", resp), zap.Error(err))
 		if err == nil {
-			err = errors.New("query account status code is not succeed ")
+			err = errors.New("query account status code is not succeed")
 		}
 		return nil, err
 	}
@@ -45,12 +45,12 @@ func UndoMaturityDate(accountID string) bool {
 	return true
 }
 
-//Create New Maturity Date for this TD account
+// Create New Maturity Date for this TD account
 func ChangeMaturityDate(accountID, maturityDate, note string) (mambuEntity.TDAccount, error) {
 	postUrl := fmt.Sprintf(constant.StartMaturityDateUrl, accountID)
 	zap.L().Info(fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))
 
-	//Build the update maturity json struct
+	// Build the update maturity json struct
 	postJsonByte, _ := json.Marshal(struct {
 		MaturityDate string `json:"maturityDate"`
 		Notes        string `json:"notes"`
@@ -84,7 +84,7 @@ func ApplyProfit(accountID, note string) bool {
 	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
-	//Build the update maturity json struct
+	// Build the update maturity json struct
 	postJsonByte, _ := json.Marshal(struct {
 		InterestApplicationDate time.Time `json:"interestApplicationDate"`
 		Notes                   string    `json:"notes"`
@@ -106,7 +106,7 @@ func UpdateMaturifyDateForTDAccount(accountID, newDate string) bool {
 	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
-	//Build the update maturity json struct
+	// Build the update maturity json struct
 	postJsonByte, _ := json.Marshal([]struct {
 		Op    string `json:"op"`
 		Path  string `json:"path"`
@@ -135,7 +135,7 @@ func CloseAccount(accID, notes string) bool {
 	postUrl := fmt.Sprintf(constant.CloseAccountUrl, accID)
 	zap.L().Debug(fmt.Sprintf("CloseAccountUrl: %v", postUrl))
 
-	//Build the update maturity json struct
+	// Build the update maturity json struct
 	postJsonByte, _ := json.Marshal([]struct {
 		Action string `json:"action"`
 		Notes  string `json:"notes"`

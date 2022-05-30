@@ -25,7 +25,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 	if account.IsCaseA() {
-		//generate new Maturity Date
+		// generate new Maturity Date
 		maturityDate, err := generateMaturityDateStr(account.OtherInformation.Tenor, account.MaturityDate)
 		if err != nil {
 			zap.L().Info(fmt.Sprintf("Generate New Maturity Date failed, Account: %v", account.ID))
@@ -33,7 +33,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 		}
 		note := fmt.Sprintf("TDE-AUTO-%v", node.FlowId)
 
-		//create new maturity date
+		// create new maturity date
 		_, err = accountservice.ChangeMaturityDate(account.ID, maturityDate, note)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Update maturity date failed for account: %v", account.ID))
@@ -42,17 +42,17 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 	} else {
 		zap.L().Info("not match! skip it")
 	}
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 }
 
-//Calcuate the new maturity date by tenor
+// Calcuate the new maturity date by tenor
 func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, error) {
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
 		return "", errors.New("convert tenor to int failed")
 	}
-	//Todo: note, should add logic for holidays
+	// Todo: note, should add logic for holidays
 	resultDate := maturityDate.AddDate(0, tenorInt, 0)
 	for _, tmpHoliday := range mambuservices.GetHolidayList() {
 		if util.InSameDay(tmpHoliday, resultDate) {

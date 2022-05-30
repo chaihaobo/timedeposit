@@ -27,10 +27,10 @@ var poolOnce sync.Once
 
 func Start(accountId string) {
 
-	//create task info
+	// create task info
 	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
 	createFlowTaskInfo(flowId, accountId)
-	//run flow by task flow id
+	// run flow by task flow id
 	Run(flowId)
 }
 
@@ -58,7 +58,7 @@ func Run(flowId string) {
 
 		runNode := getINode(currentNode.NodePath)
 		runNode.SetUp(flowId, flowTaskInfo.AccountId, nodeName)
-		//update run status to running
+		// update run status to running
 		taskRunning(flowTaskInfo, nodeName)
 
 		runStartTime := time.Now()
@@ -71,7 +71,6 @@ func Run(flowId string) {
 				return err
 			}, 3)
 		}
-
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowName, nodeName, run, err)
 		if err != nil {

@@ -42,15 +42,15 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 			zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 			return nil, errors.New("call mambu get benefit acc info failed")
 		}
-		//Calculate additionalProfit & tax of additionalProfit
+		// Calculate additionalProfit & tax of additionalProfit
 		_, additionalProfitTax := transactionservice.GetAdditionProfitAndTax(account, lastAppliedInterestTrans)
-		//Deposit additional profit
+		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "PPH_PS42_DEPOSITO"
 		depositResp, err := transactionservice.DepositTransaction(account, benefitAccount, additionalProfitTax, depositTransID, depositChannelID)
 		if err != nil {
 			zap.L().Error("Failed to deposit for td account", zap.String("account", account.ID))
-			//todo: Add reverse withdraw here
+			// todo: Add reverse withdraw here
 			zap.L().Error("depositResp error", zap.Any("depositResp", depositResp), zap.Error(err))
 
 			return nil, errors.New("call mambu deposit failed")
@@ -59,6 +59,6 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 	} else {
 		zap.L().Info("not match! skip it")
 	}
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 
 }

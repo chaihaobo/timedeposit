@@ -8,16 +8,16 @@ log:
   MaxAge: 28
   Level: DEBUG
 db:
-  username: hugo
-  password: 123456
-  host: 192.168.31.58
+  username: root
+  password: nju063320
+  host: 192.168.31.16
   port: 3306
   db: time_deposit_eod_engine
   maxOpenConn: 100
   maxIdleConn: 20
 redis:
-  addr: 192.168.31.58:6379
-  password: 123456
+  addr: 192.168.31.16
+  password:
   poolSize: 10
   db: 0
 server:

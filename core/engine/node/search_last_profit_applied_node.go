@@ -43,6 +43,6 @@ func (node *SearchLastProfitAppliedNode) Run() (INodeResult, error) {
 	} else {
 		zap.L().Info("not match! skip it")
 	}
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 
 }

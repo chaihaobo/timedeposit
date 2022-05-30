@@ -32,7 +32,7 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		depositResp, err := transactionservice.DepositTransaction(account, benefitAccount, totalBalance, depositTransID, channelID)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
-			//todo: Add reverse withdraw here
+			// todo: Add reverse withdraw here
 			zap.L().Error(fmt.Sprintf("depositResp: %v", depositResp))
 			return nil, errors.New("call mambu deposit failed")
 		}
@@ -41,5 +41,5 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		zap.L().Info("not match! skip it")
 	}
 
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 }

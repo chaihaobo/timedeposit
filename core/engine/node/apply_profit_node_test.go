@@ -4,21 +4,20 @@
 package node
 
 import (
-	"reflect"
-	"testing"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/log"
 	"go.uber.org/zap"
+	"reflect"
+	"testing"
 )
 
 func TestApplyProfitNode_Run(t *testing.T) {
-	
+
 	config.Setup("./../../../config.yaml")
 	err := logger.SetUp(config.TDConf)
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
 	}
-
 
 	type fields struct {
 		Node *Node
@@ -30,15 +29,15 @@ func TestApplyProfitNode_Run(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name : "apply profit test: 11714744288",
+			name: "apply profit test: 11714744288",
 			fields: fields{
-				Node : &Node{
-					FlowId    : "testFlowID",
-					AccountId : "11714744288",
-					NodeName  : "apply_profit_node",
+				Node: &Node{
+					FlowId:    "testFlowID",
+					AccountId: "11714744288",
+					NodeName:  "apply_profit_node",
 				},
 			},
-			want :NodeResultSuccess,
+			want:    ResultSuccess,
 			wantErr: false,
 		},
 	}

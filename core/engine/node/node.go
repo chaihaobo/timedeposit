@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	NodeResultSuccess NodeResult = "success"
+	ResultSuccess NodeResult = "success"
 )
 
 type INode interface {
@@ -35,12 +35,12 @@ func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 
 func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
 	if !realTime {
-		//from redis
+		// from redis
 		account := repository.GetRedisRepository().GetBenefitAccount(accountId)
 		if account != nil {
 			return account, nil
 		}
-		//from db
+		// from db
 		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryBenefitAccount)
 		if log != nil {
 			saveDBAccount := new(mambuEntity.TDAccount)
@@ -54,7 +54,7 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 			}
 		}
 	}
-	//real
+	// real
 	id, err := accountservice.GetAccountById(accountId)
 	if err == nil {
 		marshal, _ := json.Marshal(id)
@@ -67,12 +67,12 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 
 func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
 	if !realTime {
-		//from redis
+		// from redis
 		account := repository.GetRedisRepository().GetTDAccount(accountId)
 		if account != nil {
 			return account, nil
 		}
-		//from db
+		// from db
 		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryTDAccount)
 		if log != nil {
 			saveDBAccount := new(mambuEntity.TDAccount)
@@ -86,7 +86,7 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity
 			}
 		}
 	}
-	//real
+	// real
 	id, err := accountservice.GetAccountById(accountId)
 	if err == nil {
 		marshal, _ := json.Marshal(id)

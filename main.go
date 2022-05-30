@@ -9,9 +9,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"gitlab.com/bns-engineering/td/common/util"
-	"gitlab.com/bns-engineering/td/core/engine"
-	"go.uber.org/zap"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,9 +16,13 @@ import (
 	"syscall"
 	"time"
 
+	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/core/engine"
+	"go.uber.org/zap"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
+	logger "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/flow"
 	"gitlab.com/bns-engineering/td/router"
 )

@@ -42,10 +42,10 @@ func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
 			zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 			return nil, errors.New("call mambu get benefit acc info failed")
 		}
-		//Calculate additionalProfit & tax of additionalProfit
+		// Calculate additionalProfit & tax of additionalProfit
 		additionalProfit, _ := transactionservice.GetAdditionProfitAndTax(account, lastAppliedInterestTrans)
 
-		//Withdraw additional profit
+		// Withdraw additional profit
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		channelID := "BBN_BAGHAS_DEPMUDC"
 		withrawResp, err := transactionservice.WithdrawTransaction(account, benefitAccount, additionalProfit, withdrawTransID, channelID)
@@ -57,6 +57,6 @@ func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
 	} else {
 		zap.L().Info("not match! skip it")
 	}
-	return NodeResultSuccess, nil
+	return ResultSuccess, nil
 
 }

@@ -32,18 +32,17 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name : "Undo maturity test: 11747126703",
+			name: "Undo maturity test: 11747126703",
 			fields: fields{
-				Node : &Node{
-					FlowId    : "testFlowID",
-					AccountId : "11747126703",
-					NodeName  : "undo_maturity_node",
+				Node: &Node{
+					FlowId:    "testFlowID",
+					AccountId: "11747126703",
+					NodeName:  "undo_maturity_node",
 				},
 			},
-			want :NodeResultSuccess,
+			want:    ResultSuccess,
 			wantErr: false,
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
