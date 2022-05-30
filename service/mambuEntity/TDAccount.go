@@ -128,7 +128,7 @@ type OtherInformationCorporate struct {
 
 func (tdAccInfo *TDAccount) IsCaseA() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
-	activeState := tdAccInfo.AccountState == "ACTIVE"
+	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
@@ -144,7 +144,7 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 
 func (tdAccInfo *TDAccount) IsCaseB() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
-	activeState := tdAccInfo.AccountState == "ACTIVE"
+	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
@@ -157,8 +157,8 @@ func (tdAccInfo *TDAccount) IsCaseB() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1() bool {
-	isStopARO := tdAccInfo.OtherInformation.StopAro == "FALSE"
-	aroType := tdAccInfo.OtherInformation.AroType
+	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "FALSE"
+	aroType := strings.ToUpper(tdAccInfo.OtherInformation.AroType)
 	return tdAccInfo.IsCaseB() &&
 		isStopARO &&
 		aroType == "PRINCIPALONLY"
@@ -186,7 +186,7 @@ func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseB2() bool {
-	isStopARO := tdAccInfo.OtherInformation.StopAro == "FALSE"
+	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "FALSE"
 	aroType := tdAccInfo.OtherInformation.AroType
 	return tdAccInfo.IsCaseB() &&
 		isStopARO &&
@@ -199,13 +199,13 @@ func (tdAccInfo *TDAccount) IsCaseB2_1_1() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseB3() bool {
-	isStopARO := tdAccInfo.OtherInformation.StopAro == "TRUE"
+	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "TRUE"
 	return tdAccInfo.IsCaseB() &&
 		isStopARO
 }
 
 func (tdAccInfo *TDAccount) IsCaseC() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
-	isMatureState := tdAccInfo.AccountState == "Mature"
+	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURE"
 	return !isARO && isMatureState
 }
