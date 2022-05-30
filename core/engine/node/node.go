@@ -4,6 +4,7 @@
 package node
 
 import (
+	"context"
 	"encoding/json"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
@@ -33,6 +34,10 @@ func (node *Node) SetUp(flowId string, accountId string, nodeName string) {
 	node.NodeName = nodeName
 }
 
+func (node *Node) GetContext() context.Context {
+	return context.WithValue(context.WithValue(context.Background(), "flowId", node.FlowId), "nodeName", node.NodeName)
+}
+
 func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
 	if !realTime {
 		// from redis
@@ -55,7 +60,7 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 		}
 	}
 	// real
-	id, err := accountservice.GetAccountById(accountId)
+	id, err := accountservice.GetAccountById(node.GetContext(), accountId)
 	if err == nil {
 		marshal, _ := json.Marshal(id)
 		err = repository.GetRedisRepository().SaveBenefitAccount(id)
@@ -87,7 +92,7 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity
 		}
 	}
 	// real
-	id, err := accountservice.GetAccountById(accountId)
+	id, err := accountservice.GetAccountById(node.GetContext(), accountId)
 	if err == nil {
 		marshal, _ := json.Marshal(id)
 		err = repository.GetRedisRepository().SaveTDAccount(id)

@@ -65,6 +65,10 @@ type TDConfig struct {
 		PoolSize int
 		DB       int
 	}
+	Mambu *struct {
+		Host   string
+		ApiKey string
+	}
 }
 
 func Setup(path string) *TDConfig {

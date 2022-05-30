@@ -24,7 +24,7 @@ func (node *CloseAccountNode) Run() (INodeResult, error) {
 	if (account.IsCaseB3() && totalBalance > 0) ||
 		(account.IsCaseC() && totalBalance > 0) {
 		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", account.ID, account)
-		isApplySucceed := accountservice.CloseAccount(account.ID, notes)
+		isApplySucceed := accountservice.CloseAccount(node.GetContext(), account.ID, notes)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("close account failed for account: %v", account.ID))
 			return nil, errors.New("call Mambu service failed")

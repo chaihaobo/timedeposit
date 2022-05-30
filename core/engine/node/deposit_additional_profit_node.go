@@ -29,7 +29,7 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialRate) == "TRUE") {
 		// Get last applied interest info
-		transList, err := transactionservice.GetTransactionByQueryParam(account.EncodedKey)
+		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {
 			zap.L().Info("No applied profit, skip")
 			return nil, errors.New("No applied profit, skip")
@@ -47,7 +47,7 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "PPH_PS42_DEPOSITO"
-		depositResp, err := transactionservice.DepositTransaction(account, benefitAccount, additionalProfitTax, depositTransID, depositChannelID)
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, additionalProfitTax, depositTransID, depositChannelID)
 		if err != nil {
 			zap.L().Error("Failed to deposit for td account", zap.String("account", account.ID))
 			// todo: Add reverse withdraw here

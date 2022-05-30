@@ -44,9 +44,9 @@ func Run(flowId string) {
 		zap.L().Error("flow is already running or finished", zap.String("curStatus", flowTaskInfo.CurStatus))
 		return
 	}
+
 	flowName := flowTaskInfo.FlowName
 	nodeName := flowTaskInfo.CurNodeName
-
 	flowNodes := repository.GetFlowNodeRepository().GetFlowNodeListByFlowName(flowName)
 	relationList := repository.GetFlowNodeRelationRepository().GetFlowNodeRelationListByFlowName(flowName)
 	zap.L().Info("find engine flow", zap.Int("node size", len(flowNodes)), zap.Int("node relation size", len(relationList)))
@@ -57,10 +57,10 @@ func Run(flowId string) {
 		currentNode := getNodeInNodeList(flowNodes, nodeName)
 
 		runNode := getINode(currentNode.NodePath)
+
 		runNode.SetUp(flowId, flowTaskInfo.AccountId, nodeName)
 		// update run status to running
 		taskRunning(flowTaskInfo, nodeName)
-
 		runStartTime := time.Now()
 		zap.L().Info("flow node run start", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
 		run, err := runNode.Run()
@@ -95,7 +95,6 @@ func Run(flowId string) {
 		}
 		nodeName = relation.NextNode
 	}
-
 }
 
 func retry(retryFun func() error, times int) {

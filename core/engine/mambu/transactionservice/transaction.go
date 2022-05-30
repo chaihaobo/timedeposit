@@ -4,6 +4,7 @@
 package transactionservice
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/common/util/mambu_http"
+	"gitlab.com/bns-engineering/td/core/engine/mambu"
 	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
@@ -18,7 +21,7 @@ import (
 	"time"
 )
 
-func GetTransactionByQueryParam(enCodeKey string) ([]mambuEntity.TransactionBrief, error) {
+func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]mambuEntity.TransactionBrief, error) {
 	searchParam := generateTransactionSearchParam(enCodeKey)
 	tmpTransList := []mambuEntity.TransactionBrief{}
 	postUrl := constant.SearchTransactionUrl
@@ -32,17 +35,10 @@ func GetTransactionByQueryParam(enCodeKey string) ([]mambuEntity.TransactionBrie
 
 	zap.L().Debug("transaction service", zap.String("postUrl", postUrl))
 	zap.L().Debug("transaction service", zap.String("postJsonStr", postJsonStr))
-	resp, code, err := util.HttpPostData(postJsonStr, postUrl)
-	zap.L().Debug("transaction service response", zap.String("resp", resp))
+	err = mambu_http.Post(postUrl, postJsonStr, &tmpTransList, mambu.SaveMambuRequestLog(context, "GetTransactionByQueryParam"))
 
-	if err != nil || code != constant.HttpStatusCodeSucceed {
-		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
-		return tmpTransList, err
-	}
-	zap.L().Debug("Query td account Info result", zap.String("result", resp))
-	err = json.Unmarshal([]byte(resp), &tmpTransList)
 	if err != nil {
-		zap.L().Error("Convert Json to TDAccount Failed.", zap.String("resp", resp))
+		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
 		return tmpTransList, err
 	}
 	return tmpTransList, nil
@@ -88,10 +84,7 @@ func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
 	return tmpQueryParam
 }
 
-func WithdrawTransaction(tdAccount, benefitAccount *mambuEntity.TDAccount,
-	amount float64,
-	transactionID string,
-	channelID string) (mambuEntity.TransactionResp, error) {
+func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
@@ -106,30 +99,19 @@ func WithdrawTransaction(tdAccount, benefitAccount *mambuEntity.TDAccount,
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, tdAccount.ID)
-	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil &&
-		code != constant.HttpStatusCodeSucceed &&
-		code != constant.HttpStatusCodeSucceedNoContent &&
-		code != constant.HttpStatusCodeSucceedCreate {
-		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
+	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "WithdrawTransaction"))
+
+	if err != nil {
+		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
-		return transactionResp, errors.New(respBody)
+		return transactionResp, err
 	}
 
-	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", respBody))
-	err = json.Unmarshal([]byte(respBody), &transactionResp)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Convert Json to TransactionResp Failed. json: %v", respBody))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
-		return transactionResp, errors.New("mambu process Withdraw Transaction Error, the response data error")
-	}
+	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", transactionResp))
 	dao.CreateSucceedFlowTransaction(transactionResp)
 	return transactionResp, nil
 }
-func DepositTransaction(tdAccount, benefitAccount *mambuEntity.TDAccount,
-	amount float64,
-	transactionID string,
-	channelID string) (mambuEntity.TransactionResp, error) {
+func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
@@ -143,24 +125,13 @@ func DepositTransaction(tdAccount, benefitAccount *mambuEntity.TDAccount,
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
-	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
-	if err != nil &&
-		code != constant.HttpStatusCodeSucceed &&
-		code != constant.HttpStatusCodeSucceedNoContent &&
-		code != constant.HttpStatusCodeSucceedCreate {
-		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v, error:%v", tdAccount.ID, respBody))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
-		return transactionResp, errors.New(respBody)
-	}
+	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "DepositTransaction"))
 
-	zap.L().Debug(fmt.Sprintf("Deposit Transaction for td account succeed. Result: %v", respBody))
-	err = json.Unmarshal([]byte(respBody), &transactionResp)
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Convert Json to TransactionResp Failed. json: %v", respBody))
+		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))
 		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
-		return transactionResp, errors.New("mambu process Deposit Transaction Error, the response data error")
+		return transactionResp, err
 	}
-
 	dao.CreateSucceedFlowTransaction(transactionResp)
 	return transactionResp, nil
 }

@@ -49,10 +49,13 @@ func (r *RedisRepository) SaveBenefitAccount(account *mambuEntity.TDAccount) err
 
 func (r *RedisRepository) GetTDAccount(accountId string) *mambuEntity.TDAccount {
 	val := cache.GetRedis().Get(context.Background(), tdAccountPrefix+accountId).Val()
+	if val == "" {
+		return nil
+	}
 	account := new(mambuEntity.TDAccount)
 	err := json.Unmarshal([]byte(val), account)
 	if err != nil {
-		zap.L().Error("get td account cache error ", zap.Error(err))
+		zap.L().Info("get td account cache error ", zap.Error(err))
 		return nil
 	}
 	return account
@@ -60,6 +63,9 @@ func (r *RedisRepository) GetTDAccount(accountId string) *mambuEntity.TDAccount 
 
 func (r *RedisRepository) GetBenefitAccount(accountId string) *mambuEntity.TDAccount {
 	val := cache.GetRedis().Get(context.Background(), benefitAccountPrefix+accountId).Val()
+	if val == "" {
+		return nil
+	}
 	account := new(mambuEntity.TDAccount)
 	err := json.Unmarshal([]byte(val), account)
 	if err != nil {

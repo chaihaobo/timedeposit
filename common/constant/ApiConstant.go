@@ -6,12 +6,15 @@
  */
 package constant
 
-import "net/http"
+import (
+	"gitlab.com/bns-engineering/td/common/config"
+	"net/http"
+)
 
-const (
+var (
 	ContentType = "application/json"
 	Accept      = "application/vnd.mambu.v2+json"
-	Apikey      = "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
+	Apikey      = config.TDConf.Mambu.ApiKey
 )
 
 const (

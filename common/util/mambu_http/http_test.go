@@ -1,7 +1,7 @@
 // Package http
 // @author： Boice
 // @createTime：2022/5/30 10:58
-package http
+package mambu_http
 
 import (
 	"fmt"

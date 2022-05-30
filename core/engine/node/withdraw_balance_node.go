@@ -30,7 +30,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		}
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-		withrawResp, err := transactionservice.WithdrawTransaction(account, benefitAccount, totalBalance, withdrawTransID, channelID)
+		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, totalBalance, withdrawTransID, channelID)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
 			return nil, errors.New("call mambu withdraw failed")

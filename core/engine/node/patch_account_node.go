@@ -22,7 +22,7 @@ func (node *PatchAccountNode) Run() (INodeResult, error) {
 	}
 	if account.IsCaseB1_1() || account.IsCaseB2() {
 		newDate := util.GetDate(account.MaturityDate)
-		isApplySucceed := accountservice.UpdateMaturifyDateForTDAccount(account.ID, newDate)
+		isApplySucceed := accountservice.UpdateMaturifyDateForTDAccount(node.GetContext(), account.ID, newDate)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("Apply profit failed for account: %v", account.ID))
 			return nil, errors.New("call mambu service failed")

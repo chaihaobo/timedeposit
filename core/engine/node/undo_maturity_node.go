@@ -20,7 +20,7 @@ func (node *UndoMaturityNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 	if account.IsCaseA() {
-		undoMaturityResult := accountservice.UndoMaturityDate(account.ID)
+		undoMaturityResult := accountservice.UndoMaturityDate(node.GetContext(), account.ID)
 		if !undoMaturityResult {
 			return nil, errors.New("undo Maturity Date Failed")
 		}

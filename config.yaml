@@ -25,6 +25,9 @@ server:
   HttpPort: 8000
   ReadTimeout: 60
   WriteTimeout: 60
+mambu:
+  host: https://cbs-dev1.aladinbank.id
+  apiKey: 1XXW0a679FIOoNEadSGt92ysIlr1J2hg
 transactionReqMetaData:
   messageType: TRANSACTION
   externalOriTransactionID:

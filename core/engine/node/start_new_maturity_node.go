@@ -34,7 +34,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 		note := fmt.Sprintf("TDE-AUTO-%v", node.FlowId)
 
 		// create new maturity date
-		_, err = accountservice.ChangeMaturityDate(account.ID, maturityDate, note)
+		_, err = accountservice.ChangeMaturityDate(node.GetContext(), account.ID, maturityDate, note)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Update maturity date failed for account: %v", account.ID))
 			return nil, errors.New("start New Maturity Date Failed")

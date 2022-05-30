@@ -31,7 +31,7 @@ func (node *SearchLastProfitAppliedNode) Run() (INodeResult, error) {
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialRate) == "TRUE") {
 		// Get last applied interest info
-		transList, err := transactionservice.GetTransactionByQueryParam(account.EncodedKey)
+		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {
 			zap.L().Info("No applied profit, skip")
 			return nil, errors.New("No applied profit find")

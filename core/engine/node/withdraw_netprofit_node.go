@@ -41,7 +41,7 @@ func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
 			// Withdraw netProfit for deposit account
 			channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 			withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-			withrawResp, err := transactionservice.WithdrawTransaction(account, benefitAccount, netProfit, withdrawTransID, channelID)
+			withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, netProfit, withdrawTransID, channelID)
 			if err != nil {
 				zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
 				// Just return error, no need to reverse

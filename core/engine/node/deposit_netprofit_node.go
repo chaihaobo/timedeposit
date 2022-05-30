@@ -40,7 +40,7 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 			// Deposit netProfit to benefit account
 			channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 			depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
-			depositResp, err := transactionservice.DepositTransaction(account, benefitAccount, netProfit, depositTransID, channelID)
+			depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, netProfit, depositTransID, channelID)
 			if err != nil {
 				zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
 				// todo: Add reverse withdraw here

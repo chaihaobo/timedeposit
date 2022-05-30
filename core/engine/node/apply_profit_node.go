@@ -20,7 +20,7 @@ func (node *ApplyProfitNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 	if account.IsCaseB() {
-		isApplySucceed := accountservice.ApplyProfit(account.ID, node.FlowId)
+		isApplySucceed := accountservice.ApplyProfit(node.GetContext(), account.ID, node.FlowId)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("Apply profit failed for account: %v", account.ID))
 			return nil, errors.New("call Mambu service failed")

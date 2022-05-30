@@ -6,12 +6,14 @@
  */
 package constant
 
+import "gitlab.com/bns-engineering/td/common/config"
+
 // Domain Names
-const (
-	DomainName = "https://cbs-dev1.aladinbank.id"
+var (
+	DomainName = config.TDConf.Mambu.Host
 )
 
-const (
+var (
 	GetTDAccountUrl        = DomainName + "/api/deposits/%v?detailsLevel=FULL"
 	SearchTDAccountListUrl = DomainName + "/api/deposits:search?detailsLevel=FULL&offset=0&limit=500"
 
@@ -24,12 +26,12 @@ const (
 	CloseAccountUrl = DomainName + "/api/deposits/%v:changeState"
 )
 
-const (
+var (
 	SearchTransactionUrl    = DomainName + "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
 	WithdrawTransactiontUrl = DomainName + "/api/deposits/%v/withdrawal-transactions"
 	DepositTransactiontUrl  = DomainName + "/api/deposits/%v/deposit-transactions"
 )
 
-const (
+var (
 	HolidayInfoUrl = DomainName + "/api/organization/holidays"
 )
