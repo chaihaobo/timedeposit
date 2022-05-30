@@ -6,11 +6,9 @@
  */
 package constant
 
-import "gitlab.com/bns-engineering/td/common/config"
-
 // Domain Names
 var (
-	DomainName = config.TDConf.Mambu.Host
+	DomainName = "https://cbs-dev1.aladinbank.id"
 )
 
 var (

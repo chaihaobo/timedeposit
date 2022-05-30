@@ -7,14 +7,13 @@
 package constant
 
 import (
-	"gitlab.com/bns-engineering/td/common/config"
 	"net/http"
 )
 
 var (
 	ContentType = "application/json"
 	Accept      = "application/vnd.mambu.v2+json"
-	Apikey      = config.TDConf.Mambu.ApiKey
+	Apikey      = "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
 )
 
 const (

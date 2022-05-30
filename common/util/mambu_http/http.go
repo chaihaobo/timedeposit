@@ -27,6 +27,7 @@ func getMambuHeader() map[string][]string {
 		"Apikey": {constant.Apikey},
 	}
 }
+
 func Patch(url, body string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string
