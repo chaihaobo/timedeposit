@@ -96,7 +96,7 @@ func ApplyProfit(accountID, note string) bool {
 	postJsonStr := string(postJsonByte)
 	err := http.Post(postUrl, postJsonStr, nil, nil)
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
+		zap.L().Error(fmt.Sprintf("ApplyProfit for td account failed! td acc id: %v", accountID))
 		return false
 	}
 	return true
