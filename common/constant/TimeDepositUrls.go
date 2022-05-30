@@ -6,30 +6,37 @@
  */
 package constant
 
+import "gitlab.com/bns-engineering/td/common/config"
+
 // Domain Names
+
 var (
-	DomainName = "https://cbs-dev1.aladinbank.id"
+	GetTDAccountUrl        = "/api/deposits/%v?detailsLevel=FULL"
+	SearchTDAccountListUrl = "/api/deposits:search?detailsLevel=FULL&offset=0&limit=500"
+
+	UndoMaturityDateUrl  = "/api/deposits/%v:undoMaturity"
+	StartMaturityDateUrl = "/api/deposits/%v:startMaturity"
+
+	ApplyProfitUrl     = "/api/deposits/%v:applyInterest"
+	UpdateTDAccountUrl = "/api/deposits/%v"
+
+	CloseAccountUrl = "/api/deposits/%v:changeState"
 )
 
 var (
-	GetTDAccountUrl        = DomainName + "/api/deposits/%v?detailsLevel=FULL"
-	SearchTDAccountListUrl = DomainName + "/api/deposits:search?detailsLevel=FULL&offset=0&limit=500"
-
-	UndoMaturityDateUrl  = DomainName + "/api/deposits/%v:undoMaturity"
-	StartMaturityDateUrl = DomainName + "/api/deposits/%v:startMaturity"
-
-	ApplyProfitUrl     = DomainName + "/api/deposits/%v:applyInterest"
-	UpdateTDAccountUrl = DomainName + "/api/deposits/%v"
-
-	CloseAccountUrl = DomainName + "/api/deposits/%v:changeState"
+	SearchTransactionUrl    = "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
+	WithdrawTransactiontUrl = "/api/deposits/%v/withdrawal-transactions"
+	DepositTransactiontUrl  = "/api/deposits/%v/deposit-transactions"
 )
 
 var (
-	SearchTransactionUrl    = DomainName + "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
-	WithdrawTransactiontUrl = DomainName + "/api/deposits/%v/withdrawal-transactions"
-	DepositTransactiontUrl  = DomainName + "/api/deposits/%v/deposit-transactions"
+	HolidayInfoUrl = "/api/organization/holidays"
 )
 
-var (
-	HolidayInfoUrl = DomainName + "/api/organization/holidays"
-)
+func getDomainName() string {
+	return config.TDConf.Mambu.Host
+}
+
+func UrlOf(path string) string {
+	return getDomainName() + path
+}

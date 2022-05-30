@@ -29,8 +29,7 @@ import (
 
 // Initial configuration for this app
 func init() {
-	config.Setup("./config.yaml")
-	err := logger.SetUp(config.TDConf)
+	err := logger.SetUp(config.Setup("./config.yaml"))
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
 	}

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"github.com/guonaihong/gout"
 	"github.com/pkg/errors"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -24,7 +25,7 @@ type RequestCallbackFun func(url string, code int, requestBody string, responseB
 func getMambuHeader() map[string][]string {
 	return map[string][]string{
 		"Accept": {constant.Accept},
-		"Apikey": {constant.Apikey},
+		"Apikey": {config.TDConf.Mambu.ApiKey},
 	}
 }
 

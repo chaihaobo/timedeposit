@@ -24,7 +24,7 @@ import (
 func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]mambuEntity.TransactionBrief, error) {
 	searchParam := generateTransactionSearchParam(enCodeKey)
 	tmpTransList := []mambuEntity.TransactionBrief{}
-	postUrl := constant.SearchTransactionUrl
+	postUrl := constant.UrlOf(constant.SearchTransactionUrl)
 	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
@@ -98,7 +98,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, tdAccount.ID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.WithdrawTransactiontUrl), tdAccount.ID)
 	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "WithdrawTransaction"))
 
 	if err != nil {
@@ -124,7 +124,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.DepositTransactiontUrl), benefitAccount.ID)
 	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "DepositTransaction"))
 
 	if err != nil {

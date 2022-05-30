@@ -18,7 +18,7 @@ import (
 
 func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.TDAccount, error) {
 	var tdAccount = new(mambuEntity.TDAccount)
-	getUrl := fmt.Sprintf(constant.GetTDAccountUrl, tdAccountID)
+	getUrl := fmt.Sprintf(constant.UrlOf(constant.GetTDAccountUrl), tdAccountID)
 	err := mambu_http.Get(getUrl, tdAccount, mambu.SaveMambuRequestLog(context, "GetAccountById"))
 	if err != nil {
 		zap.L().Error("get account Failed", zap.Error(err))
@@ -28,7 +28,7 @@ func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.T
 }
 
 func UndoMaturityDate(context context.Context, accountID string) bool {
-	postUrl := fmt.Sprintf(constant.UndoMaturityDateUrl, accountID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.UndoMaturityDateUrl), accountID)
 	zap.L().Info(fmt.Sprintf("getUrl: %v", postUrl))
 	err := mambu_http.Post(postUrl, "", nil, mambu.SaveMambuRequestLog(context, "UndoMaturityDate"))
 	if err != nil {
@@ -40,7 +40,7 @@ func UndoMaturityDate(context context.Context, accountID string) bool {
 
 // Create New Maturity Date for this TD account
 func ChangeMaturityDate(context context.Context, accountID, maturityDate, note string) (mambuEntity.TDAccount, error) {
-	postUrl := fmt.Sprintf(constant.StartMaturityDateUrl, accountID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.StartMaturityDateUrl), accountID)
 	zap.L().Info(fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))
 
 	// Build the update maturity json struct
@@ -63,7 +63,7 @@ func ChangeMaturityDate(context context.Context, accountID, maturityDate, note s
 }
 
 func ApplyProfit(context context.Context, accountID, note string) bool {
-	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.ApplyProfitUrl), accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 	// Build the update maturity json struct
 
@@ -84,7 +84,7 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 }
 
 func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate string) bool {
-	postUrl := fmt.Sprintf(constant.ApplyProfitUrl, accountID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.ApplyProfitUrl), accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
 	// Build the update maturity json struct
@@ -110,7 +110,7 @@ func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate 
 }
 
 func CloseAccount(context context.Context, accID, notes string) bool {
-	postUrl := fmt.Sprintf(constant.CloseAccountUrl, accID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.CloseAccountUrl), accID)
 	zap.L().Debug(fmt.Sprintf("CloseAccountUrl: %v", postUrl))
 
 	// Build the update maturity json struct
