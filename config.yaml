@@ -16,7 +16,7 @@ db:
   maxOpenConn: 100
   maxIdleConn: 20
 redis:
-  addr: 192.168.31.16
+  addr: 192.168.31.16:6379
   password:
   poolSize: 10
   db: 0
