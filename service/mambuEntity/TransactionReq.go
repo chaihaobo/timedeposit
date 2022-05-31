@@ -16,8 +16,8 @@ type TransactionReqMetadata struct {
 	MessageType                    string `json:"messageType"`
 	ExternalTransactionID          string `json:"externalTransactionID"`
 	ExternalTransactionDetailID    string `json:"externalTransactionDetailID"`
-	ExternalOriTransactionID       string `json:"externalOriTransactionID"`
-	ExternalOriTransactionDetailID string `json:"externalOriTransactionDetailID"`
+	ExternalOriTransactionID       string `json:"externalOriTransactionID,omitempty" `
+	ExternalOriTransactionDetailID string `json:"externalOriTransactionDetailID,omitempty"`
 	TransactionType                string `json:"transactionType"`
 	TransactionDateTime            string `json:"transactionDateTime"`
 	TerminalType                   string `json:"terminalType"`
