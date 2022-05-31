@@ -20,35 +20,35 @@ const (
 )
 
 type IRedisRepository interface {
-	SaveTDAccount(account *mambuEntity.TDAccount) error
-	SaveBenefitAccount(account *mambuEntity.TDAccount) error
-	GetTDAccount(accountId string) *mambuEntity.TDAccount
-	GetBenefitAccount(accountId string) *mambuEntity.TDAccount
+	SaveTDAccount(account *mambuEntity.TDAccount, flowId string) error
+	SaveBenefitAccount(account *mambuEntity.TDAccount, flowId string) error
+	GetTDAccount(flowId string) *mambuEntity.TDAccount
+	GetBenefitAccount(flowId string) *mambuEntity.TDAccount
 }
 
 type RedisRepository struct {
 }
 
-func (r *RedisRepository) SaveTDAccount(account *mambuEntity.TDAccount) error {
+func (r *RedisRepository) SaveTDAccount(account *mambuEntity.TDAccount, flowId string) error {
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
 	}
-	_, err = cache.GetRedis().Set(context.Background(), tdAccountPrefix+account.ID, string(marshal), time.Hour).Result()
+	_, err = cache.GetRedis().Set(context.Background(), tdAccountPrefix+flowId, string(marshal), time.Hour).Result()
 	return err
 }
 
-func (r *RedisRepository) SaveBenefitAccount(account *mambuEntity.TDAccount) error {
+func (r *RedisRepository) SaveBenefitAccount(account *mambuEntity.TDAccount, flowId string) error {
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
 	}
-	cache.GetRedis().Set(context.Background(), benefitAccountPrefix+account.ID, string(marshal), time.Hour)
+	cache.GetRedis().Set(context.Background(), benefitAccountPrefix+flowId, string(marshal), time.Hour)
 	return nil
 }
 
-func (r *RedisRepository) GetTDAccount(accountId string) *mambuEntity.TDAccount {
-	val := cache.GetRedis().Get(context.Background(), tdAccountPrefix+accountId).Val()
+func (r *RedisRepository) GetTDAccount(flowId string) *mambuEntity.TDAccount {
+	val := cache.GetRedis().Get(context.Background(), tdAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil
 	}
@@ -61,8 +61,8 @@ func (r *RedisRepository) GetTDAccount(accountId string) *mambuEntity.TDAccount 
 	return account
 }
 
-func (r *RedisRepository) GetBenefitAccount(accountId string) *mambuEntity.TDAccount {
-	val := cache.GetRedis().Get(context.Background(), benefitAccountPrefix+accountId).Val()
+func (r *RedisRepository) GetBenefitAccount(flowId string) *mambuEntity.TDAccount {
+	val := cache.GetRedis().Get(context.Background(), benefitAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil
 	}

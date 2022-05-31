@@ -7,6 +7,7 @@
 package mambuEntity
 
 import (
+	"github.com/uniplaces/carbon"
 	"go.uber.org/zap"
 	"strconv"
 	"strings"
@@ -129,7 +130,7 @@ type OtherInformationCorporate struct {
 func (tdAccInfo *TDAccount) IsCaseA() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+	rekeningTanggalJatohTempoDate, error := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
@@ -145,7 +146,7 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 func (tdAccInfo *TDAccount) IsCaseB() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse("2006-01-02", tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+	rekeningTanggalJatohTempoDate, error := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if error != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
