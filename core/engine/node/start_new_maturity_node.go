@@ -4,6 +4,7 @@
 package node
 
 import (
+	"context"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/util"
@@ -26,7 +27,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 	}
 	if account.IsCaseA() {
 		// generate new Maturity Date
-		maturityDate, err := generateMaturityDateStr(account.OtherInformation.Tenor, account.MaturityDate)
+		maturityDate, err := generateMaturityDateStr(node.GetContext(), account.OtherInformation.Tenor, account.MaturityDate)
 		if err != nil {
 			zap.L().Info(fmt.Sprintf("Generate New Maturity Date failed, Account: %v", account.ID))
 			return nil, err
@@ -46,7 +47,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 }
 
 // Calcuate the new maturity date by tenor
-func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, error) {
+func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate time.Time) (string, error) {
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
@@ -54,7 +55,7 @@ func generateMaturityDateStr(tenor string, maturityDate time.Time) (string, erro
 	}
 	// Todo: note, should add logic for holidays
 	resultDate := maturityDate.AddDate(0, tenorInt, 0)
-	for _, tmpHoliday := range holidayservice.GetHolidayList() {
+	for _, tmpHoliday := range holidayservice.GetHolidayList(cxt) {
 		if util.InSameDay(tmpHoliday, resultDate) {
 			resultDate = maturityDate.AddDate(0, 0, 1)
 		}

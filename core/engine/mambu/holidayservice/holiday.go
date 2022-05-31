@@ -4,29 +4,26 @@
 package holidayservice
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/common/util/mambu_http"
+	"gitlab.com/bns-engineering/td/core/engine/mambu"
 	"go.uber.org/zap"
 	"time"
 )
 
-func GetHolidayList() []time.Time {
-	holidayList := []time.Time{}
+func GetHolidayList(ctx context.Context) []time.Time {
+	var holidayList []time.Time
 	zap.L().Info(fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
-	resp, code, err := util.HttpGetData(constant.HolidayInfoUrl)
-	if err != nil || code != constant.HttpStatusCodeSucceed {
+	var holidayInfo HolidayInfo
+	err := mambu_http.Get(constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, mambu.SaveMambuRequestLog(ctx, "GetHolidayList"))
+	if err != nil {
 		zap.L().Error(fmt.Sprintf("Query holiday Info failed! query url: %v", constant.HolidayInfoUrl))
 		return holidayList
 	}
-	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", resp))
-	var holidayInfo HolidayInfo
-	err = json.Unmarshal([]byte(resp), &holidayInfo)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Convert Json to HolidayInfo Failed. json: %v, err:%v", resp, err.Error()))
-		return holidayList
-	}
+	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", holidayList))
+
 	for _, tmpHoliday := range holidayInfo.Holidays {
 		tmpDate, err := time.Parse("2006-01-02", tmpHoliday.Date)
 		if err != nil {
