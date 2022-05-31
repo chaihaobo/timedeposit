@@ -133,7 +133,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
-	tmpTransaction := BuildTransactionReq(tdAccount, nil, transactionID, transactionDetailID, custMessage, amount, channelID)
+	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
