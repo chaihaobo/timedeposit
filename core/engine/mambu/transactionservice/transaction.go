@@ -55,7 +55,7 @@ func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInt
 	specialER, _ := decimal.NewFromString(tmpTDAccount.OtherInformation.SpecialER)
 	ER := decimal.NewFromFloat(tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate)
 	appliedInterest := decimal.NewFromFloat(lastAppliedInterestTrans.Amount)
-	additionalProfit := specialER.Div(ER).Sub(appliedInterest)
+	additionalProfit := specialER.Div(ER).Mul(appliedInterest).Sub(appliedInterest)
 	taxRate, _ := decimal.NewFromString(tmpTDAccount.OtherInformation.NisbahPajak)
 	taxRateReal := taxRate.Div(decimal.NewFromInt(100))
 	additionalProfitTax := additionalProfit.Mul(taxRateReal)
