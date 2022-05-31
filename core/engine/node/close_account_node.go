@@ -23,7 +23,7 @@ func (node *CloseAccountNode) Run() (INodeResult, error) {
 	totalBalance := account.Balances.TotalBalance
 	if (account.IsCaseB3() && totalBalance > 0) ||
 		(account.IsCaseC() && totalBalance > 0) {
-		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", account.ID, account)
+		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", account.ID, node.FlowId)
 		isApplySucceed := accountservice.CloseAccount(node.GetContext(), account.ID, notes)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("close account failed for account: %v", account.ID))
