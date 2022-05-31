@@ -95,7 +95,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
-	tmpTransaction := BuildTransactionReq(tdAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
+	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
@@ -121,7 +121,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
-	tmpTransaction := BuildTransactionReq(tdAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
+	tmpTransaction := BuildTransactionReq(tdAccount, nil, transactionID, transactionDetailID, custMessage, amount, channelID)
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
@@ -143,7 +143,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	return transactionResp, nil
 }
 
-func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, transactionID string, transactionDetailID string, custMessage string, amount float64, channelID string) *mambuEntity.TransactionReq {
+func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, benefitAccount *mambuEntity.TDAccount, transactionID string, transactionDetailID string, custMessage string, amount float64, channelID string) *mambuEntity.TransactionReq {
 	tmpTransaction := &mambuEntity.TransactionReq{
 		Metadata: mambuEntity.TransactionReqMetadata{
 			MessageType:                    config.TDConf.TransactionReqMetaData.MessageType,
@@ -165,8 +165,8 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, transactionID string,
 			DestinationIID:                 config.TDConf.TransactionReqMetaData.DestinationIID,
 			SourceAccountNo:                tdAccount.ID,
 			SourceAccountName:              tdAccount.Name,
-			BeneficiaryAccountNo:           tdAccount.OtherInformation.BhdNomorRekPencairan,
-			BeneficiaryAccountName:         tdAccount.OtherInformation.BhdNamaRekPencairan,
+			BeneficiaryAccountNo:           benefitAccount.ID,
+			BeneficiaryAccountName:         benefitAccount.Name,
 			Currency:                       config.TDConf.TransactionReqMetaData.Currency,
 			TranDesc1:                      config.TDConf.TransactionReqMetaData.TranDesc1,
 			TranDesc2:                      custMessage,
