@@ -178,7 +178,7 @@ func taskRunning(info *model.TFlowTaskInfo, nodeName string) {
 }
 
 func getINode(nodePath string) node.INode {
-	return flow.NodeList[nodePath]
+	return flow.GetNode(nodePath)
 }
 
 func getNextNodeRelation(currentNodeName string, resultCode string, nodeRelationList []*model.TFlowNodeRelation) *model.TFlowNodeRelation {

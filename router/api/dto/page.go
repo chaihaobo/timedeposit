@@ -1,6 +1,3 @@
-// Package model
-// @author： Boice
-// @createTime：2022/5/27 16:29
 package dto
 
 type Page struct {

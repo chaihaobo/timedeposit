@@ -21,7 +21,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 
-	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(4).InexactFloat64()
+	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(2).InexactFloat64()
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
 		// Get benefit account info
 		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)

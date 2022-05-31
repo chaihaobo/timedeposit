@@ -8,31 +8,91 @@ import (
 	"reflect"
 )
 
-var NodeList = make(map[string]node.INode)
+var nodeList = make(map[string]interface{})
 
-func registerNode(nodeList ...node.INode) {
-	for _, iNode := range nodeList {
-		iNodeName := reflect.TypeOf(iNode).Elem().Name()
-		NodeList[iNodeName] = iNode
+func GetNode(nodeName string) node.INode {
+	unKnowNode := nodeList[nodeName]
+	switch unKnowNode.(type) {
+	case *node.StartNode:
+		startNode := unKnowNode.(*node.StartNode)
+		startNode.Node = new(node.Node)
+		return startNode
+	case *node.EndNode:
+		endNode := unKnowNode.(*node.EndNode)
+		endNode.Node = new(node.Node)
+		return endNode
+	case *node.UndoMaturityNode:
+		realNode := unKnowNode.(*node.UndoMaturityNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.StartNewMaturityNode:
+		realNode := unKnowNode.(*node.StartNewMaturityNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.ApplyProfitNode:
+		realNode := unKnowNode.(*node.ApplyProfitNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.WithdrawNetprofitNode:
+		realNode := unKnowNode.(*node.WithdrawNetprofitNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.DepositNetprofitNode:
+		realNode := unKnowNode.(*node.DepositNetprofitNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.WithdrawBalanceNode:
+		realNode := unKnowNode.(*node.WithdrawBalanceNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.DepositBalanceNode:
+		realNode := unKnowNode.(*node.DepositBalanceNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.WithdrawAdditionalProfitNode:
+		realNode := unKnowNode.(*node.WithdrawAdditionalProfitNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.DepositAdditionalProfitNode:
+		realNode := unKnowNode.(*node.DepositAdditionalProfitNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.PatchAccountNode:
+		realNode := unKnowNode.(*node.PatchAccountNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	case *node.CloseAccountNode:
+		realNode := unKnowNode.(*node.CloseAccountNode)
+		realNode.Node = new(node.Node)
+		return realNode
+	default:
+		return nil
 	}
 
 }
 
+func register(list ...interface{}) {
+	for _, nodeObj := range list {
+		nodeName := reflect.TypeOf(nodeObj).Elem().Name()
+		nodeList[nodeName] = nodeObj
+	}
+}
+
 func SetUp() {
-	registerNode(
-		&node.StartNode{Node: &node.Node{}},
-		&node.EndNode{Node: &node.Node{}},
-		&node.UndoMaturityNode{Node: &node.Node{}},
-		&node.StartNewMaturityNode{Node: &node.Node{}},
-		&node.ApplyProfitNode{Node: &node.Node{}},
-		&node.WithdrawNetprofitNode{Node: &node.Node{}},
-		&node.DepositNetprofitNode{Node: &node.Node{}},
-		&node.WithdrawBalanceNode{Node: &node.Node{}},
-		&node.DepositBalanceNode{Node: &node.Node{}},
-		&node.SearchLastProfitAppliedNode{Node: &node.Node{}},
-		&node.WithdrawAdditionalProfitNode{Node: &node.Node{}},
-		&node.DepositAdditionalProfitNode{Node: &node.Node{}},
-		&node.PatchAccountNode{Node: &node.Node{}},
-		&node.CloseAccountNode{Node: &node.Node{}},
+	register(
+		new(node.StartNode),
+		new(node.EndNode),
+		new(node.UndoMaturityNode),
+		new(node.StartNewMaturityNode),
+		new(node.ApplyProfitNode),
+		new(node.WithdrawNetprofitNode),
+		new(node.DepositNetprofitNode),
+		new(node.WithdrawBalanceNode),
+		new(node.DepositBalanceNode),
+		new(node.WithdrawAdditionalProfitNode),
+		new(node.DepositAdditionalProfitNode),
+		new(node.PatchAccountNode),
+		new(node.CloseAccountNode),
 	)
+
 }

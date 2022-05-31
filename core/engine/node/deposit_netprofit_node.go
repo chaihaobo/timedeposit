@@ -30,7 +30,7 @@ func (node *DepositNetprofitNode) Run() (INodeResult, error) {
 			return nil, errors.New(errMsg)
 		}
 		// Calculate the profit
-		netProfit := decimal.NewFromFloat(account.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(4).InexactFloat64()
+		netProfit := decimal.NewFromFloat(account.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(2).InexactFloat64()
 		if netProfit > 0 {
 			// Get benefit account info
 			benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
