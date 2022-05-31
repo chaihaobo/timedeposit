@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,8 +23,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/td/common/config"
-	logger "gitlab.com/bns-engineering/td/common/log"
-	"gitlab.com/bns-engineering/td/flow"
 	"gitlab.com/bns-engineering/td/router"
 )
 
@@ -33,7 +32,6 @@ func init() {
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
 	}
-	flow.InitWorkflow()
 }
 
 func main() {

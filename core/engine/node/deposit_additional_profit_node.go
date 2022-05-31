@@ -5,6 +5,7 @@ package node
 
 import (
 	"errors"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 	"strings"
@@ -47,10 +48,12 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "PPH_PS42_DEPOSITO"
-		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, additionalProfitTax, depositTransID, depositChannelID)
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, additionalProfitTax,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc1,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc3,
+			depositTransID, depositChannelID)
 		if err != nil {
 			zap.L().Error("Failed to deposit for td account", zap.String("account", account.ID))
-			// todo: Add reverse withdraw here
 			zap.L().Error("depositResp error", zap.Any("depositResp", depositResp), zap.Error(err))
 
 			return nil, errors.New("call mambu deposit failed")

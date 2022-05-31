@@ -56,8 +56,20 @@ type TDConfig struct {
 		IssuerIName                    string
 		DestinationIID                 string
 		Currency                       string
-		TranDesc1                      string
-		TranDesc3                      string
+		TranDesc                       *struct {
+			WithdrawAdditionalProfitTranDesc1 string
+			WithdrawAdditionalProfitTranDesc3 string
+			WithdrawBalanceTranDesc1          string
+			WithdrawBalanceTranDesc3          string
+			WithdrawNetprofitTranDesc1        string
+			WithdrawNetprofitTranDesc3        string
+			DepositAdditionalProfitTranDesc1  string
+			DepositAdditionalProfitTranDesc3  string
+			DepositBalanceTranDesc1           string
+			DepositBalanceTranDesc3           string
+			DepositNetprofitTranDesc1         string
+			DepositNetprofitTranDesc3         string
+		}
 	}
 	Redis *struct {
 		Addr     string

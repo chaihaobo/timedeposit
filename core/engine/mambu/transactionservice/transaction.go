@@ -15,7 +15,6 @@ import (
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/core/engine/mambu"
-	"gitlab.com/bns-engineering/td/dao"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
@@ -104,7 +103,9 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 	return err
 }
 
-func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
+func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount,
+	amount float64, tranDesc1 string, tranDesc3 string,
+	transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
@@ -113,12 +114,12 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
-	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
+	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
@@ -128,15 +129,17 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, err
 	}
 
 	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", transactionResp))
-	dao.CreateSucceedFlowTransaction(transactionResp)
+	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(&transactionResp)
 	return transactionResp, nil
 }
-func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
+func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64,
+	tranDesc1 string, tranDesc3 string,
+	transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
@@ -145,12 +148,12 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
-	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
+	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
 	var transactionResp mambuEntity.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
@@ -160,14 +163,22 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))
-		dao.CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, err
 	}
-	dao.CreateSucceedFlowTransaction(transactionResp)
+	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(&transactionResp)
 	return transactionResp, nil
 }
 
-func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, benefitAccount *mambuEntity.TDAccount, transactionID string, transactionDetailID string, custMessage string, amount float64, channelID string) *mambuEntity.TransactionReq {
+func BuildTransactionReq(tdAccount *mambuEntity.TDAccount,
+	benefitAccount *mambuEntity.TDAccount,
+	transactionID string,
+	transactionDetailID string,
+	custMessage string,
+	tranDesc1 string,
+	tranDesc3 string,
+	amount float64,
+	channelID string) *mambuEntity.TransactionReq {
 	tmpTransaction := &mambuEntity.TransactionReq{
 		Metadata: mambuEntity.TransactionReqMetadata{
 			MessageType:                 config.TDConf.TransactionReqMetaData.MessageType,
@@ -190,9 +201,9 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, benefitAccount *mambu
 			BeneficiaryAccountNo:        benefitAccount.ID,
 			BeneficiaryAccountName:      benefitAccount.Name,
 			Currency:                    config.TDConf.TransactionReqMetaData.Currency,
-			TranDesc1:                   config.TDConf.TransactionReqMetaData.TranDesc1,
+			TranDesc1:                   tranDesc1,
 			TranDesc2:                   custMessage,
-			TranDesc3:                   config.TDConf.TransactionReqMetaData.TranDesc3,
+			TranDesc3:                   tranDesc3,
 		},
 		Amount: amount,
 		TransactionDetails: mambuEntity.TransactionReqDetails{
