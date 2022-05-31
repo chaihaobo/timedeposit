@@ -14,55 +14,55 @@ func GetNode(nodeName string) node.INode {
 	unKnowNode := nodeList[nodeName]
 	switch unKnowNode.(type) {
 	case *node.StartNode:
-		startNode := unKnowNode.(*node.StartNode)
+		startNode := new(node.StartNode)
 		startNode.Node = new(node.Node)
 		return startNode
 	case *node.EndNode:
-		endNode := unKnowNode.(*node.EndNode)
+		endNode := new(node.EndNode)
 		endNode.Node = new(node.Node)
 		return endNode
 	case *node.UndoMaturityNode:
-		realNode := unKnowNode.(*node.UndoMaturityNode)
+		realNode := new(node.UndoMaturityNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.StartNewMaturityNode:
-		realNode := unKnowNode.(*node.StartNewMaturityNode)
+		realNode := new(node.StartNewMaturityNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.ApplyProfitNode:
-		realNode := unKnowNode.(*node.ApplyProfitNode)
+		realNode := new(node.ApplyProfitNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.WithdrawNetprofitNode:
-		realNode := unKnowNode.(*node.WithdrawNetprofitNode)
+		realNode := new(node.WithdrawNetprofitNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.DepositNetprofitNode:
-		realNode := unKnowNode.(*node.DepositNetprofitNode)
+		realNode := new(node.DepositNetprofitNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.WithdrawBalanceNode:
-		realNode := unKnowNode.(*node.WithdrawBalanceNode)
+		realNode := new(node.WithdrawBalanceNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.DepositBalanceNode:
-		realNode := unKnowNode.(*node.DepositBalanceNode)
+		realNode := new(node.DepositBalanceNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.WithdrawAdditionalProfitNode:
-		realNode := unKnowNode.(*node.WithdrawAdditionalProfitNode)
+		realNode := new(node.WithdrawAdditionalProfitNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.DepositAdditionalProfitNode:
-		realNode := unKnowNode.(*node.DepositAdditionalProfitNode)
+		realNode := new(node.DepositAdditionalProfitNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.PatchAccountNode:
-		realNode := unKnowNode.(*node.PatchAccountNode)
+		realNode := new(node.PatchAccountNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	case *node.CloseAccountNode:
-		realNode := unKnowNode.(*node.CloseAccountNode)
+		realNode := new(node.CloseAccountNode)
 		realNode.Node = new(node.Node)
 		return realNode
 	default:
