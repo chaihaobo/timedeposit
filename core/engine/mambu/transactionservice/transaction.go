@@ -16,6 +16,7 @@ import (
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/core/engine/mambu"
 	"gitlab.com/bns-engineering/td/dao"
+	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"time"
@@ -104,7 +105,12 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 }
 
 func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
-
+	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
+	if transaction != nil {
+		errMsg := "transaction is ready submit!"
+		zap.L().Error(errMsg, zap.String("transactionID", transactionID))
+		return mambuEntity.TransactionResp{}, errors.New("")
+	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
@@ -131,6 +137,12 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	return transactionResp, nil
 }
 func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
+	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
+	if transaction != nil {
+		errMsg := "transaction is ready submit!"
+		zap.L().Error(errMsg, zap.Any("transactionID", transactionID))
+		return mambuEntity.TransactionResp{}, errors.New("")
+	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, amount, channelID)
