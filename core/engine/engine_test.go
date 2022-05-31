@@ -5,7 +5,7 @@ package engine
 
 import (
 	"gitlab.com/bns-engineering/td/common/config"
-	logger "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"testing"
 )
 
@@ -14,9 +14,5 @@ func init() {
 }
 
 func TestEngine(t *testing.T) {
-
-	t.Run("test engine run", func(t *testing.T) {
-		Start("11314525420")
-
-	})
+	Start("11314525420")
 }

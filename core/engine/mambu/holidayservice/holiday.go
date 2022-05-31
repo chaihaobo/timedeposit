@@ -1,19 +1,15 @@
-/*
- * @Author: Hugo
- * @Date: 2022-05-23 02:32:25
- * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-23 02:45:05
- */
-package mambuservices
+// Package holidayservice
+// @author： Boice
+// @createTime：2022/5/31 17:32
+package holidayservice
 
 import (
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
-	"time"
-
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util"
+	"go.uber.org/zap"
+	"time"
 )
 
 func GetHolidayList() []time.Time {

@@ -43,5 +43,17 @@ transactionReqMetaData:
   issuerIName: Aladin
   destinationIID: 947
   currency: IDR
-  tranDesc1: Opening Deposito Account
-  tranDesc3: eod-engine
+  tranDesc:
+    withdrawAdditionalProfitTranDesc1: Bonus Bagi Hasil Deposito
+    withdrawAdditionalProfitTranDesc3: withdraw additional profit from eod-engine
+    withdrawBalanceTranDesc1: Deposito Disbursement
+    withdrawBalanceTranDesc3: withdraw balance from eod-engine
+    withdrawNetprofitTranDesc1: Deposito Disbursement
+    withdrawNetprofitTranDesc3: withdraw netprofit from eod-engine
+    depositAdditionalProfitTranDesc1: Tax Bonus Bagi Hasil Deposito
+    depositAdditionalProfitTranDesc3: deposit additional profit from eod-engine
+    depositBalanceTranDesc1: Deposito Disbursement
+    depositBalanceTranDesc3: deposit balance from eod-engine
+    depositNetprofitTranDesc1: Bagi Hasil Deposito
+    depositNetprofitTranDesc3: deposit netprofit from eod-engine
+

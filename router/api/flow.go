@@ -7,13 +7,16 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
+	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/router/api/dto"
+	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 )
 
 func StartFlow(c *gin.Context) {
@@ -48,9 +51,11 @@ func FailFlowList(c *gin.Context) {
 		d.Id = taskInfo.Id
 		d.FlowId = taskInfo.FlowId
 		d.AccountId = taskInfo.AccountId
-		d.CurStatus = taskInfo.CurStatus
-		d.CurNodeName = taskInfo.CurNodeName
+		d.FlowName = taskInfo.FlowName
+		d.FlowStatus = taskInfo.FlowStatus
+		d.FailedOperation = taskInfo.CurStatus
 		d.CreateTime = taskInfo.CreateTime
+		d.UpdateTime = taskInfo.UpdateTime
 		return d
 	})
 	c.JSON(http.StatusOK, successData(dto.NewPageResult(total, result)))
@@ -68,10 +73,38 @@ func Retry(c *gin.Context) {
 
 func RetryAll(c *gin.Context) {
 	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList()
-
 	for _, flowId := range failFlowIdList {
 		zap.L().Info("retry flow", zap.String("flowId", flowId))
 		_ = engine.RetryPool.Invoke(flowId)
 	}
 	c.JSON(http.StatusOK, success())
+}
+
+func generateSearchTDAccountParam() mambuEntity.SearchParam {
+	tmpQueryParam := mambuEntity.SearchParam{
+		FilterCriteria: []mambuEntity.FilterCriteria{
+			{
+				Field:    "accountState",
+				Operator: "IN",
+				Values:   []string{"ACTIVE", "MATURED"},
+			},
+			{
+				Field:    "accountType",
+				Operator: "EQUALS",
+				Value:    "FIXED_DEPOSIT",
+			},
+			{
+				Field: "_rekening.rekeningTanggalJatohTempo",
+				// todo: Remember to set the value to today!
+				Operator:    "BETWEEN",
+				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), // today
+				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
+			},
+		},
+		SortingCriteria: mambuEntity.SortingCriteria{
+			Field: "id",
+			Order: "ASC",
+		},
+	}
+	return tmpQueryParam
 }

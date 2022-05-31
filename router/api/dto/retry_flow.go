@@ -10,10 +10,12 @@ type RetryFlowModel struct {
 }
 
 type FailFlowModel struct {
-	Id          uint      `json:"id"`
-	FlowId      string    `json:"flow_id"`
-	AccountId   string    `json:"account_id"`
-	CurNodeName string    `json:"cur_node_name"`
-	CurStatus   string    `json:"cur_status"`
-	CreateTime  time.Time `json:"create_time"`
+	Id              uint      `json:"id"`
+	FlowId          string    `json:"flow_id"`
+	AccountId       string    `json:"account_id"`
+	FlowName        string    `json:"flow_name"`
+	FlowStatus      string    `json:"flow_status"`
+	FailedOperation string    `json:"failed_operation"`
+	CreateTime      time.Time `json:"create_time"`
+	UpdateTime      time.Time `json:"update_time"`
 }

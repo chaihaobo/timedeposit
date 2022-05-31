@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 )
@@ -30,10 +31,12 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		}
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
-		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, totalBalance, depositTransID, channelID)
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, totalBalance,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc1,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc3,
+			depositTransID, channelID)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
-			// todo: Add reverse withdraw here
 			zap.L().Error(fmt.Sprintf("depositResp: %v", depositResp))
 			return nil, errors.New("call mambu deposit failed")
 		}

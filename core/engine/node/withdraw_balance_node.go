@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 )
@@ -31,7 +32,10 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		}
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, totalBalance, withdrawTransID, channelID)
+		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, totalBalance,
+			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc1,
+			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc3,
+			withdrawTransID, channelID)
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
 			return nil, errors.New("call mambu withdraw failed")

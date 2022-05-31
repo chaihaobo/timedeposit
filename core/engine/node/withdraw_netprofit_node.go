@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 	"strconv"
@@ -42,7 +43,10 @@ func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
 			// Withdraw netProfit for deposit account
 			channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 			withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-			withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, netProfit, withdrawTransID, channelID)
+			withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, netProfit,
+				config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc1,
+				config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc3,
+				withdrawTransID, channelID)
 			if err != nil {
 				zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
 				// Just return error, no need to reverse

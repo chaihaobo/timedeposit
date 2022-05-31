@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
-	logger "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"testing"
 )

@@ -6,7 +6,6 @@ package accountservice
 import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	logger "gitlab.com/bns-engineering/td/common/log"
 	"testing"
 )
 

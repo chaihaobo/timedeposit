@@ -5,6 +5,7 @@ package node
 
 import (
 	"errors"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"go.uber.org/zap"
 	"strings"
@@ -48,7 +49,11 @@ func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
 		// Withdraw additional profit
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		channelID := "BBN_BAGHAS_DEPMUDC"
-		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, additionalProfit, withdrawTransID, channelID)
+		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account,
+			benefitAccount, additionalProfit,
+			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc1,
+			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc3,
+			withdrawTransID, channelID)
 		if err != nil {
 			zap.L().Error("Failed to withdraw for td account", zap.String("account", account.ID))
 			return nil, errors.New("call mambu withdraw failed")

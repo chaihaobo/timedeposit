@@ -1,21 +1,36 @@
-/*
- * @Author: Hugo
- * @Date: 2022-05-19 07:08:05
- * @Last Modified by: Hugo
- * @Last Modified time: 2022-05-19 08:02:34
- */
-package dao
+// Package repository
+// @author： Boice
+// @createTime：2022/5/31 16:42
+package repository
 
 import (
-	"time"
-
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	"time"
 )
 
-func CreateSucceedFlowTransaction(transactionResp mambuEntity.TransactionResp) model.TFlowTransactions {
+var flowTransactionRepository = new(FlowTransactionRepository)
+
+type IFlowTransactionRepository interface {
+	GetTransactionByTransId(transId string) *model.TFlowTransactions
+	CreateSucceedFlowTransaction(transactionResp *mambuEntity.TransactionResp) *model.TFlowTransactions
+	CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) *model.TFlowTransactions
+}
+
+type FlowTransactionRepository int
+
+func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(transId string) *model.TFlowTransactions {
+	flowTransaction := new(model.TFlowTransactions)
+	rowsAffected := db.GetDB().Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
+	if rowsAffected > 0 {
+		return flowTransaction
+	}
+	return nil
+}
+
+func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTransaction(transactionResp *mambuEntity.TransactionResp) *model.TFlowTransactions {
 	tFlowTask := model.TFlowTransactions{
 		TransId:            transactionResp.Metadata.ExternalTransactionID,
 		TerminalRrn:        transactionResp.Metadata.TerminalRRN,
@@ -34,10 +49,10 @@ func CreateSucceedFlowTransaction(transactionResp mambuEntity.TransactionResp) m
 	}
 	db := db.GetDB()
 	db.Save(&tFlowTask)
-	return tFlowTask
+	return &tFlowTask
 }
 
-func CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) model.TFlowTransactions {
+func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) *model.TFlowTransactions {
 	tFlowTask := model.TFlowTransactions{
 		TransId:            transactionReq.Metadata.ExternalTransactionID,
 		TerminalRrn:        transactionReq.Metadata.TerminalRRN,
@@ -56,6 +71,9 @@ func CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transTy
 	}
 	db := db.GetDB()
 	db.Save(&tFlowTask)
-	SaveFailTransactionLog(&tFlowTask)
-	return tFlowTask
+	return &tFlowTask
+}
+
+func GetFlowTransactionRepository() IFlowTransactionRepository {
+	return flowTransactionRepository
 }

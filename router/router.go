@@ -8,9 +8,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
-	logger "gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/router/api"
 )
 
@@ -20,13 +18,10 @@ func InitRouter() *gin.Engine {
 	r.Use(logger.GinLogger())
 	r.Use(logger.GinRecovery(true))
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.POST("/timeDeposite/start", api.StartTDFlow)
-
 	flowGroup := r.Group("/flow")
 	{
 		flowGroup.POST("/start", api.StartFlow)
-		flowGroup.GET("/failFlow", api.FailFlowList)
+		flowGroup.GET("/failedFlow", api.FailFlowList)
 		flowGroup.POST("/retry", api.Retry)
 		flowGroup.POST("/retryAll", api.RetryAll)
 	}

@@ -136,20 +136,18 @@ func CloseAccount(context context.Context, accID, notes string) bool {
 	zap.L().Debug(fmt.Sprintf("CloseAccountUrl: %v", postUrl))
 
 	// Build the update maturity json struct
-	postJsonByte, _ := json.Marshal([]struct {
+	postJsonByte, _ := json.Marshal(struct {
 		Action string `json:"action"`
 		Notes  string `json:"notes"`
 	}{
-		{
-			Action: "CLOSE",
-			Notes:  notes,
-		},
+		Action: "CLOSE",
+		Notes:  notes,
 	})
 
 	postJsonStr := string(postJsonByte)
 	err := mambu_http.Patch(postUrl, postJsonStr, nil, mambu.SaveMambuRequestLog(context, "CloseAccount"))
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accID))
+		zap.L().Error(fmt.Sprintf("CloseAccount for td account failed! td acc id: %v", accID))
 		return false
 	}
 	return true
