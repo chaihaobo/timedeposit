@@ -46,7 +46,7 @@ func SaveFailTransactionLog(flowTransaction *model.TFlowTransactions) {
 
 func GetFailTransactionLog(transactionId string) *model.TFailTransactions {
 	failTransaction := new(model.TFailTransactions)
-	result := db.GetDB().Where("trans_id", transactionId).First(failTransaction)
+	result := db.GetDB().Where("trans_id", transactionId).Last(failTransaction)
 	if result.RowsAffected > 0 {
 		return failTransaction
 	} else {

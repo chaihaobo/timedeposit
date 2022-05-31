@@ -27,7 +27,7 @@ type FlowTaskInfoRepository struct{}
 
 func (flowTaskInfoRepository *FlowTaskInfoRepository) Get(flowId string) *model.TFlowTaskInfo {
 	flowTaskInfo := new(model.TFlowTaskInfo)
-	db.GetDB().Where("flow_id", flowId).First(flowTaskInfo)
+	db.GetDB().Where("flow_id", flowId).Last(flowTaskInfo)
 	if flowTaskInfo.Id > 0 {
 		return flowTaskInfo
 	} else {

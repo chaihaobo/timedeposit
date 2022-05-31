@@ -30,8 +30,8 @@ func StartFlow(c *gin.Context) {
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		// _ = engine.Pool.Invoke(tmpTDAcc.ID)
-		go engine.Start(tmpTDAcc.ID)
+		_ = engine.Pool.Invoke(tmpTDAcc.ID)
+		// go engine.Start(tmpTDAcc.ID)
 		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
 
 	}

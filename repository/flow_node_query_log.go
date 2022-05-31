@@ -42,7 +42,7 @@ func (f *FlowNodeQueryLogRepository) GetLog(flowId string, nodeName string, quer
 
 func (f *FlowNodeQueryLogRepository) GetNewLog(flowId string, queryType string) *model.TFlowNodeQueryLog {
 	log := new(model.TFlowNodeQueryLog)
-	db.GetDB().Where("flow_id", flowId).Where("query_type", queryType).First(log)
+	db.GetDB().Where("flow_id", flowId).Where("query_type", queryType).Last(log)
 	if log.ID > 0 {
 		return log
 	}
