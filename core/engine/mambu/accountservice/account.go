@@ -106,7 +106,7 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 }
 
 func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate string) bool {
-	postUrl := fmt.Sprintf(constant.UrlOf(constant.ApplyProfitUrl), accountID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.UpdateTDAccountUrl), accountID)
 	zap.L().Debug(fmt.Sprintf("applyProfitUrl: %v", postUrl))
 
 	// Build the update maturity json struct

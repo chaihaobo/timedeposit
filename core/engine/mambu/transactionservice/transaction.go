@@ -91,6 +91,18 @@ func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
 	return tmpQueryParam
 }
 
+func AdjustTransaction(ctx context.Context, transactionId string, notes string) error {
+	adjustUrl := fmt.Sprintf(constant.UrlOf(constant.AdjustTransactionUrl), transactionId)
+	noteBody := struct {
+		Notes string `json:"notes"`
+	}{
+		Notes: notes,
+	}
+	marshal, _ := json.Marshal(noteBody)
+	err := mambu_http.Post(adjustUrl, string(marshal), nil, mambu.SaveMambuRequestLog(ctx, "AdjustTransaction"))
+	return err
+}
+
 func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64, transactionID, channelID string) (mambuEntity.TransactionResp, error) {
 
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
@@ -105,7 +117,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.UrlOf(constant.WithdrawTransactiontUrl), tdAccount.ID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.WithdrawTransactionUrl), tdAccount.ID)
 	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "WithdrawTransaction"))
 
 	if err != nil {
@@ -131,7 +143,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.UrlOf(constant.DepositTransactiontUrl), benefitAccount.ID)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.DepositTransactionUrl), benefitAccount.ID)
 	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, mambu.SaveMambuRequestLog(context, "DepositTransaction"))
 
 	if err != nil {
@@ -180,5 +192,4 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount, benefitAccount *mambu
 
 func generationTerminalRRN() string {
 	return "TDE-" + util.RandomSnowFlakeId()
-
 }

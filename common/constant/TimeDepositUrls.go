@@ -24,9 +24,10 @@ var (
 )
 
 var (
-	SearchTransactionUrl    = "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
-	WithdrawTransactiontUrl = "/api/deposits/%v/withdrawal-transactions"
-	DepositTransactiontUrl  = "/api/deposits/%v/deposit-transactions"
+	SearchTransactionUrl   = "/api/deposits/transactions:search?paginationDetails=OFF&offset=0&limit=1"
+	WithdrawTransactionUrl = "/api/deposits/%v/withdrawal-transactions"
+	DepositTransactionUrl  = "/api/deposits/%v/deposit-transactions"
+	AdjustTransactionUrl   = "/api/deposits/transactions/%s:adjust"
 )
 
 var (

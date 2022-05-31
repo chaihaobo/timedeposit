@@ -61,7 +61,7 @@ func RetryWithDrawTransaction(account mambuEntity.TDAccount, amount float64, tra
 		return nil, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
-	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, account.ID)
+	postUrl := fmt.Sprintf(constant.WithdrawTransactionUrl, account.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
 	if err != nil &&
 		code != constant.HttpStatusCodeSucceed &&
@@ -88,7 +88,7 @@ func RetryDepositTransaction(tdAccount mambuEntity.TDAccount, benefitAccount mam
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
+	postUrl := fmt.Sprintf(constant.DepositTransactionUrl, benefitAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
 	if err != nil || (code != constant.HttpStatusCodeSucceed &&
 		code != constant.HttpStatusCodeSucceedNoContent &&
@@ -119,7 +119,7 @@ func WithdrawTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.WithdrawTransactiontUrl, tdAccount.ID)
+	postUrl := fmt.Sprintf(constant.WithdrawTransactionUrl, tdAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
 	if err != nil &&
 		code != constant.HttpStatusCodeSucceed &&
@@ -197,7 +197,7 @@ func DepositTransaction(tdAccount, benefitAccount mambuEntity.TDAccount,
 	}
 	postJsonStr := string(queryParamByte)
 
-	postUrl := fmt.Sprintf(constant.DepositTransactiontUrl, benefitAccount.ID)
+	postUrl := fmt.Sprintf(constant.DepositTransactionUrl, benefitAccount.ID)
 	respBody, code, err := util.HttpPostData(postJsonStr, postUrl)
 	if err != nil &&
 		code != constant.HttpStatusCodeSucceed &&
