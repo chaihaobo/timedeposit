@@ -15,6 +15,8 @@ test:
 clean:
 	go clean -i -n -x
 	rm -f ${BINARY}-${VERSION}
+docker:
+	docker build -t ${BINARY}:${VERSION} .
 
 .PHONY: help
 ## Show help
