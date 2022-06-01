@@ -10,9 +10,9 @@ import (
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
-	"gitlab.com/bns-engineering/td/model/db"
 	dto2 "gitlab.com/bns-engineering/td/model/dto"
 	"gitlab.com/bns-engineering/td/model/mambu"
+	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
 	"net/http"
@@ -46,7 +46,7 @@ func FailFlowList(c *gin.Context) {
 	retryFlowSearchModel := dto2.DefaultRetryFlowSearchModel()
 	_ = c.BindJSON(retryFlowSearchModel)
 	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(retryFlowSearchModel.Page.PageNo, retryFlowSearchModel.Page.PageSize, retryFlowSearchModel.Search.AccountId)
-	result := funk.Map(list, func(taskInfo *db.TFlowTaskInfo) *dto2.FailFlowModel {
+	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto2.FailFlowModel {
 		d := new(dto2.FailFlowModel)
 		d.Id = taskInfo.Id
 		d.FlowId = taskInfo.FlowId

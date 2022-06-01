@@ -15,6 +15,7 @@ import (
 
 const (
 	ResultSuccess NodeResult = "success"
+	ResultSkip    NodeResult = "skip"
 )
 
 type INode interface {

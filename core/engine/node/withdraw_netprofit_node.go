@@ -57,6 +57,7 @@ func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
 		}
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 
 	return ResultSuccess, nil

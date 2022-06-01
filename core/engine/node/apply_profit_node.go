@@ -27,6 +27,8 @@ func (node *ApplyProfitNode) Run() (INodeResult, error) {
 		}
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
+
 	}
 	return ResultSuccess, nil
 }

@@ -10,7 +10,7 @@ import (
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/core/engine/flow"
 	"gitlab.com/bns-engineering/td/core/engine/node"
-	"gitlab.com/bns-engineering/td/model/db"
+	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
 	"time"
@@ -112,7 +112,7 @@ func retry(retryFun func() error, times int) {
 }
 
 func createFlowTaskInfo(flowId string, accountId string) string {
-	taskInfo := new(db.TFlowTaskInfo)
+	taskInfo := new(po.TFlowTaskInfo)
 	taskInfo.FlowId = flowId
 	taskInfo.FlowStatus = constant.FlowStart
 	taskInfo.FlowName = FlowName
@@ -127,14 +127,14 @@ func createFlowTaskInfo(flowId string, accountId string) string {
 	return taskInfo.FlowId
 }
 
-func flowRunFinish(info *db.TFlowTaskInfo) {
+func flowRunFinish(info *po.TFlowTaskInfo) {
 	info.FlowStatus = constant.FlowFinished
 	info.UpdateTime = time.Now()
 	info.EndTime = time.Now()
 	repository.GetFlowTaskInfoRepository().Update(info)
 }
 
-func taskNodeFinish(info *db.TFlowTaskInfo, result string) {
+func taskNodeFinish(info *po.TFlowTaskInfo, result string) {
 	info.CurStatus = string(constant.FlowNodeFinish)
 	info.UpdateTime = time.Now()
 	info.EndStatus = result
@@ -142,7 +142,7 @@ func taskNodeFinish(info *db.TFlowTaskInfo, result string) {
 
 }
 
-func taskError(taskInfo *db.TFlowTaskInfo) {
+func taskError(taskInfo *po.TFlowTaskInfo) {
 	taskInfo.CurStatus = string(constant.FlowNodeFailed)
 	taskInfo.FlowStatus = constant.FlowFailed
 	taskInfo.EndStatus = constant.FlowFailed
@@ -152,7 +152,7 @@ func taskError(taskInfo *db.TFlowTaskInfo) {
 }
 
 func saveNodeRunLog(flowId string, flowName string, nodeName string, nodeResult node.INodeResult, err error) {
-	log := new(db.TFlowNodeLog)
+	log := new(po.TFlowNodeLog)
 	log.FlowId = flowId
 	log.FlowName = flowName
 	log.NodeName = nodeName
@@ -169,7 +169,7 @@ func saveNodeRunLog(flowId string, flowName string, nodeName string, nodeResult 
 
 }
 
-func taskRunning(info *db.TFlowTaskInfo, nodeName string) {
+func taskRunning(info *po.TFlowTaskInfo, nodeName string) {
 	info.CurNodeName = nodeName
 	info.CurStatus = string(constant.FlowNodeRunning)
 	info.FlowStatus = constant.FlowRunning
@@ -181,7 +181,7 @@ func getINode(nodePath string) node.INode {
 	return flow.GetNode(nodePath)
 }
 
-func getNextNodeRelation(currentNodeName string, resultCode string, nodeRelationList []*db.TFlowNodeRelation) *db.TFlowNodeRelation {
+func getNextNodeRelation(currentNodeName string, resultCode string, nodeRelationList []*po.TFlowNodeRelation) *po.TFlowNodeRelation {
 	for _, relation := range nodeRelationList {
 		if currentNodeName == relation.NodeName && relation.ResultCode == resultCode {
 			return relation
@@ -190,7 +190,7 @@ func getNextNodeRelation(currentNodeName string, resultCode string, nodeRelation
 	return nil
 }
 
-func getNodeInNodeList(flowNodeList []*db.TFlowNode, nodeName string) *db.TFlowNode {
+func getNodeInNodeList(flowNodeList []*po.TFlowNode, nodeName string) *po.TFlowNode {
 	for _, flowNode := range flowNodeList {
 		if nodeName == flowNode.NodeName {
 			return flowNode

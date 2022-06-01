@@ -43,6 +43,7 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		zap.L().Info(fmt.Sprintf("Finish deposit balance for accNo: %v, encodedKey:%v", account.ID, depositResp.EncodedKey))
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 
 	return ResultSuccess, nil

@@ -1,13 +1,13 @@
 include .env
 ## Build the executable for the current environment
 build:
-	go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
+	@go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
 ## Build executable files in linux environment
 static:
-	set CGO_ENABLED=0
-	set GOOS=linux
-	set GOARCH=amd64
-	go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
+	@set CGO_ENABLED=0
+	@set GOOS=linux
+	@set GOARCH=amd64
+	@go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
 ## Run all tests
 test:
 	go test $(go list ./... | grep -v /vendor/) -cover

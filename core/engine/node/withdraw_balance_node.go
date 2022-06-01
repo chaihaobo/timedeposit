@@ -43,6 +43,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		zap.L().Info(fmt.Sprintf("Finish withdraw balance for accNo: %v, encodedKey:%v", account.ID, withrawResp.EncodedKey))
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 
 	return ResultSuccess, nil

@@ -51,7 +51,6 @@ func GetAccountById(context context.Context, tdAccountID string) (*mambu.TDAccou
 
 func UndoMaturityDate(context context.Context, accountID string) bool {
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.UndoMaturityDateUrl), accountID)
-	zap.L().Info(fmt.Sprintf("getUrl: %v", postUrl))
 	err := mambu_http.Post(postUrl, "", nil, persistence.DBPersistence(context, "UndoMaturityDate"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))

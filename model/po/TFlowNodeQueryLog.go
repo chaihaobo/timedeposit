@@ -1,7 +1,7 @@
 // Package model
 // @author： Boice
 // @createTime：2022/5/27 10:55
-package db
+package po
 
 import "time"
 

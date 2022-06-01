@@ -61,6 +61,7 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		zap.L().Info("Finish deposit additional profit tax", zap.String("account", account.ID), zap.String("encodedKey", depositResp.EncodedKey))
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 	return ResultSuccess, nil
 

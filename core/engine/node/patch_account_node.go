@@ -30,6 +30,7 @@ func (node *PatchAccountNode) Run() (INodeResult, error) {
 		zap.L().Info(fmt.Sprintf("Finish apply profit for account: %v", account.ID))
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 	return ResultSuccess, nil
 }

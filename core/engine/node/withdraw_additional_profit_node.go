@@ -61,6 +61,7 @@ func (node *WithdrawAdditionalProfitNode) Run() (INodeResult, error) {
 		zap.L().Info("Finish withdraw balance", zap.String("account", account.ID), zap.String("encodedKey", withrawResp.EncodedKey))
 	} else {
 		zap.L().Info("not match! skip it")
+		return ResultSkip, nil
 	}
 	return ResultSuccess, nil
 

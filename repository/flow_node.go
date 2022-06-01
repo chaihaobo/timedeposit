@@ -5,19 +5,19 @@ package repository
 
 import (
 	"gitlab.com/bns-engineering/td/common/db"
-	db2 "gitlab.com/bns-engineering/td/model/db"
+	"gitlab.com/bns-engineering/td/model/po"
 )
 
 var repository *FlowNodeRepository
 
 type IFlowNodeRepository interface {
-	GetFlowNodeListByFlowName(flowName string) []*db2.TFlowNode
+	GetFlowNodeListByFlowName(flowName string) []*po.TFlowNode
 }
 
 type FlowNodeRepository struct{}
 
-func (flowNodeRepository *FlowNodeRepository) GetFlowNodeListByFlowName(flowName string) []*db2.TFlowNode {
-	var flowNodes = make([]*db2.TFlowNode, 0)
+func (flowNodeRepository *FlowNodeRepository) GetFlowNodeListByFlowName(flowName string) []*po.TFlowNode {
+	var flowNodes = make([]*po.TFlowNode, 0)
 	db.GetDB().Where("flow_name", flowName).Find(&flowNodes)
 	return flowNodes
 }
