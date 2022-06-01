@@ -19,10 +19,10 @@ import (
 )
 
 func StartFlow(c *gin.Context) {
-	tmpTDAccountList := loadAccountList()
-	if tmpTDAccountList == nil || len(tmpTDAccountList) == 0 {
-		zap.L().Info("Query mambu service for TD Account List get empty! No TD Account need to process")
-		return
+	tmpTDAccountList, err := loadAccountList()
+	if err != nil {
+		zap.L().Error("load mambu account list error")
+		c.JSON(http.StatusOK, Error("load mambu account list error"))
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
@@ -31,19 +31,14 @@ func StartFlow(c *gin.Context) {
 		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
 
 	}
-	c.JSON(http.StatusOK, success())
-
+	c.JSON(http.StatusOK, Success())
 }
 
-func loadAccountList() []mambu.TDAccount {
+func loadAccountList() ([]mambu.TDAccount, error) {
 	// Get all td accounts which need to process
 	tmpQueryParam := generateSearchTDAccountParam()
 	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
-	if err != nil {
-		zap.L().Error("get td account list error", zap.Error(err))
-		return nil
-	}
-	return tmpTDAccountList
+	return tmpTDAccountList, err
 }
 
 func FailFlowList(c *gin.Context) {
@@ -62,7 +57,7 @@ func FailFlowList(c *gin.Context) {
 		d.UpdateTime = taskInfo.UpdateTime
 		return d
 	})
-	c.JSON(http.StatusOK, successData(dto2.NewPageResult(total, result)))
+	c.JSON(http.StatusOK, SuccessData(dto2.NewPageResult(total, result)))
 }
 
 func Retry(c *gin.Context) {
@@ -72,7 +67,7 @@ func Retry(c *gin.Context) {
 	for _, flowId := range list {
 		_ = engine.RetryPool.Invoke(flowId)
 	}
-	c.JSON(http.StatusOK, success())
+	c.JSON(http.StatusOK, Success())
 }
 
 func RetryAll(c *gin.Context) {
@@ -81,7 +76,7 @@ func RetryAll(c *gin.Context) {
 		zap.L().Info("retry flow", zap.String("flowId", flowId))
 		_ = engine.RetryPool.Invoke(flowId)
 	}
-	c.JSON(http.StatusOK, success())
+	c.JSON(http.StatusOK, Success())
 }
 
 func generateSearchTDAccountParam() mambu.SearchParam {

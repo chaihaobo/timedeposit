@@ -14,18 +14,18 @@ type Response struct {
 	Message string      `json:"message"`
 }
 
-func success() *Response {
-	return successData(nil)
+func Success() *Response {
+	return SuccessData(nil)
 }
 
-func error(message string) *Response {
+func Error(message string) *Response {
 	return &Response{
 		Code:    ErrorCode,
 		Message: message,
 	}
 }
 
-func successData(data interface{}) *Response {
+func SuccessData(data interface{}) *Response {
 	return &Response{
 		Code:    SuccessCode,
 		Data:    data,
