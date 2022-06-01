@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/repository"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 )
 
@@ -38,7 +38,7 @@ func (node *Node) GetContext() context.Context {
 	return context.WithValue(context.WithValue(context.WithValue(context.Background(), "flowId", node.FlowId), "nodeName", node.NodeName), "accountId", node.AccountId)
 }
 
-func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
+func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool) (*mambu.TDAccount, error) {
 	if !realTime {
 		// from redis
 		account := repository.GetRedisRepository().GetBenefitAccount(node.AccountId)
@@ -48,7 +48,7 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 		// from db
 		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryBenefitAccount)
 		if log != nil {
-			saveDBAccount := new(mambuEntity.TDAccount)
+			saveDBAccount := new(mambu.TDAccount)
 			data := log.Data
 			err := json.Unmarshal([]byte(data), saveDBAccount)
 			if err != nil {
@@ -70,7 +70,7 @@ func (node *Node) GetMambuBenefitAccountAccount(accountId string, realTime bool)
 
 }
 
-func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity.TDAccount, error) {
+func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambu.TDAccount, error) {
 	if !realTime {
 		// from redis
 		account := repository.GetRedisRepository().GetTDAccount(node.FlowId)
@@ -80,7 +80,7 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambuEntity
 		// from db
 		log := repository.GetFlowNodeQueryLogRepository().GetNewLog(node.FlowId, constant.QueryTDAccount)
 		if log != nil {
-			saveDBAccount := new(mambuEntity.TDAccount)
+			saveDBAccount := new(mambu.TDAccount)
 			data := log.Data
 			err := json.Unmarshal([]byte(data), saveDBAccount)
 			if err != nil {

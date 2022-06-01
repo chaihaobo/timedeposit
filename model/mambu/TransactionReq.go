@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-19 03:48:04
  */
-package mambuEntity
+package mambu
 
 type TransactionReq struct {
 	Metadata           TransactionReqMetadata `json:"_metadata"`

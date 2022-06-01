@@ -10,10 +10,10 @@ import (
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
-	"gitlab.com/bns-engineering/td/model"
+	"gitlab.com/bns-engineering/td/model/db"
+	dto2 "gitlab.com/bns-engineering/td/model/dto"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/repository"
-	"gitlab.com/bns-engineering/td/router/api/dto"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -43,11 +43,11 @@ func StartFlow(c *gin.Context) {
 }
 
 func FailFlowList(c *gin.Context) {
-	retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
+	retryFlowSearchModel := dto2.DefaultRetryFlowSearchModel()
 	_ = c.BindJSON(retryFlowSearchModel)
 	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(retryFlowSearchModel.Page.PageNo, retryFlowSearchModel.Page.PageSize, retryFlowSearchModel.Search.AccountId)
-	result := funk.Map(list, func(taskInfo *model.TFlowTaskInfo) *dto.FailFlowModel {
-		d := new(dto.FailFlowModel)
+	result := funk.Map(list, func(taskInfo *db.TFlowTaskInfo) *dto2.FailFlowModel {
+		d := new(dto2.FailFlowModel)
 		d.Id = taskInfo.Id
 		d.FlowId = taskInfo.FlowId
 		d.AccountId = taskInfo.AccountId
@@ -58,11 +58,11 @@ func FailFlowList(c *gin.Context) {
 		d.UpdateTime = taskInfo.UpdateTime
 		return d
 	})
-	c.JSON(http.StatusOK, successData(dto.NewPageResult(total, result)))
+	c.JSON(http.StatusOK, successData(dto2.NewPageResult(total, result)))
 }
 
 func Retry(c *gin.Context) {
-	m := new(dto.RetryFlowReqModel)
+	m := new(dto2.RetryFlowReqModel)
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
 	for _, flowId := range list {
@@ -80,9 +80,9 @@ func RetryAll(c *gin.Context) {
 	c.JSON(http.StatusOK, success())
 }
 
-func generateSearchTDAccountParam() mambuEntity.SearchParam {
-	tmpQueryParam := mambuEntity.SearchParam{
-		FilterCriteria: []mambuEntity.FilterCriteria{
+func generateSearchTDAccountParam() mambu.SearchParam {
+	tmpQueryParam := mambu.SearchParam{
+		FilterCriteria: []mambu.FilterCriteria{
 			{
 				Field:    "accountState",
 				Operator: "IN",
@@ -101,7 +101,7 @@ func generateSearchTDAccountParam() mambuEntity.SearchParam {
 				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
 			},
 		},
-		SortingCriteria: mambuEntity.SortingCriteria{
+		SortingCriteria: mambu.SortingCriteria{
 			Field: "id",
 			Order: "ASC",
 		},

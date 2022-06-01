@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-23 08:26:40
  */
-package mambuEntity
+package mambu
 
 import (
 	"github.com/uniplaces/carbon"

@@ -5,7 +5,7 @@ package repository
 
 import (
 	"gitlab.com/bns-engineering/td/common/db"
-	"gitlab.com/bns-engineering/td/model"
+	db2 "gitlab.com/bns-engineering/td/model/db"
 )
 
 var flowNodeLogRepository *FlowNodeLogRepository
@@ -15,12 +15,12 @@ func GetFlowNodeLogRepository() IFlowNodeLogRepository {
 }
 
 type IFlowNodeLogRepository interface {
-	Save(log *model.TFlowNodeLog)
+	Save(log *db2.TFlowNodeLog)
 }
 
 type FlowNodeLogRepository struct{}
 
-func (flowNodeLogRepository *FlowNodeLogRepository) Save(log *model.TFlowNodeLog) {
+func (flowNodeLogRepository *FlowNodeLogRepository) Save(log *db2.TFlowNodeLog) {
 	db.GetDB().Save(log)
 }
 

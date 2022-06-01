@@ -7,7 +7,7 @@ import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
-	"gitlab.com/bns-engineering/td/model"
+	db2 "gitlab.com/bns-engineering/td/model/db"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func DBPersistence(context context.Context, requestType string) mambu_http.Reque
 			}
 
 		}
-		requestLog := model.NewTMambuRequestLogsBuilder().FlowId(flowId).
+		requestLog := db2.NewTMambuRequestLogsBuilder().FlowId(flowId).
 			NodeName(nodeName).
 			Type(requestType).
 			RequestUrl(url).

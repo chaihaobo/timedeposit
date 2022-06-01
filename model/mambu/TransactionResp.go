@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-20 04:21:31
  */
-package mambuEntity
+package mambu
 
 import "time"
 

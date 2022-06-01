@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-20 03:58:11
  */
-package mambuEntity
+package mambu
 
 type SearchParam struct {
 	SortingCriteria SortingCriteria  `json:"sortingCriteria"`

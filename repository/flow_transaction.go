@@ -6,23 +6,23 @@ package repository
 import (
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/db"
-	"gitlab.com/bns-engineering/td/model"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	db2 "gitlab.com/bns-engineering/td/model/db"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"time"
 )
 
 var flowTransactionRepository = new(FlowTransactionRepository)
 
 type IFlowTransactionRepository interface {
-	GetTransactionByTransId(transId string) *model.TFlowTransactions
-	CreateSucceedFlowTransaction(transactionResp *mambuEntity.TransactionResp) *model.TFlowTransactions
-	CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) *model.TFlowTransactions
+	GetTransactionByTransId(transId string) *db2.TFlowTransactions
+	CreateSucceedFlowTransaction(transactionResp *mambu.TransactionResp) *db2.TFlowTransactions
+	CreateFailedTransaction(transactionReq *mambu.TransactionReq, transType string, errorMsg string) *db2.TFlowTransactions
 }
 
 type FlowTransactionRepository int
 
-func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(transId string) *model.TFlowTransactions {
-	flowTransaction := new(model.TFlowTransactions)
+func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(transId string) *db2.TFlowTransactions {
+	flowTransaction := new(db2.TFlowTransactions)
 	rowsAffected := db.GetDB().Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
 	if rowsAffected > 0 {
 		return flowTransaction
@@ -30,8 +30,8 @@ func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTran
 	return nil
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTransaction(transactionResp *mambuEntity.TransactionResp) *model.TFlowTransactions {
-	tFlowTask := model.TFlowTransactions{
+func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTransaction(transactionResp *mambu.TransactionResp) *db2.TFlowTransactions {
+	tFlowTask := db2.TFlowTransactions{
 		TransId:            transactionResp.Metadata.ExternalTransactionID,
 		TerminalRrn:        transactionResp.Metadata.TerminalRRN,
 		SourceAccountNo:    transactionResp.Metadata.SourceAccountNo,
@@ -52,8 +52,8 @@ func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTra
 	return &tFlowTask
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransaction(transactionReq *mambuEntity.TransactionReq, transType string, errorMsg string) *model.TFlowTransactions {
-	tFlowTask := model.TFlowTransactions{
+func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransaction(transactionReq *mambu.TransactionReq, transType string, errorMsg string) *db2.TFlowTransactions {
+	tFlowTask := db2.TFlowTransactions{
 		TransId:            transactionReq.Metadata.ExternalTransactionID,
 		TerminalRrn:        transactionReq.Metadata.TerminalRRN,
 		SourceAccountNo:    transactionReq.Metadata.SourceAccountNo,

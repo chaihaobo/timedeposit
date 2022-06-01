@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-19 07:19:31
  */
-package model
+package db
 
 import "time"
 

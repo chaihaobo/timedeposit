@@ -16,15 +16,15 @@ import (
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/repository"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"time"
 )
 
-func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]mambuEntity.TransactionBrief, error) {
+func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]mambu.TransactionBrief, error) {
 	searchParam := generateTransactionSearchParam(enCodeKey)
-	tmpTransList := []mambuEntity.TransactionBrief{}
+	tmpTransList := []mambu.TransactionBrief{}
 	postUrl := constant.UrlOf(constant.SearchTransactionUrl)
 	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
@@ -45,7 +45,7 @@ func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]ma
 	return tmpTransList, nil
 }
 
-func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInterestTrans mambuEntity.TransactionBrief) (float64, float64) {
+func GetAdditionProfitAndTax(tmpTDAccount *mambu.TDAccount, lastAppliedInterestTrans mambu.TransactionBrief) (float64, float64) {
 	// specialER, _ := strconv.ParseFloat(tmpTDAccount.OtherInformation.SpecialER, 64)
 	// ER := tmpTDAccount.InterestSettings.InterestRateSettings.InterestRate
 	// appliedInterest := lastAppliedInterestTrans.Amount
@@ -63,9 +63,9 @@ func GetAdditionProfitAndTax(tmpTDAccount *mambuEntity.TDAccount, lastAppliedInt
 	return additionalProfit.RoundFloor(2).InexactFloat64(), additionalProfitTax.RoundFloor(2).InexactFloat64()
 }
 
-func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
-	tmpQueryParam := mambuEntity.SearchParam{
-		FilterCriteria: []mambuEntity.FilterCriteria{
+func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
+	tmpQueryParam := mambu.SearchParam{
+		FilterCriteria: []mambu.FilterCriteria{
 			{
 				Field:    "parentAccountKey",
 				Operator: "EQUALS",
@@ -84,7 +84,7 @@ func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
 				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
 			},
 		},
-		SortingCriteria: mambuEntity.SortingCriteria{
+		SortingCriteria: mambu.SortingCriteria{
 			Field: "id",
 			Order: "DESC",
 		},
@@ -104,19 +104,19 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 	return err
 }
 
-func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount,
+func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambu.TDAccount,
 	amount float64, tranDesc1 string, tranDesc3 string,
-	transactionID, channelID string) (mambuEntity.TransactionResp, error) {
+	transactionID, channelID string) (mambu.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
 		zap.L().Error(errMsg, zap.String("transactionID", transactionID))
-		return mambuEntity.TransactionResp{}, errors.New("")
+		return mambu.TransactionResp{}, errors.New("")
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
-	var transactionResp mambuEntity.TransactionResp
+	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
@@ -138,19 +138,19 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(&transactionResp)
 	return transactionResp, nil
 }
-func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambuEntity.TDAccount, amount float64,
+func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambu.TDAccount, amount float64,
 	tranDesc1 string, tranDesc3 string,
-	transactionID, channelID string) (mambuEntity.TransactionResp, error) {
+	transactionID, channelID string) (mambu.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
 		zap.L().Error(errMsg, zap.Any("transactionID", transactionID))
-		return mambuEntity.TransactionResp{}, errors.New("")
+		return mambu.TransactionResp{}, errors.New("")
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
-	var transactionResp mambuEntity.TransactionResp
+	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
@@ -171,17 +171,17 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	return transactionResp, nil
 }
 
-func BuildTransactionReq(tdAccount *mambuEntity.TDAccount,
-	benefitAccount *mambuEntity.TDAccount,
+func BuildTransactionReq(tdAccount *mambu.TDAccount,
+	benefitAccount *mambu.TDAccount,
 	transactionID string,
 	transactionDetailID string,
 	custMessage string,
 	tranDesc1 string,
 	tranDesc3 string,
 	amount float64,
-	channelID string) *mambuEntity.TransactionReq {
-	tmpTransaction := &mambuEntity.TransactionReq{
-		Metadata: mambuEntity.TransactionReqMetadata{
+	channelID string) *mambu.TransactionReq {
+	tmpTransaction := &mambu.TransactionReq{
+		Metadata: mambu.TransactionReqMetadata{
 			MessageType:                 config.TDConf.TransactionReqMetaData.MessageType,
 			ExternalTransactionID:       transactionID,
 			ExternalTransactionDetailID: transactionDetailID,
@@ -207,7 +207,7 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount,
 			TranDesc3:                   tranDesc3,
 		},
 		Amount: amount,
-		TransactionDetails: mambuEntity.TransactionReqDetails{
+		TransactionDetails: mambu.TransactionReqDetails{
 			TransactionChannelID: channelID,
 		},
 	}

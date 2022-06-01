@@ -8,10 +8,10 @@ package db
 
 import (
 	"fmt"
+	"gitlab.com/bns-engineering/td/model/db"
 	"testing"
 	"time"
 
-	"gitlab.com/bns-engineering/td/model"
 	"gorm.io/gorm"
 )
 
@@ -22,13 +22,13 @@ func TestGetDB(t *testing.T) {
 }
 
 func testSelect(dbConn *gorm.DB) {
-	var tmpNode model.TFlowNode
+	var tmpNode db.TFlowNode
 	dbConn.Where("flow_name = ?", "time_deposit_flow").First(&tmpNode)
 	fmt.Println(tmpNode)
 }
 
 func testCreate(dbConn *gorm.DB) {
-	tdEndNode := model.TFlowNode{
+	tdEndNode := db.TFlowNode{
 		FlowName:   "time_deposit_flow",
 		NodeName:   "end_node",
 		NodeDetail: "the final node of td flow, update",

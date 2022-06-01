@@ -11,14 +11,14 @@ import (
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
 	"time"
 )
 
 // Get TDAccount List from mambu api
-func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuEntity.TDAccount, error) {
-	tdAccountList := []mambuEntity.TDAccount{}
+func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAccount, error) {
+	tdAccountList := []mambu.TDAccount{}
 	postUrl := constant.UrlOf(constant.SearchTDAccountListUrl)
 	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
@@ -38,8 +38,8 @@ func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuE
 	return tdAccountList, nil
 }
 
-func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.TDAccount, error) {
-	var tdAccount = new(mambuEntity.TDAccount)
+func GetAccountById(context context.Context, tdAccountID string) (*mambu.TDAccount, error) {
+	var tdAccount = new(mambu.TDAccount)
 	getUrl := fmt.Sprintf(constant.UrlOf(constant.GetTDAccountUrl), tdAccountID)
 	err := mambu_http.Get(getUrl, tdAccount, persistence.DBPersistence(context, "GetAccountById"))
 	if err != nil {
@@ -61,7 +61,7 @@ func UndoMaturityDate(context context.Context, accountID string) bool {
 }
 
 // Create New Maturity Date for this TD account
-func ChangeMaturityDate(context context.Context, accountID, maturityDate, note string) (mambuEntity.TDAccount, error) {
+func ChangeMaturityDate(context context.Context, accountID, maturityDate, note string) (mambu.TDAccount, error) {
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.StartMaturityDateUrl), accountID)
 	zap.L().Info(fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))
 
@@ -75,7 +75,7 @@ func ChangeMaturityDate(context context.Context, accountID, maturityDate, note s
 	})
 	postJsonStr := string(postJsonByte)
 
-	var resultTDAccount mambuEntity.TDAccount
+	var resultTDAccount mambu.TDAccount
 	err := mambu_http.Post(postUrl, postJsonStr, &resultTDAccount, persistence.DBPersistence(context, "ChangeMaturityDate"))
 	if err != nil {
 		zap.L().Error("Create MaturityDate for td account failed! ", zap.String("accountId", accountID))

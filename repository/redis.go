@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"gitlab.com/bns-engineering/td/common/cache"
-	"gitlab.com/bns-engineering/td/service/mambuEntity"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
 	"time"
 )
@@ -20,16 +20,16 @@ const (
 )
 
 type IRedisRepository interface {
-	SaveTDAccount(account *mambuEntity.TDAccount, flowId string) error
-	SaveBenefitAccount(account *mambuEntity.TDAccount, flowId string) error
-	GetTDAccount(flowId string) *mambuEntity.TDAccount
-	GetBenefitAccount(flowId string) *mambuEntity.TDAccount
+	SaveTDAccount(account *mambu.TDAccount, flowId string) error
+	SaveBenefitAccount(account *mambu.TDAccount, flowId string) error
+	GetTDAccount(flowId string) *mambu.TDAccount
+	GetBenefitAccount(flowId string) *mambu.TDAccount
 }
 
 type RedisRepository struct {
 }
 
-func (r *RedisRepository) SaveTDAccount(account *mambuEntity.TDAccount, flowId string) error {
+func (r *RedisRepository) SaveTDAccount(account *mambu.TDAccount, flowId string) error {
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func (r *RedisRepository) SaveTDAccount(account *mambuEntity.TDAccount, flowId s
 	return err
 }
 
-func (r *RedisRepository) SaveBenefitAccount(account *mambuEntity.TDAccount, flowId string) error {
+func (r *RedisRepository) SaveBenefitAccount(account *mambu.TDAccount, flowId string) error {
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
@@ -47,12 +47,12 @@ func (r *RedisRepository) SaveBenefitAccount(account *mambuEntity.TDAccount, flo
 	return nil
 }
 
-func (r *RedisRepository) GetTDAccount(flowId string) *mambuEntity.TDAccount {
+func (r *RedisRepository) GetTDAccount(flowId string) *mambu.TDAccount {
 	val := cache.GetRedis().Get(context.Background(), tdAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil
 	}
-	account := new(mambuEntity.TDAccount)
+	account := new(mambu.TDAccount)
 	err := json.Unmarshal([]byte(val), account)
 	if err != nil {
 		zap.L().Info("get td account cache error ", zap.Error(err))
@@ -61,12 +61,12 @@ func (r *RedisRepository) GetTDAccount(flowId string) *mambuEntity.TDAccount {
 	return account
 }
 
-func (r *RedisRepository) GetBenefitAccount(flowId string) *mambuEntity.TDAccount {
+func (r *RedisRepository) GetBenefitAccount(flowId string) *mambu.TDAccount {
 	val := cache.GetRedis().Get(context.Background(), benefitAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil
 	}
-	account := new(mambuEntity.TDAccount)
+	account := new(mambu.TDAccount)
 	err := json.Unmarshal([]byte(val), account)
 	if err != nil {
 		zap.L().Error("get td account cache error ", zap.Error(err))
