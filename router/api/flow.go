@@ -4,7 +4,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
@@ -20,14 +19,8 @@ import (
 )
 
 func StartFlow(c *gin.Context) {
-	// Get all td accounts which need to process
-	tmpQueryParam := generateSearchTDAccountParam()
-	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
-	if err != nil {
-		zap.L().Error(fmt.Sprintf("Query mambu service for TD Account List failed! error: %v", err))
-		return
-	}
-	if len(tmpTDAccountList) == 0 {
+	tmpTDAccountList := loadAccountList()
+	if tmpTDAccountList == nil || len(tmpTDAccountList) == 0 {
 		zap.L().Info("Query mambu service for TD Account List get empty! No TD Account need to process")
 		return
 	}
@@ -40,6 +33,16 @@ func StartFlow(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, success())
 
+}
+
+func loadAccountList() []mambu.TDAccount {
+	// Get all td accounts which need to process
+	tmpQueryParam := generateSearchTDAccountParam()
+	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
+	if err != nil {
+		return nil
+	}
+	return tmpTDAccountList
 }
 
 func FailFlowList(c *gin.Context) {
