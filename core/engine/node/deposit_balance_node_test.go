@@ -7,11 +7,11 @@
 package node
 
 import (
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/logger"
+	"go.uber.org/zap"
 	"reflect"
 	"testing"
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
-	"go.uber.org/zap"
 )
 
 func TestDepositBalanceNode_Run(t *testing.T) {
@@ -20,7 +20,6 @@ func TestDepositBalanceNode_Run(t *testing.T) {
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
 	}
-
 
 	tests := []struct {
 		name    string
@@ -31,7 +30,7 @@ func TestDepositBalanceNode_Run(t *testing.T) {
 		{
 			name: "Deposit total balance test: 11645631879",
 			node: &DepositBalanceNode{
-				Node:&Node{
+				Node: &Node{
 					FlowId:    "testFlowID_11645631879_2",
 					AccountId: "11645631879",
 					NodeName:  "deposit_balance_node",

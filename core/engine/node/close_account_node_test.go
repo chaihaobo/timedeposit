@@ -7,11 +7,11 @@
 package node
 
 import (
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/logger"
+	"go.uber.org/zap"
 	"reflect"
 	"testing"
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
-	"go.uber.org/zap"
 )
 
 func TestCloseAccountNode_Run(t *testing.T) {
@@ -29,7 +29,7 @@ func TestCloseAccountNode_Run(t *testing.T) {
 		{
 			name: "Close account test: 11645631879",
 			node: &CloseAccountNode{
-				Node:&Node{
+				Node: &Node{
 					FlowId:    "testFlowID_11645631879_2",
 					AccountId: "11645631879",
 					NodeName:  "close_account_node",

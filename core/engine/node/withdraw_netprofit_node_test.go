@@ -7,15 +7,15 @@
 package node
 
 import (
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/logger"
+	"go.uber.org/zap"
 	"reflect"
 	"testing"
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
-	"go.uber.org/zap"
 )
 
 func TestWithdrawNetprofitNode_Run(t *testing.T) {
-	
+
 	config.Setup("./../../../config.yaml")
 	err := logger.SetUp(config.TDConf)
 	if err != nil {
@@ -31,7 +31,7 @@ func TestWithdrawNetprofitNode_Run(t *testing.T) {
 		{
 			name: "Withdraw Netprofit test: 11645631879",
 			node: &WithdrawNetprofitNode{
-				Node:&Node{
+				Node: &Node{
 					FlowId:    "testFlowID_11645631879_1",
 					AccountId: "11645631879",
 					NodeName:  "withdraw_netprofit_node",

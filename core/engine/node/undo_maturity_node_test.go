@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
 	"go.uber.org/zap"
 )
 

@@ -9,9 +9,9 @@ package node
 import (
 	"reflect"
 	"testing"
-	
+
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"go.uber.org/zap"
 )
 
@@ -31,7 +31,7 @@ func TestWithdrawAdditionalProfitNode_Run(t *testing.T) {
 		{
 			name: "Withdraw additional profit test: 11645631879",
 			node: &WithdrawAdditionalProfitNode{
-				Node:&Node{
+				Node: &Node{
 					FlowId:    "testFlowID_11645631879_1",
 					AccountId: "11645631879",
 					NodeName:  "withdraw_additional_profit_node",

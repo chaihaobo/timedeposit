@@ -8,7 +8,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/router/api"
 )
 
