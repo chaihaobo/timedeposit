@@ -11,6 +11,8 @@ import "time"
 type TFlowTransactions struct {
 	Id                 uint      `gorm:"column:id" db:"id" json:"id" form:"id"`
 	TransId            string    `gorm:"column:trans_id" db:"trans_id" json:"trans_id" form:"trans_id"`
+	FlowId             string    `gorm:"column:flow_id" db:"flow_id" json:"flow_id" form:"flow_id"`
+	MambuTransId       string    `gorm:"column:mambu_trans_id" db:"mambu_trans_id" json:"mambu_trans_id" form:"mambu_trans_id"`
 	TerminalRrn        string    `gorm:"column:terminal_rrn" db:"terminal_rrn" json:"terminal_rrn" form:"terminal_rrn"`
 	SourceAccountNo    string    `gorm:"column:source_account_no" db:"source_account_no" json:"source_account_no" form:"source_account_no"`
 	SourceAccountName  string    `gorm:"column:source_account_name" db:"source_account_name" json:"source_account_name" form:"source_account_name"`

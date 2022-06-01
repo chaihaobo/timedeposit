@@ -1,6 +1,3 @@
-hugo: test
-system:
-  mode: development
 log:
   filename: time_deposit_eod_engine.log
   maxsize: 100000000

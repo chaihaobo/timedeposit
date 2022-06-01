@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 
@@ -50,4 +51,53 @@ func GetDB() *gorm.DB {
 		initDB()
 	})
 	return _db
+}
+
+func Paginate(pageNo int, pageSize int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if pageNo <= 0 {
+			pageNo = 1
+		}
+		if pageSize > 100 {
+			pageNo = 100
+		}
+		offset := (pageNo - 1) * pageSize
+		return db.Offset(offset).Limit(pageSize)
+	}
+}
+
+func FindPage(db *gorm.DB, pageNo int, pageSize int, resultBind interface{}, totalBind *int64) {
+	zap.L().Info("page query start")
+	startTime := time.Now()
+	countSql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+
+		return tx.Count(totalBind)
+	})
+	querySql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Scopes(Paginate(pageNo, pageSize)).Find(resultBind)
+	})
+
+	var wait sync.WaitGroup
+	wait.Add(2)
+	go func() {
+		zap.L().Info("query total task start...")
+		totalTaskStartTime := time.Now()
+		// var count string
+		defer wait.Done()
+		GetDB().Raw(countSql).Scan(totalBind)
+		useTime := time.Now().Sub(totalTaskStartTime).Milliseconds()
+		zap.L().Info("query total task end.", zap.Int64("useTime", useTime))
+
+	}()
+	go func() {
+		zap.L().Info("query task start...")
+		queryTaskStartTime := time.Now()
+		defer wait.Done()
+		GetDB().Raw(querySql).Scan(resultBind)
+		useTime := time.Now().Sub(queryTaskStartTime).Milliseconds()
+		zap.L().Info("query task end.", zap.Int64("useTime", useTime))
+	}()
+	wait.Wait()
+	zap.L().Info("page query finished", zap.Int64("totalUseTime", time.Now().Sub(startTime).Milliseconds()))
+
 }

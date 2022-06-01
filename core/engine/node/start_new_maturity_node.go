@@ -54,7 +54,6 @@ func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate tim
 		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
 		return "", errors.New("convert tenor to int failed")
 	}
-	// Todo: note, should add logic for holidays
 	resultDate := maturityDate.AddDate(0, tenorInt, 0)
 	for _, tmpHoliday := range holidayservice.GetHolidayList(cxt) {
 		if time2.InSameDay(tmpHoliday, resultDate) {

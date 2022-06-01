@@ -77,11 +77,10 @@ func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
 				Value:    "INTEREST_APPLIED",
 			},
 			{
-				Field: "creationDate",
-				// todo: Remember to set the value to today!
+				Field:       "creationDate",
 				Operator:    "BETWEEN",
-				Value:       time2.GetDate(time.Now().AddDate(0, 0, -20)), // today
-				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
+				Value:       time2.GetDate(time.Now()),                  // today
+				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
 			},
 		},
 		SortingCriteria: mambu.SortingCriteria{
@@ -120,7 +119,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
@@ -130,12 +129,12 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, err
 	}
 
 	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", transactionResp))
-	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(&transactionResp)
+	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(context, &transactionResp)
 	return transactionResp, nil
 }
 func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambu.TDAccount, amount float64,
@@ -154,7 +153,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
@@ -164,10 +163,10 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, err
 	}
-	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(&transactionResp)
+	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(context, &transactionResp)
 	return transactionResp, nil
 }
 

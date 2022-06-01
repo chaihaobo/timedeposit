@@ -94,11 +94,10 @@ func generateSearchTDAccountParam() mambu.SearchParam {
 				Value:    "FIXED_DEPOSIT",
 			},
 			{
-				Field: "_rekening.rekeningTanggalJatohTempo",
-				// todo: Remember to set the value to today!
+				Field:       "_rekening.rekeningTanggalJatohTempo",
 				Operator:    "BETWEEN",
-				Value:       time2.GetDate(time.Now().AddDate(0, 0, -20)), // today
-				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
+				Value:       time2.GetDate(time.Now()),                  // today
+				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
 			},
 		},
 		SortingCriteria: mambu.SortingCriteria{

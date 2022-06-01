@@ -15,10 +15,6 @@ import (
 var TDConf = new(TDConfig)
 
 type TDConfig struct {
-	Hugo   string
-	System *struct {
-		Mode string
-	}
 	Log *struct {
 		Filename   string
 		Maxsize    int

@@ -42,15 +42,12 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(flowTaskInfo *po.TF
 
 func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int, accountId string) ([]*po.TFlowTaskInfo, int64) {
 	failTaskInfoList := make([]*po.TFlowTaskInfo, 0)
-	query := db.GetDB().Where("cur_status", string(constant.FlowNodeFailed))
+	var total int64
+	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc")
 	if accountId != "" {
 		query = query.Where("account_id", accountId)
 	}
-	query.Order("id desc").
-		Limit(pageSize).Offset((pageNo - 1) * pageSize).Find(&failTaskInfoList)
-
-	var total int64
-	db.GetDB().Model(new(po.TFlowTaskInfo)).Count(&total)
+	db.FindPage(query, pageNo, pageSize, &failTaskInfoList, &total)
 	return failTaskInfoList, total
 }
 
