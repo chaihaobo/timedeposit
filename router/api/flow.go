@@ -40,6 +40,7 @@ func loadAccountList() []mambu.TDAccount {
 	tmpQueryParam := generateSearchTDAccountParam()
 	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
 	if err != nil {
+		zap.L().Error("get td account list error", zap.Error(err))
 		return nil
 	}
 	return tmpTDAccountList
