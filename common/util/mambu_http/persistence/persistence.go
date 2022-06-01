@@ -1,7 +1,7 @@
 // Package mambu
 // @author： Boice
 // @createTime：2022/5/30 14:10
-package mambu
+package persistence
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func SaveMambuRequestLog(context context.Context, requestType string) mambu_http.RequestCallbackFun {
+func DBPersistence(context context.Context, requestType string) mambu_http.RequestCallbackFun {
 	return func(url string, code int, requestBody string, responseBody string, err error) {
 		var flowId = ""
 		var nodeName = ""

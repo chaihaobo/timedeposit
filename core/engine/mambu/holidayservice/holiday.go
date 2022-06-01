@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
-	"gitlab.com/bns-engineering/td/core/engine/mambu"
+	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
 	"go.uber.org/zap"
 	"time"
 )
@@ -17,7 +17,7 @@ func GetHolidayList(ctx context.Context) []time.Time {
 	var holidayList []time.Time
 	zap.L().Info(fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
 	var holidayInfo HolidayInfo
-	err := mambu_http.Get(constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, mambu.SaveMambuRequestLog(ctx, "GetHolidayList"))
+	err := mambu_http.Get(constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, persistence.DBPersistence(ctx, "GetHolidayList"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Query holiday Info failed! query url: %v", constant.HolidayInfoUrl))
 		return holidayList

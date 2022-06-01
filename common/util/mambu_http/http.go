@@ -17,10 +17,7 @@ import (
 
 type RequestCallbackFun func(url string, code int, requestBody string, responseBody string, err error)
 
-//  getMambuHeader
-//  @Description: get the base header
-//  @return map[string][]string
-//
+// getMambuHeader get the base header
 func getMambuHeader() map[string][]string {
 	return map[string][]string{
 		"Accept": {constant.Accept},

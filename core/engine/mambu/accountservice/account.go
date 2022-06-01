@@ -10,7 +10,7 @@ import (
 	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
-	"gitlab.com/bns-engineering/td/core/engine/mambu"
+	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
 	"time"
@@ -29,7 +29,7 @@ func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuE
 	postJsonStr := string(queryParamByte)
 	zap.L().Debug(fmt.Sprintf("PostUrl:%v", postUrl))
 	zap.L().Debug(fmt.Sprintf("postJsonStr:%v", postJsonStr))
-	err = mambu_http.Post(postUrl, postJsonStr, &tdAccountList, mambu.SaveMambuRequestLog(nil, "GetTDAccountListByQueryParam"))
+	err = mambu_http.Post(postUrl, postJsonStr, &tdAccountList, persistence.DBPersistence(nil, "GetTDAccountListByQueryParam"))
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Search td account Info List failed! queryParam: %v", postJsonStr))
@@ -41,7 +41,7 @@ func GetTDAccountListByQueryParam(searchParam mambuEntity.SearchParam) ([]mambuE
 func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.TDAccount, error) {
 	var tdAccount = new(mambuEntity.TDAccount)
 	getUrl := fmt.Sprintf(constant.UrlOf(constant.GetTDAccountUrl), tdAccountID)
-	err := mambu_http.Get(getUrl, tdAccount, mambu.SaveMambuRequestLog(context, "GetAccountById"))
+	err := mambu_http.Get(getUrl, tdAccount, persistence.DBPersistence(context, "GetAccountById"))
 	if err != nil {
 		zap.L().Error("get account Failed", zap.Error(err))
 		return nil, err
@@ -52,7 +52,7 @@ func GetAccountById(context context.Context, tdAccountID string) (*mambuEntity.T
 func UndoMaturityDate(context context.Context, accountID string) bool {
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.UndoMaturityDateUrl), accountID)
 	zap.L().Info(fmt.Sprintf("getUrl: %v", postUrl))
-	err := mambu_http.Post(postUrl, "", nil, mambu.SaveMambuRequestLog(context, "UndoMaturityDate"))
+	err := mambu_http.Post(postUrl, "", nil, persistence.DBPersistence(context, "UndoMaturityDate"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
@@ -76,7 +76,7 @@ func ChangeMaturityDate(context context.Context, accountID, maturityDate, note s
 	postJsonStr := string(postJsonByte)
 
 	var resultTDAccount mambuEntity.TDAccount
-	err := mambu_http.Post(postUrl, postJsonStr, &resultTDAccount, mambu.SaveMambuRequestLog(context, "ChangeMaturityDate"))
+	err := mambu_http.Post(postUrl, postJsonStr, &resultTDAccount, persistence.DBPersistence(context, "ChangeMaturityDate"))
 	if err != nil {
 		zap.L().Error("Create MaturityDate for td account failed! ", zap.String("accountId", accountID))
 		return resultTDAccount, err
@@ -97,7 +97,7 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 		Notes:                   note,
 	})
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Post(postUrl, postJsonStr, nil, mambu.SaveMambuRequestLog(context, "ApplyProfit"))
+	err := mambu_http.Post(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "ApplyProfit"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("ApplyProfit for td account failed! td acc id: %v", accountID))
 		return false
@@ -123,7 +123,7 @@ func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate 
 	})
 
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Patch(postUrl, postJsonStr, nil, mambu.SaveMambuRequestLog(context, "UpdateMaturifyDateForTDAccount"))
+	err := mambu_http.Patch(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "UpdateMaturifyDateForTDAccount"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
@@ -145,7 +145,7 @@ func CloseAccount(context context.Context, accID, notes string) bool {
 	})
 
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Patch(postUrl, postJsonStr, nil, mambu.SaveMambuRequestLog(context, "CloseAccount"))
+	err := mambu_http.Patch(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "CloseAccount"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("CloseAccount for td account failed! td acc id: %v", accID))
 		return false
