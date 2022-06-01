@@ -5,6 +5,7 @@ package engine
 
 import (
 	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"testing"
 )
 

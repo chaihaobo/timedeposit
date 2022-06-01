@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"net/http"
 	"os"
 	"os/signal"
