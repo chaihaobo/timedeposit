@@ -8,10 +8,10 @@ package db
 
 import (
 	"fmt"
+	"gitlab.com/bns-engineering/td/model/po"
+	"gorm.io/gorm"
 	"testing"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 func TestGetDB(t *testing.T) {
