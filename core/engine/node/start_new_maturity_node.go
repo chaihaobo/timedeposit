@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/bns-engineering/td/common/util"
+	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/holidayservice"
 	"go.uber.org/zap"
@@ -56,9 +56,9 @@ func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate tim
 	// Todo: note, should add logic for holidays
 	resultDate := maturityDate.AddDate(0, tenorInt, 0)
 	for _, tmpHoliday := range holidayservice.GetHolidayList(cxt) {
-		if util.InSameDay(tmpHoliday, resultDate) {
+		if time2.InSameDay(tmpHoliday, resultDate) {
 			resultDate = maturityDate.AddDate(0, 0, 1)
 		}
 	}
-	return util.GetDate(resultDate), nil
+	return time2.GetDate(resultDate), nil
 }

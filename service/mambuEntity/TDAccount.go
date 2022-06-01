@@ -8,12 +8,11 @@ package mambuEntity
 
 import (
 	"github.com/uniplaces/carbon"
+	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"time"
-
-	"gitlab.com/bns-engineering/td/common/util"
 )
 
 type TDAccount struct {
@@ -139,8 +138,8 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 	tomorrow := time.Now().AddDate(0, 0, 1)
 	return isARO &&
 		activeState &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.MaturityDate)
+		time2.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
+		time2.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.MaturityDate)
 }
 
 func (tdAccInfo *TDAccount) IsCaseB() bool {
@@ -153,7 +152,7 @@ func (tdAccInfo *TDAccount) IsCaseB() bool {
 	}
 	return isARO &&
 		activeState &&
-		util.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
+		time2.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
 		rekeningTanggalJatohTempoDate.Before(tdAccInfo.MaturityDate)
 }
 

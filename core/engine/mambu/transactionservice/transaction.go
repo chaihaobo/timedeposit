@@ -12,9 +12,10 @@ import (
 	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/common/util/id"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
+	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/repository"
 	"gitlab.com/bns-engineering/td/service/mambuEntity"
 	"go.uber.org/zap"
@@ -79,8 +80,8 @@ func generateTransactionSearchParam(encodedKey string) mambuEntity.SearchParam {
 				Field: "creationDate",
 				// todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
-				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), // today
-				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
+				Value:       time2.GetDate(time.Now().AddDate(0, 0, -20)), // today
+				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
 			},
 		},
 		SortingCriteria: mambuEntity.SortingCriteria{
@@ -214,5 +215,5 @@ func BuildTransactionReq(tdAccount *mambuEntity.TDAccount,
 }
 
 func generationTerminalRRN() string {
-	return "TDE-" + util.RandomSnowFlakeId()
+	return "TDE-" + id.RandomSnowFlakeId()
 }

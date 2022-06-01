@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
-	"gitlab.com/bns-engineering/td/common/util"
+	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/model"
@@ -97,8 +97,8 @@ func generateSearchTDAccountParam() mambuEntity.SearchParam {
 				Field: "_rekening.rekeningTanggalJatohTempo",
 				// todo: Remember to set the value to today!
 				Operator:    "BETWEEN",
-				Value:       util.GetDate(time.Now().AddDate(0, 0, -20)), // today
-				SecondValue: util.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
+				Value:       time2.GetDate(time.Now().AddDate(0, 0, -20)), // today
+				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)),   // tomorrow
 			},
 		},
 		SortingCriteria: mambuEntity.SortingCriteria{

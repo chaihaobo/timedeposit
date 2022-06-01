@@ -4,7 +4,7 @@
  * @Last Modified by: Hugo
  * @Last Modified time: 2022-05-16 09:40:22
  */
-package util
+package time
 
 import (
 	"github.com/uniplaces/carbon"
@@ -26,5 +26,5 @@ func InSameDay(t1, t2 time.Time) bool {
 
 // Get the date string of current time
 func GetDate(tmpTime time.Time) string {
-	return time.Unix(tmpTime.Local().Unix(), 0).Format("2006-01-02") //打印结果：2017-04-11 13:30:39
+	return time.Unix(tmpTime.Local().Unix(), 0).Format("2006-01-02") // 打印结果：2017-04-11 13:30:39
 }

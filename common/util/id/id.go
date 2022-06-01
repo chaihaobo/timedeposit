@@ -1,7 +1,7 @@
 // Package util
 // @author： Boice
 // @createTime：
-package util
+package id
 
 import "github.com/bwmarrin/snowflake"
 
