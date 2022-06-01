@@ -5,8 +5,21 @@ package dto
 
 import "time"
 
-type RetryFlowModel struct {
+type RetryFlowReqModel struct {
 	FlowIdList []string `json:"flow_id_list"`
+}
+
+type RetryFlowSearchModel struct {
+	Page   *Page `json:"page"`
+	Search *Search
+}
+
+type Search struct {
+	AccountId string `json:"account_id"`
+}
+
+func DefaultRetryFlowSearchModel() *RetryFlowSearchModel {
+	return &RetryFlowSearchModel{Page: DefaultPage(), Search: new(Search)}
 }
 
 type FailFlowModel struct {

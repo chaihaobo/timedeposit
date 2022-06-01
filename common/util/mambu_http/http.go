@@ -17,8 +17,7 @@ import (
 
 type RequestCallbackFun func(url string, code int, requestBody string, responseBody string, err error)
 
-//
-//  getMambuHeader mambu base header
+//  getMambuHeader
 //  @Description: get the base header
 //  @return map[string][]string
 //
@@ -29,6 +28,7 @@ func getMambuHeader() map[string][]string {
 	}
 }
 
+// Patch send http patch request
 func Patch(url, body string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string

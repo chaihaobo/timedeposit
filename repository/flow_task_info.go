@@ -19,7 +19,7 @@ func GetFlowTaskInfoRepository() IFlowTaskInfoRepository {
 type IFlowTaskInfoRepository interface {
 	Get(flowId string) *model.TFlowTaskInfo
 	Update(flowTaskInfo *model.TFlowTaskInfo)
-	FailFlowList(pageNo int, pageSize int) ([]*model.TFlowTaskInfo, int64)
+	FailFlowList(pageNo int, pageSize int, accountId string) ([]*model.TFlowTaskInfo, int64)
 	AllFailFlowIdList() []string
 }
 
@@ -40,11 +40,15 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(flowTaskInfo *model
 	db.GetDB().Save(flowTaskInfo)
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int) ([]*model.TFlowTaskInfo, int64) {
+func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int, accountId string) ([]*model.TFlowTaskInfo, int64) {
 	failTaskInfoList := make([]*model.TFlowTaskInfo, 0)
-	db.GetDB().Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc").
-		Limit(pageSize).Offset((pageNo - 1) * pageSize).
-		Find(&failTaskInfoList)
+	query := db.GetDB().Where("cur_status", string(constant.FlowNodeFailed))
+	if accountId != "" {
+		query = query.Where("account_id", accountId)
+	}
+	query.Order("id desc").
+		Limit(pageSize).Offset((pageNo - 1) * pageSize).Find(&failTaskInfoList)
+
 	var total int64
 	db.GetDB().Model(new(model.TFlowTaskInfo)).Count(&total)
 	return failTaskInfoList, total

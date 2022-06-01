@@ -43,9 +43,9 @@ func StartFlow(c *gin.Context) {
 }
 
 func FailFlowList(c *gin.Context) {
-	page := dto.DefaultPage()
-	_ = c.BindJSON(page)
-	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(page.PageNo, page.PageSize)
+	retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
+	_ = c.BindJSON(retryFlowSearchModel)
+	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(retryFlowSearchModel.Page.PageNo, retryFlowSearchModel.Page.PageSize, retryFlowSearchModel.Search.AccountId)
 	result := funk.Map(list, func(taskInfo *model.TFlowTaskInfo) *dto.FailFlowModel {
 		d := new(dto.FailFlowModel)
 		d.Id = taskInfo.Id
@@ -62,7 +62,7 @@ func FailFlowList(c *gin.Context) {
 }
 
 func Retry(c *gin.Context) {
-	m := new(dto.RetryFlowModel)
+	m := new(dto.RetryFlowReqModel)
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
 	for _, flowId := range list {

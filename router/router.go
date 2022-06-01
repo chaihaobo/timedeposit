@@ -21,7 +21,7 @@ func InitRouter() *gin.Engine {
 	flowGroup := r.Group("/flow")
 	{
 		flowGroup.POST("/start", api.StartFlow)
-		flowGroup.GET("/failedFlow", api.FailFlowList)
+		flowGroup.GET("/failFlows", api.FailFlowList)
 		flowGroup.POST("/retry", api.Retry)
 		flowGroup.POST("/retryAll", api.RetryAll)
 	}
