@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	ResultSuccess NodeResult = "success"
-	ResultSkip    NodeResult = "skip"
+	ResultSuccess Result = "success"
+	ResultSkip    Result = "skip"
 )
 
 type INode interface {
@@ -104,11 +104,11 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambu.TDAcc
 }
 
 type INodeResult interface {
-	GetNodeResult() NodeResult
+	GetNodeResult() Result
 }
 
-type NodeResult string
+type Result string
 
-func (nodeResult NodeResult) GetNodeResult() NodeResult {
+func (nodeResult Result) GetNodeResult() Result {
 	return nodeResult
 }

@@ -53,8 +53,7 @@ func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTra
 		tFlowTask.FlowId = ctx.Value("flowId").(string)
 	}
 
-	db := db.GetDB()
-	db.Save(&tFlowTask)
+	db.GetDB().Save(&tFlowTask)
 	return &tFlowTask
 }
 
@@ -78,8 +77,7 @@ func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransact
 	if ctx != nil && ctx.Value("flowId") != nil {
 		tFlowTask.FlowId = ctx.Value("flowId").(string)
 	}
-	db := db.GetDB()
-	db.Save(&tFlowTask)
+	db.GetDB().Save(&tFlowTask)
 	return &tFlowTask
 }
 

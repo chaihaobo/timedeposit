@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Get TDAccount List from mambu api
+// GetTDAccountListByQueryParam Get TDAccount List from mambu api
 func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAccount, error) {
 	tdAccountList := []mambu.TDAccount{}
 	postUrl := constant.UrlOf(constant.SearchTDAccountListUrl)
@@ -59,7 +59,7 @@ func UndoMaturityDate(context context.Context, accountID string) bool {
 	return true
 }
 
-// Create New Maturity Date for this TD account
+// ChangeMaturityDate Create New Maturity Date for this TD account
 func ChangeMaturityDate(context context.Context, accountID, maturityDate, note string) (mambu.TDAccount, error) {
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.StartMaturityDateUrl), accountID)
 	zap.L().Info(fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))

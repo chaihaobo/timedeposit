@@ -33,7 +33,7 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {
 			zap.L().Info("No applied profit, skip")
-			return nil, errors.New("No applied profit, skip")
+			return nil, errors.New("no applied profit, skip")
 		}
 		lastAppliedInterestTrans := transList[0]
 

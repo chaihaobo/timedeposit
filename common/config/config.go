@@ -1,9 +1,4 @@
-/*
- * @Author: Hugo
- * @Date: 2022-04-29 10:24:08
- * @Last Modified by:   Hugo
- * @Last Modified time: 2022-04-29 10:24:08
- */
+// Package config /*
 package config
 
 import (

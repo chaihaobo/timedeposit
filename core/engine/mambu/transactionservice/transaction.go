@@ -153,7 +153,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionDeposit, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
@@ -163,7 +163,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))
-		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
+		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionDeposit, err.Error())
 		return transactionResp, err
 	}
 	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(context, &transactionResp)
