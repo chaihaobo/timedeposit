@@ -5,6 +5,7 @@ package node
 
 import (
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/logger"
 	"reflect"
 	"testing"
 

@@ -10,7 +10,7 @@ static:
 	go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
 ## Run all tests
 test:
-	go test $$(go list ./... | grep -v /vendor/) -cover
+	go test $(go list ./... | grep -v /vendor/) -cover
 ## Clear compiled files
 clean:
 	go clean -i -n -x
