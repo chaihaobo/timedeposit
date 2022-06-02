@@ -72,7 +72,7 @@ func Run(flowId string) {
 			}, 3)
 		}
 		useRuntime := time.Now().Sub(runStartTime)
-		saveNodeRunLog(flowId, flowName, nodeName, run, err)
+		saveNodeRunLog(flowId, flowTaskInfo.AccountId, flowName, nodeName, run, err)
 		if err != nil {
 			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
 				zap.String("error", fmt.Sprintf("%v", errors.WithStack(err))),
@@ -151,11 +151,12 @@ func taskError(taskInfo *po.TFlowTaskInfo) {
 
 }
 
-func saveNodeRunLog(flowId string, flowName string, nodeName string, nodeResult node.INodeResult, err error) {
+func saveNodeRunLog(flowId string, accountId string, flowName string, nodeName string, nodeResult node.INodeResult, err error) {
 	log := new(po.TFlowNodeLog)
 	log.FlowId = flowId
 	log.FlowName = flowName
 	log.NodeName = nodeName
+	log.AccountId = accountId
 	log.CreateTime = time.Now()
 	log.UpdateTime = time.Now()
 	if nodeResult != nil {
