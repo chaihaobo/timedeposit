@@ -29,11 +29,6 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
 
-	if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
-		zap.L().Error("is not a valid benefit account!")
-		return nil, constant.ErrBenefitAccountInvalid
-	}
-
 	if account.IsCaseB1_1_1_1() ||
 		account.IsCaseB2_1_1() ||
 		(account.IsCaseB3() &&
@@ -42,6 +37,12 @@ func (node *DepositAdditionalProfitNode) Run() (INodeResult, error) {
 		(account.IsCaseC() &&
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialRate) == "TRUE") {
+
+		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
+			zap.L().Error("is not a valid benefit account!")
+			return nil, constant.ErrBenefitAccountInvalid
+		}
+
 		// Get last applied interest info
 		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {

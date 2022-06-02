@@ -29,12 +29,14 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
-	if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
-		zap.L().Error("is not a valid benefit account!")
-		return nil, constant.ErrBenefitAccountInvalid
-	}
+
 	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(2).InexactFloat64()
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
+		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
+			zap.L().Error("is not a valid benefit account!")
+			return nil, constant.ErrBenefitAccountInvalid
+		}
+
 		// Get benefit account info
 		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
 		if err != nil {

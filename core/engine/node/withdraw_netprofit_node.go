@@ -28,12 +28,11 @@ func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
 		zap.L().Error(fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", account.ID, account.OtherInformation.BhdNomorRekPencairan))
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
-	if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
-		zap.L().Error("is not a valid benefit account!")
-		return nil, constant.ErrBenefitAccountInvalid
-	}
-
 	if account.IsCaseB1_1() {
+		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
+			zap.L().Error("is not a valid benefit account!")
+			return nil, constant.ErrBenefitAccountInvalid
+		}
 		netProfit, err := account.GetNetProfit()
 		if err != nil {
 			return nil, err
