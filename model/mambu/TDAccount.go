@@ -145,8 +145,8 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 func (tdAccInfo *TDAccount) IsCaseB() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
-	if error != nil {
+	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+	if err != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}

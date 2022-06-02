@@ -76,7 +76,7 @@ func Run(flowId string) {
 		saveNodeRunLog(flowId, flowTaskInfo.AccountId, flowName, nodeName, run, err)
 		if err != nil {
 			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
-				zap.String("error", fmt.Sprintf("%v", errors.WithStack(err))),
+				zap.String("error", fmt.Sprintf("%+v", errors.WithStack(err))),
 			)
 			taskError(flowTaskInfo)
 			break
