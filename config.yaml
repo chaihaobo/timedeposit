@@ -28,6 +28,7 @@ mambu:
   host: https://cbs-dev1.aladinbank.id
   apiKey: 1XXW0a679FIOoNEadSGt92ysIlr1J2hg
 transactionReqMetaData:
+  localHolderKey: test
   messageType: TRANSACTION
   externalOriTransactionID:
   externalOriTransactionDetailID:
@@ -43,16 +44,16 @@ transactionReqMetaData:
   destinationIID: 947
   currency: IDR
   tranDesc:
-    withdrawAdditionalProfitTranDesc1: Bonus Bagi Hasil Deposito
-    withdrawAdditionalProfitTranDesc3: withdraw additional profit from eod-engine
+    withdrawAdditionalProfitTranDesc1: Pajak Bonus Bagi Hasil
+    withdrawAdditionalProfitTranDesc3:
     withdrawBalanceTranDesc1: Deposito Disbursement
-    withdrawBalanceTranDesc3: withdraw balance from eod-engine
-    withdrawNetprofitTranDesc1: Deposito Disbursement
-    withdrawNetprofitTranDesc3: withdraw netprofit from eod-engine
-    depositAdditionalProfitTranDesc1: Tax Bonus Bagi Hasil Deposito
-    depositAdditionalProfitTranDesc3: deposit additional profit from eod-engine
+    withdrawBalanceTranDesc3:
+    withdrawNetprofitTranDesc1: Bagi Hasil Deposito
+    withdrawNetprofitTranDesc3:
+    depositAdditionalProfitTranDesc1: Bonus Bagi Hasil Deposito
+    depositAdditionalProfitTranDesc3:
     depositBalanceTranDesc1: Deposito Disbursement
-    depositBalanceTranDesc3: deposit balance from eod-engine
+    depositBalanceTranDesc3:
     depositNetprofitTranDesc1: Bagi Hasil Deposito
-    depositNetprofitTranDesc3: deposit netprofit from eod-engine
+    depositNetprofitTranDesc3:
 

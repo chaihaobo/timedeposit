@@ -37,6 +37,7 @@ type TDConfig struct {
 	}
 	TransactionReqMetaData *struct {
 		MessageType                    string
+		LocalHolderKey                 string
 		ExternalOriTransactionID       string
 		ExternalOriTransactionDetailID string
 		TransactionType                string
