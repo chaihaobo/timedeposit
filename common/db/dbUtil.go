@@ -49,10 +49,10 @@ func initDB() {
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
 	})
+	_db.AutoMigrate()
 	if err != nil {
 		util.CheckAndExit(err)
 	}
-
 	sqlDB, _ := _db.DB()
 	// Set the db connection configuration
 	sqlDB.SetMaxOpenConns(config.TDConf.Db.MaxOpenConn) // set the max openning connection number
@@ -63,6 +63,7 @@ func initDB() {
 
 // Get db connection
 func GetDB() *gorm.DB {
+
 	dbOnce.Do(func() {
 		initDB()
 	})
