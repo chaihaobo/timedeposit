@@ -38,7 +38,6 @@ func main() {
 	cores := runtime.NumCPU()
 	runtime.GOMAXPROCS(cores)
 	gin.SetMode(config.TDConf.Server.RunMode)
-
 	routersInit := router.InitRouter()
 	endPoint := fmt.Sprintf(":%d", config.TDConf.Server.HttpPort)
 

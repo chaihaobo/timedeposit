@@ -6,10 +6,10 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
-	time2 "gitlab.com/bns-engineering/td/common/util/time"
+	timeUtil "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
-	dto2 "gitlab.com/bns-engineering/td/model/dto"
+	"gitlab.com/bns-engineering/td/model/dto"
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
@@ -42,11 +42,11 @@ func loadAccountList() ([]mambu.TDAccount, error) {
 }
 
 func FailFlowList(c *gin.Context) {
-	retryFlowSearchModel := dto2.DefaultRetryFlowSearchModel()
-	_ = c.BindJSON(retryFlowSearchModel)
+	retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
+	_ = c.ShouldBindJSON(retryFlowSearchModel)
 	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(retryFlowSearchModel.Page.PageNo, retryFlowSearchModel.Page.PageSize, retryFlowSearchModel.Search.AccountId)
-	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto2.FailFlowModel {
-		d := new(dto2.FailFlowModel)
+	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto.FailFlowModel {
+		d := new(dto.FailFlowModel)
 		d.Id = taskInfo.Id
 		d.FlowId = taskInfo.FlowId
 		d.AccountId = taskInfo.AccountId
@@ -57,11 +57,11 @@ func FailFlowList(c *gin.Context) {
 		d.UpdateTime = taskInfo.UpdateTime
 		return d
 	})
-	c.JSON(http.StatusOK, SuccessData(dto2.NewPageResult(total, result)))
+	c.JSON(http.StatusOK, SuccessData(dto.NewPageResult(total, result)))
 }
 
 func Retry(c *gin.Context) {
-	m := new(dto2.RetryFlowReqModel)
+	m := new(dto.RetryFlowReqModel)
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
 	for _, flowId := range list {
@@ -95,8 +95,8 @@ func generateSearchTDAccountParam() mambu.SearchParam {
 			{
 				Field:       "_rekening.rekeningTanggalJatohTempo",
 				Operator:    "BETWEEN",
-				Value:       time2.GetDate(time.Now()),                  // today
-				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
+				Value:       timeUtil.GetDate(time.Now()),                  // today
+				SecondValue: timeUtil.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
 			},
 		},
 		SortingCriteria: mambu.SortingCriteria{

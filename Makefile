@@ -2,6 +2,9 @@ include .env
 ## Build the executable for the current environment
 build:
 	@go build -ldflags '-w -s' -o ${BINARY}-${VERSION}
+## run this application
+run:
+	@go run main.go
 ## Build executable files in linux environment
 static:
 	@set CGO_ENABLED=0

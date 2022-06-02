@@ -42,7 +42,7 @@ func getEncoder() zapcore.Encoder {
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
 	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
-	return zapcore.NewConsoleEncoder(encoderConfig)
+	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
 func getLogWriter(filename string, maxSize, maxBackup, maxAge int) zapcore.WriteSyncer {
