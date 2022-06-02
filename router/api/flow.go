@@ -43,7 +43,7 @@ func loadAccountList() ([]mambu.TDAccount, error) {
 
 func FailFlowList(c *gin.Context) {
 	retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
-	_ = c.ShouldBindJSON(retryFlowSearchModel)
+	_ = c.BindJSON(retryFlowSearchModel)
 	list, total := repository.GetFlowTaskInfoRepository().FailFlowList(retryFlowSearchModel.Page.PageNo, retryFlowSearchModel.Page.PageSize, retryFlowSearchModel.Search.AccountId)
 	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto.FailFlowModel {
 		d := new(dto.FailFlowModel)
