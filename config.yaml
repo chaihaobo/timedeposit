@@ -4,6 +4,8 @@ log:
   MaxBackups: 5
   MaxAge: 28
   Level: DEBUG
+flow:
+  nodeFailRetryTimes: 3
 db:
   username: root
   password: nju063320

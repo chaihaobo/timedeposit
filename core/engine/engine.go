@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/panjf2000/ants/v2"
 	"github.com/pkg/errors"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/core/engine/flow"
 	"gitlab.com/bns-engineering/td/core/engine/node"
@@ -69,7 +70,7 @@ func Run(flowId string) {
 			retry(func() error {
 				run, err = runNode.Run()
 				return err
-			}, 3)
+			}, config.TDConf.Flow.NodeFailRetryTimes)
 		}
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowTaskInfo.AccountId, flowName, nodeName, run, err)
@@ -99,7 +100,7 @@ func Run(flowId string) {
 
 func retry(retryFun func() error, times int) {
 	zap.L().Info("now retry start ..............", zap.Int("allTime", times))
-	for count := 0; count <= times; count++ {
+	for count := 1; count <= times; count++ {
 		zap.L().Info("start retry..........", zap.Int("times", count))
 		err := retryFun()
 		if err != nil {

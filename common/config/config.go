@@ -32,6 +32,9 @@ type TDConfig struct {
 		MaxOpenConn int
 		MaxIdleConn int
 	}
+	Flow *struct {
+		NodeFailRetryTimes int
+	}
 	TransactionReqMetaData *struct {
 		MessageType                    string
 		ExternalOriTransactionID       string
