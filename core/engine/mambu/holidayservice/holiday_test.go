@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../../../config.yaml"))
+	logger.SetUp(config.Setup("../../../../config.json"))
 }
 func TestGetHolidayList(t *testing.T) {
 

@@ -15,7 +15,7 @@ import (
 )
 
 func TestDepositBalanceNode_Run(t *testing.T) {
-	config.Setup("./../../../config.yaml")
+	config.Setup("./../../../config.json")
 	err := logger.SetUp(config.TDConf)
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))

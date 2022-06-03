@@ -82,7 +82,6 @@ func Setup(path string) *TDConfig {
 	envConfigPath := os.Getenv("TD_CONFIG_PATH")
 	configViper := viper.New()
 	configViper.SetConfigFile(path)
-	configViper.SetConfigType("yaml")
 	if "" != envConfigPath {
 		configViper.SetConfigFile(envConfigPath)
 	}

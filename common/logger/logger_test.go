@@ -11,7 +11,7 @@ import (
 
 func TestLogger(t *testing.T) {
 	t.Run("test logger", func(t *testing.T) {
-		config.Setup("../../config.yaml")
+		config.Setup("../../config.json")
 		SetUp(config.TDConf)
 		zap.L().Info("ok", zap.String("123", "123"))
 

@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../config.yaml"))
+	logger.SetUp(config.Setup("../../config.json"))
 }
 
 func TestEngine(t *testing.T) {
@@ -31,14 +31,14 @@ func TestStart(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name : "test  Case B1.1.1.1",
-			args : args{
+			name: "test  Case B1.1.1.1",
+			args: args{
 				accountId: "11169504404",
 			},
 		},
 		{
-			name : "test  Case B1.1.1.1 again",
-			args : args{
+			name: "test  Case B1.1.1.1 again",
+			args: args{
 				accountId: "11246851925",
 			},
 		},

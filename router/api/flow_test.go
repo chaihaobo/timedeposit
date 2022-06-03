@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../config.yaml"))
+	logger.SetUp(config.Setup("../../config.json"))
 }
 
 func TestStartFlow(t *testing.T) {

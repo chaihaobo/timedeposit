@@ -28,7 +28,7 @@ import (
 
 // Initial configuration for this app
 func init() {
-	err := logger.SetUp(config.Setup("./config.yaml"))
+	err := logger.SetUp(config.Setup("./config.json"))
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
 	}

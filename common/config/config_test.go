@@ -13,7 +13,7 @@ import (
 func TestNewConfig(t *testing.T) {
 
 	t.Run("test config read", func(t *testing.T) {
-		config := Setup("../../config.yaml")
+		config := Setup("../../config.json")
 		if config.Db.Password == "" {
 			t.Error("test config read fail")
 		}
