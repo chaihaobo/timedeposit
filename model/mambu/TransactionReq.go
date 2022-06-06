@@ -35,9 +35,9 @@ type TransactionReqMetadata struct {
 	BeneficiaryAccountNo           string `json:"beneficiaryAccountNo,omitempty"`
 	BeneficiaryAccountName         string `json:"beneficiaryAccountName,omitempty"`
 	Currency                       string `json:"currency"`
-	TranDesc1                      string `json:"tranDesc1"`
-	TranDesc2                      string `json:"tranDesc2"`
-	TranDesc3                      string `json:"tranDesc3"`
+	TranDesc1                      string `json:"tranDesc1,omitempty"`
+	TranDesc2                      string `json:"tranDesc2,omitempty"`
+	TranDesc3                      string `json:"tranDesc3,omitempty"`
 }
 
 type TransactionReqDetails struct {
