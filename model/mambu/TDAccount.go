@@ -7,6 +7,7 @@
 package mambu
 
 import (
+	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"go.uber.org/zap"
@@ -145,8 +146,8 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 func (tdAccInfo *TDAccount) IsCaseB() bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
-	rekeningTanggalJatohTempoDate, error := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
-	if error != nil {
+	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
+	if err != nil {
 		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
@@ -163,15 +164,38 @@ func (tdAccInfo *TDAccount) IsCaseB1() bool {
 		isStopARO &&
 		aroType == "PRINCIPALONLY"
 }
-
-func (tdAccInfo *TDAccount) IsCaseB1_1() bool {
+func (tdAccInfo *TDAccount) GetNetProfit() (float64, error) {
 	principal, err := strconv.ParseFloat(tdAccInfo.Rekening.RekeningPrincipalAmount, 64)
 	if err != nil {
 		zap.L().Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64", zap.String("value", tdAccInfo.Rekening.RekeningPrincipalAmount))
+		return 0, err
+	}
+	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(2).InexactFloat64()
+	return netProfit, nil
+}
+func (tdAccInfo *TDAccount) IsCaseB1_1() bool {
+	netProfit, err := tdAccInfo.GetNetProfit()
+	if err != nil {
 		return false
 	}
-	netProfit := tdAccInfo.Balances.TotalBalance - principal
 	return tdAccInfo.IsCaseB1() && netProfit > 0
+}
+
+func (tdAccInfo *TDAccount) IsValidBenefitAccount(benefitAccout *TDAccount, configHolderKey string) bool {
+	if tdAccInfo.AccountHolderKey == "" {
+		return false
+	}
+	if benefitAccout.AccountHolderKey == "" {
+		return false
+	}
+	if tdAccInfo.AccountHolderKey == benefitAccout.AccountHolderKey {
+		return true
+	}
+	if benefitAccout.AccountHolderKey == configHolderKey {
+		return true
+	}
+
+	return false
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {

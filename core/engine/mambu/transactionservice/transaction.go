@@ -105,7 +105,9 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 
 func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mambu.TDAccount,
 	amount float64, tranDesc1 string, tranDesc3 string,
-	transactionID, channelID string) (mambu.TransactionResp, error) {
+	transactionID, channelID string,
+	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
+) (mambu.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
@@ -115,6 +117,9 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
+	if transactionReqConfigure != nil {
+		transactionReqConfigure(tmpTransaction)
+	}
 	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
@@ -139,7 +144,9 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 }
 func DepositTransaction(context context.Context, tdAccount, benefitAccount *mambu.TDAccount, amount float64,
 	tranDesc1 string, tranDesc3 string,
-	transactionID, channelID string) (mambu.TransactionResp, error) {
+	transactionID, channelID string,
+	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
+) (mambu.TransactionResp, error) {
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit!"
@@ -149,6 +156,9 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
 	tmpTransaction := BuildTransactionReq(tdAccount, benefitAccount, transactionID, transactionDetailID, custMessage, tranDesc1, tranDesc3, amount, channelID)
+	if transactionReqConfigure != nil {
+		transactionReqConfigure(tmpTransaction)
+	}
 	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {

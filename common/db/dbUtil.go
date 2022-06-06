@@ -49,7 +49,6 @@ func initDB() {
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
 	})
-	_db.AutoMigrate()
 	if err != nil {
 		util.CheckAndExit(err)
 	}

@@ -9,6 +9,8 @@ import (
 	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
+	"gitlab.com/bns-engineering/td/core/engine/node/constant"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
 )
 
@@ -21,8 +23,20 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Get benefit account info
+	benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
+	if err != nil {
+		zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
+		return nil, errors.New("call mambu get benefit acc info failed")
+	}
+
 	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(2).InexactFloat64()
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
+		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
+			zap.L().Error("is not a valid benefit account!")
+			return nil, constant.ErrBenefitAccountInvalid
+		}
+
 		// Get benefit account info
 		benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
 		if err != nil {
@@ -34,7 +48,9 @@ func (node *DepositBalanceNode) Run() (INodeResult, error) {
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, totalBalance,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc3,
-			depositTransID, channelID)
+			depositTransID, channelID, func(transactionReq *mambu.TransactionReq) {
+				transactionReq.Metadata.TranDesc2 = account.ID
+			})
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
 			zap.L().Error(fmt.Sprintf("depositResp: %v", depositResp))

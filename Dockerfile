@@ -13,5 +13,5 @@ FROM alpine:3.10 AS final
 ENV APP_PATH="/app/td"
 WORKDIR "/app"
 COPY --from=builder ${APP_PATH} ${APP_PATH}
-COPY ./config.yaml  /app
+COPY ./config.json  /app
 ENTRYPOINT ["/app/td"]

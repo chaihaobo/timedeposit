@@ -30,10 +30,10 @@ type TransactionReqMetadata struct {
 	IssuerIID                      string `json:"issuerIID"`
 	IssuerIName                    string `json:"issuerIName"`
 	DestinationIID                 string `json:"destinationIID"`
-	SourceAccountNo                string `json:"sourceAccountNo"`
-	SourceAccountName              string `json:"sourceAccountName"`
-	BeneficiaryAccountNo           string `json:"beneficiaryAccountNo"`
-	BeneficiaryAccountName         string `json:"beneficiaryAccountName"`
+	SourceAccountNo                string `json:"sourceAccountNo,omitempty"`
+	SourceAccountName              string `json:"sourceAccountName,omitempty"`
+	BeneficiaryAccountNo           string `json:"beneficiaryAccountNo,omitempty"`
+	BeneficiaryAccountName         string `json:"beneficiaryAccountName,omitempty"`
 	Currency                       string `json:"currency"`
 	TranDesc1                      string `json:"tranDesc1"`
 	TranDesc2                      string `json:"tranDesc2"`
