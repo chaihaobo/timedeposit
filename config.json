@@ -19,8 +19,8 @@
     "maxIdleConn": 20
   },
   "redis": {
-    "addr": "192.168.31.16:6379",
-    "password": null,
+    "addr": "192.168.31.58:6379",
+    "password": "123456",
     "poolSize": 10,
     "db": 0
   },
