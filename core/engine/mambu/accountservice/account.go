@@ -144,7 +144,7 @@ func CloseAccount(context context.Context, accID, notes string) bool {
 	})
 
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Patch(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "CloseAccount"))
+	err := mambu_http.Post(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "CloseAccount"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("CloseAccount for td account failed! td acc id: %v", accID))
 		return false
