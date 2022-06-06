@@ -49,3 +49,25 @@ func TestStart(t *testing.T) {
 		})
 	}
 }
+
+func TestRun(t *testing.T) {
+	type args struct {
+		flowId string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name : "Test Retry failed flows",
+			args :args{
+				flowId: "20220606072530_11563057399",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			Run(tt.args.flowId)
+		})
+	}
+}
