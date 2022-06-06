@@ -35,7 +35,7 @@
     "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
   },
   "transactionReqMetaData": {
-    "localHolderKey": "test",
+    "localHolderKey": "8ab08091812313d50181239d36020364",
     "messageType": "TRANSACTION",
     "externalOriTransactionID": null,
     "externalOriTransactionDetailID": null,
