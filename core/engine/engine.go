@@ -70,7 +70,7 @@ func Run(flowId string) {
 			retry(func() error {
 				run, err = runNode.Run()
 				return err
-			}, config.TDConf.Flow.NodeFailRetryTimes)
+			}, config.TDConf.Flow.NodeFailRetryTimes, flowId, nodeName)
 		}
 		useRuntime := time.Now().Sub(runStartTime)
 		saveNodeRunLog(flowId, flowTaskInfo.AccountId, flowName, nodeName, run, err)
@@ -98,15 +98,15 @@ func Run(flowId string) {
 	}
 }
 
-func retry(retryFun func() error, times int) {
-	zap.L().Info("now retry start ..............", zap.Int("allTime", times))
+func retry(retryFun func() error, times int, flowId string, nodeName string) {
+	zap.L().Info("now retry start ..............", zap.Int("allTime", times), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
 	for count := 1; count <= times; count++ {
-		zap.L().Info("start retry..........", zap.Int("times", count))
+		zap.L().Info("start retry..........", zap.Int("times", count), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
 		err := retryFun()
 		if err != nil {
-			zap.L().Info("retry fail........ ", zap.Int("times", count), zap.Error(err))
+			zap.L().Info("retry fail........ ", zap.Int("times", count), zap.Error(err), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
 		} else {
-			zap.L().Info("retry success use count ", zap.Int("times", count))
+			zap.L().Info("retry success use count ", zap.Int("times", count), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
 		}
 
 	}

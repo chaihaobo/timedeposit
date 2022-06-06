@@ -2,17 +2,17 @@
   "log": {
     "filename": "time_deposit_eod_engine.log",
     "maxsize": 100000000,
-    "MaxBackups": 5,
-    "MaxAge": 28,
-    "Level": "DEBUG"
+    "maxBackups": 5,
+    "maxAge": 28,
+    "level": "DEBUG"
   },
   "flow": {
     "nodeFailRetryTimes": 3
   },
   "db": {
-    "username": "root",
-    "password": "nju063320",
-    "host": "192.168.31.16",
+    "username": "hugo",
+    "password": "123456",
+    "host": "192.168.31.58",
     "port": 3306,
     "db": "time_deposit_eod_engine",
     "maxOpenConn": 100,

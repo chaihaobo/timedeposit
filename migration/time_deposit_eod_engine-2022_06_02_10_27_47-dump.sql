@@ -19,20 +19,21 @@
 -- Table structure for table `t_flow_node_logs`
 --
 create database if not exists time_deposit_eod_engine;
+use time_deposit_eod_engine;
 DROP TABLE IF EXISTS `t_flow_node_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_node_logs` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `account_id` varchar(50) DEFAULT NULL,
-  `flow_id` varchar(50) DEFAULT NULL,
-  `flow_name` varchar(255) DEFAULT NULL,
-  `node_name` varchar(255) DEFAULT NULL,
-  `node_result` varchar(255) DEFAULT NULL,
-  `node_msg` varchar(255) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+                                    `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                    `account_id` varchar(50) DEFAULT NULL,
+                                    `flow_id` varchar(50) DEFAULT NULL,
+                                    `flow_name` varchar(255) DEFAULT NULL,
+                                    `node_name` varchar(255) DEFAULT NULL,
+                                    `node_result` varchar(255) DEFAULT NULL,
+                                    `node_msg` varchar(255) DEFAULT NULL,
+                                    `create_time` datetime DEFAULT NULL,
+                                    `update_time` datetime DEFAULT NULL,
+                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1063 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -44,15 +45,15 @@ DROP TABLE IF EXISTS `t_flow_node_query_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_node_query_logs` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `flow_id` varchar(50) NOT NULL COMMENT 'flow id',
-  `node_name` varchar(100) NOT NULL,
-  `query_type` varchar(100) DEFAULT NULL,
-  `data` longtext,
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `t_flow_node_query_log_flow_id_index` (`flow_id`)
+                                          `id` bigint NOT NULL AUTO_INCREMENT,
+                                          `flow_id` varchar(50) NOT NULL COMMENT 'flow id',
+                                          `node_name` varchar(100) NOT NULL,
+                                          `query_type` varchar(100) DEFAULT NULL,
+                                          `data` longtext,
+                                          `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+                                          `update_time` datetime DEFAULT NULL,
+                                          PRIMARY KEY (`id`),
+                                          KEY `t_flow_node_query_log_flow_id_index` (`flow_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -64,14 +65,14 @@ DROP TABLE IF EXISTS `t_flow_node_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_node_relations` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `flow_name` varchar(63) DEFAULT NULL COMMENT 'Flow type name',
-  `node_name` varchar(63) DEFAULT NULL COMMENT 'Flow node name',
-  `result_code` varchar(63) DEFAULT NULL COMMENT 'description of node',
-  `next_node` varchar(63) DEFAULT NULL COMMENT 'the flow node name of next step',
-  `create_time` datetime DEFAULT NULL COMMENT 'Create Time',
-  `update_time` datetime DEFAULT NULL COMMENT 'Update Time',
-  PRIMARY KEY (`id`)
+                                         `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+                                         `flow_name` varchar(63) DEFAULT NULL COMMENT 'Flow type name',
+                                         `node_name` varchar(63) DEFAULT NULL COMMENT 'Flow node name',
+                                         `result_code` varchar(63) DEFAULT NULL COMMENT 'description of node',
+                                         `next_node` varchar(63) DEFAULT NULL COMMENT 'the flow node name of next step',
+                                         `create_time` datetime DEFAULT NULL COMMENT 'Create Time',
+                                         `update_time` datetime DEFAULT NULL COMMENT 'Update Time',
+                                         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3 COMMENT='flow node info';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -83,15 +84,15 @@ DROP TABLE IF EXISTS `t_flow_nodes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_nodes` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `flow_name` varchar(63) DEFAULT NULL COMMENT 'Flow type name',
-  `node_name` varchar(63) DEFAULT NULL COMMENT 'Flow node name',
-  `node_path` varchar(255) DEFAULT NULL,
-  `node_detail` varchar(255) DEFAULT NULL COMMENT 'description of node',
-  `create_time` datetime DEFAULT NULL COMMENT 'Create Time',
-  `update_time` datetime DEFAULT NULL COMMENT 'Update Time',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `flow_name_node_name` (`flow_name`,`node_name`)
+                                `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+                                `flow_name` varchar(63) DEFAULT NULL COMMENT 'Flow type name',
+                                `node_name` varchar(63) DEFAULT NULL COMMENT 'Flow node name',
+                                `node_path` varchar(255) DEFAULT NULL,
+                                `node_detail` varchar(255) DEFAULT NULL COMMENT 'description of node',
+                                `create_time` datetime DEFAULT NULL COMMENT 'Create Time',
+                                `update_time` datetime DEFAULT NULL COMMENT 'Update Time',
+                                PRIMARY KEY (`id`),
+                                UNIQUE KEY `flow_name_node_name` (`flow_name`,`node_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COMMENT='flow node info';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -103,19 +104,19 @@ DROP TABLE IF EXISTS `t_flow_task_infos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_task_infos` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `flow_id` varchar(50) DEFAULT NULL,
-  `account_id` varchar(50) DEFAULT NULL,
-  `flow_name` varchar(255) NOT NULL,
-  `flow_status` varchar(255) DEFAULT NULL,
-  `cur_node_name` varchar(255) DEFAULT NULL,
-  `cur_status` varchar(255) DEFAULT NULL,
-  `end_status` varchar(255) DEFAULT NULL,
-  `start_time` datetime DEFAULT NULL,
-  `end_time` datetime DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+                                     `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                     `flow_id` varchar(50) DEFAULT NULL,
+                                     `account_id` varchar(50) DEFAULT NULL,
+                                     `flow_name` varchar(255) NOT NULL,
+                                     `flow_status` varchar(255) DEFAULT NULL,
+                                     `cur_node_name` varchar(255) DEFAULT NULL,
+                                     `cur_status` varchar(255) DEFAULT NULL,
+                                     `end_status` varchar(255) DEFAULT NULL,
+                                     `start_time` datetime DEFAULT NULL,
+                                     `end_time` datetime DEFAULT NULL,
+                                     `create_time` datetime DEFAULT NULL,
+                                     `update_time` datetime DEFAULT NULL,
+                                     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,24 +128,24 @@ DROP TABLE IF EXISTS `t_flow_transactions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_flow_transactions` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `trans_id` varchar(255) DEFAULT NULL,
-  `flow_id` varchar(100) DEFAULT NULL,
-  `mambu_trans_id` varchar(100) DEFAULT NULL,
-  `terminal_rrn` varchar(255) DEFAULT NULL,
-  `source_account_no` varchar(50) DEFAULT NULL,
-  `source_account_name` varchar(255) DEFAULT NULL,
-  `benefit_account_no` varchar(50) DEFAULT NULL,
-  `benefit_account_name` varchar(255) DEFAULT NULL,
-  `amount` double DEFAULT NULL,
-  `channel` varchar(255) DEFAULT NULL,
-  `transaction_type` varchar(50) DEFAULT NULL,
-  `result` int DEFAULT '-1' COMMENT '1:succeed, 0:failed',
-  `encoded_key` varchar(255) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL,
-  `error_msg` varchar(1000) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+                                       `id` int unsigned NOT NULL AUTO_INCREMENT,
+                                       `trans_id` varchar(255) DEFAULT NULL,
+                                       `flow_id` varchar(100) DEFAULT NULL,
+                                       `mambu_trans_id` varchar(100) DEFAULT NULL,
+                                       `terminal_rrn` varchar(255) DEFAULT NULL,
+                                       `source_account_no` varchar(50) DEFAULT NULL,
+                                       `source_account_name` varchar(255) DEFAULT NULL,
+                                       `benefit_account_no` varchar(50) DEFAULT NULL,
+                                       `benefit_account_name` varchar(255) DEFAULT NULL,
+                                       `amount` double DEFAULT NULL,
+                                       `channel` varchar(255) DEFAULT NULL,
+                                       `transaction_type` varchar(50) DEFAULT NULL,
+                                       `result` int DEFAULT '-1' COMMENT '1:succeed, 0:failed',
+                                       `encoded_key` varchar(255) DEFAULT NULL,
+                                       `create_time` datetime DEFAULT NULL,
+                                       `update_time` datetime DEFAULT NULL,
+                                       `error_msg` varchar(1000) DEFAULT NULL,
+                                       PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -156,20 +157,20 @@ DROP TABLE IF EXISTS `t_mambu_request_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_mambu_request_logs` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `flow_id` varchar(100) DEFAULT NULL,
-  `account_id` varchar(100) DEFAULT NULL,
-  `node_name` varchar(100) DEFAULT NULL,
-  `type` varchar(50) DEFAULT NULL,
-  `request_url` varchar(255) DEFAULT NULL,
-  `request_body` text,
-  `response_code` int DEFAULT NULL,
-  `response_body` text,
-  `error` text,
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `t_mambu_request_log_flow_id_index` (`flow_id`)
+                                        `id` bigint NOT NULL AUTO_INCREMENT,
+                                        `flow_id` varchar(100) DEFAULT NULL,
+                                        `account_id` varchar(100) DEFAULT NULL,
+                                        `node_name` varchar(100) DEFAULT NULL,
+                                        `type` varchar(50) DEFAULT NULL,
+                                        `request_url` varchar(255) DEFAULT NULL,
+                                        `request_body` text,
+                                        `response_code` int DEFAULT NULL,
+                                        `response_body` text,
+                                        `error` text,
+                                        `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+                                        `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
+                                        PRIMARY KEY (`id`),
+                                        KEY `t_mambu_request_log_flow_id_index` (`flow_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=717 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
