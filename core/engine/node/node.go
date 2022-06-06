@@ -23,6 +23,16 @@ type INode interface {
 	SetUp(flowId string, accountId string, nodeName string)
 }
 
+type INodeResult interface {
+	GetNodeResult() Result
+}
+
+type Result string
+
+func (nodeResult Result) GetNodeResult() Result {
+	return nodeResult
+}
+
 type Node struct {
 	FlowId    string
 	AccountId string
@@ -101,14 +111,4 @@ func (node *Node) GetMambuAccount(accountId string, realTime bool) (*mambu.TDAcc
 	}
 	return id, err
 
-}
-
-type INodeResult interface {
-	GetNodeResult() Result
-}
-
-type Result string
-
-func (nodeResult Result) GetNodeResult() Result {
-	return nodeResult
 }
