@@ -2,4 +2,3 @@ include:
   - project: '${CORE_CI}'
     ref : '${CORE_CI_BRANCH}'
     file: '${CORE_CI_FILE}'
-    
