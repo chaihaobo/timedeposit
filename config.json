@@ -64,5 +64,6 @@
       "depositNetprofitTranDesc1": "Bagi Hasil Deposito",
       "depositNetprofitTranDesc3": null
     }
-  }
+  },
+  "skipTests": true
 }
