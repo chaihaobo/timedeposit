@@ -34,13 +34,6 @@ func StartFlow(c *gin.Context) {
 	c.JSON(http.StatusOK, Success())
 }
 
-func loadAccountList() ([]mambu.TDAccount, error) {
-	// Get all td accounts which need to process
-	tmpQueryParam := generateSearchTDAccountParam()
-	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
-	return tmpTDAccountList, err
-}
-
 func FailFlowList(c *gin.Context) {
 	retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
 	_ = c.BindJSON(retryFlowSearchModel)
@@ -77,6 +70,28 @@ func RetryAll(c *gin.Context) {
 		_ = engine.RetryPool.Invoke(flowId)
 	}
 	c.JSON(http.StatusOK, Success())
+}
+
+func Remove(c *gin.Context) {
+	flowId := c.Param("flowId")
+	if flowId == "" {
+		c.JSON(http.StatusOK, Error("flow id must not bee null"))
+		return
+	}
+
+	flow := repository.GetFlowTaskInfoRepository().Get(flowId)
+	if flow != nil {
+		flow.Enable = false
+		repository.GetFlowTaskInfoRepository().Update(flow)
+	}
+	c.JSON(http.StatusOK, Success())
+}
+
+func loadAccountList() ([]mambu.TDAccount, error) {
+	// Get all td accounts which need to process
+	tmpQueryParam := generateSearchTDAccountParam()
+	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
+	return tmpTDAccountList, err
 }
 
 func generateSearchTDAccountParam() mambu.SearchParam {

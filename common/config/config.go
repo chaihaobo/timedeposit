@@ -85,7 +85,6 @@ func Setup(path string) *TDConfig {
 	if "" != envConfigPath {
 		configViper.SetConfigFile(envConfigPath)
 	}
-
 	var err error
 	if err = configViper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

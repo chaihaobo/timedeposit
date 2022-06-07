@@ -27,7 +27,7 @@ type FlowTaskInfoRepository struct{}
 
 func (flowTaskInfoRepository *FlowTaskInfoRepository) Get(flowId string) *po.TFlowTaskInfo {
 	flowTaskInfo := new(po.TFlowTaskInfo)
-	db.GetDB().Where("flow_id", flowId).Last(flowTaskInfo)
+	db.GetDB().Where("flow_id =? and enable = ?", flowId, 1).Last(flowTaskInfo)
 	if flowTaskInfo.Id > 0 {
 		return flowTaskInfo
 	} else {
@@ -43,7 +43,7 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(flowTaskInfo *po.TF
 func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int, accountId string) ([]*po.TFlowTaskInfo, int64) {
 	failTaskInfoList := make([]*po.TFlowTaskInfo, 0)
 	var total int64
-	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc")
+	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc")
 	if accountId != "" {
 		query = query.Where("account_id", accountId)
 	}
@@ -53,7 +53,7 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, p
 
 func (flowTaskInfoRepository *FlowTaskInfoRepository) AllFailFlowIdList() []string {
 	failFlowIdList := make([]string, 0)
-	db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status", string(constant.FlowNodeFailed)).Order("id desc").Pluck("flow_id", &failFlowIdList)
+	db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc").Pluck("flow_id", &failFlowIdList)
 	return failFlowIdList
 }
 

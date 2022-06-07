@@ -124,6 +124,7 @@ func createFlowTaskInfo(flowId string, accountId string) string {
 	taskInfo.EndTime = time.Now()
 	taskInfo.CreateTime = time.Now()
 	taskInfo.UpdateTime = time.Now()
+	taskInfo.Enable = true
 	repository.GetFlowTaskInfoRepository().Update(taskInfo)
 	return taskInfo.FlowId
 }

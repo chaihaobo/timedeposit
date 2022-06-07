@@ -19,6 +19,7 @@ type TFlowTaskInfo struct {
 	EndStatus   string    `gorm:"column:end_status" db:"end_status" json:"end_status" form:"end_status"`
 	StartTime   time.Time `gorm:"column:start_time" db:"start_time" json:"start_time" form:"start_time"`
 	EndTime     time.Time `gorm:"column:end_time" db:"end_time" json:"end_time" form:"end_time"`
+	Enable      bool      `gorm:"column:enable" db:"enable" json:"enable" form:"enable"`
 	CreateTime  time.Time `gorm:"column:create_time" db:"create_time" json:"create_time" form:"create_time"`
 	UpdateTime  time.Time `gorm:"column:update_time" db:"update_time" json:"update_time" form:"update_time"`
 }
