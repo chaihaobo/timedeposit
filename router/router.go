@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/router/api"
+	"net/http"
 )
 
 // InitRouter initialize routing information
@@ -18,6 +19,9 @@ func InitRouter() *gin.Engine {
 	r.Use(logger.GinLogger())
 	r.Use(logger.GinRecovery(true))
 
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "check success!")
+	})
 	flowGroup := r.Group("/flow")
 	{
 		flowGroup.POST("/start", api.StartFlow)
