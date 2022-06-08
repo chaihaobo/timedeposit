@@ -45,11 +45,11 @@ func TestWithdrawNetprofitNode_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.node.Run()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("WithdrawNetprofitNode.Run() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithdrawNetprofitNode.Run() = %v, want %v", got, tt.want)
+
 			}
 		})
 	}

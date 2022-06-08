@@ -44,11 +44,11 @@ func TestDepositNetprofitNode_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.node.Run()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DepositNetprofitNode.Run() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DepositNetprofitNode.Run() = %v, want %v", got, tt.want)
+
 			}
 		})
 	}

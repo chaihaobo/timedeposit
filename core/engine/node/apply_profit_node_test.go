@@ -48,11 +48,11 @@ func TestApplyProfitNode_Run(t *testing.T) {
 			}
 			got, err := node.Run()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ApplyProfitNode.Run() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ApplyProfitNode.Run() = %v, want %v", got, tt.want)
+
 			}
 		})
 	}

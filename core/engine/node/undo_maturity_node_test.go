@@ -50,11 +50,11 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			}
 			got, err := node.Run()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("UndoMaturityNode.Run() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("UndoMaturityNode.Run() = %v, want %v", got, tt.want)
+
 				return
 			}
 			fmt.Println("Run Undo Maturity Finished! result:", got)

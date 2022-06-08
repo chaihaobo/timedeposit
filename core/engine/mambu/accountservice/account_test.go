@@ -17,7 +17,7 @@ func init() {
 func TestGetAccountById(t *testing.T) {
 	_, err := GetAccountById(nil, "11249460359")
 	if err != nil {
-		t.Errorf("test error")
+
 	}
 }
 
