@@ -72,7 +72,7 @@ func Run(flowId string) {
 				return err
 			}, config.TDConf.Flow.NodeFailRetryTimes, flowId, nodeName)
 		}
-		useRuntime := time.Now().Sub(runStartTime)
+		useRuntime := time.Since(runStartTime)
 		saveNodeRunLog(flowId, flowTaskInfo.AccountId, flowName, nodeName, run, err)
 		if err != nil {
 			zap.L().Error("flow run failed ", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
