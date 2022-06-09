@@ -3,3 +3,9 @@ update t_flow_node_relations set next_node='additional_profit_node' where node_n
 INSERT INTO t_flow_node_relations (flow_name, node_name, result_code, next_node, create_time, update_time) VALUES ('eod_flow', 'additional_profit_node', 'success', 'patch_account_node', '2022-06-09 10:36:17', '2022-06-09 10:36:19');
 INSERT INTO t_flow_node_relations (flow_name, node_name, result_code, next_node, create_time, update_time) VALUES ('eod_flow', 'additional_profit_node', 'skip', 'patch_account_node', '2022-06-09 10:36:17', '2022-06-09 10:36:19');
 update t_flow_node_relations set next_node='additional_profit_node' where node_name='withdraw_balance_node';
+delete from t_flow_node_relations where node_name='withdraw_additional_profit_node';
+delete from t_flow_node_relations where node_name='deposit_additional_profit_node';
+delete from t_flow_node_relations where node_name='deposit_balance_node';
+delete from t_flow_nodes where node_name='withdraw_additional_profit_node';
+delete from t_flow_nodes where node_name='deposit_additional_profit_node';
+delete from t_flow_nodes where node_name='deposit_balance_node';
