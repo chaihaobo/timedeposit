@@ -65,6 +65,10 @@ func GetNode(nodeName string) node.INode {
 		realNode := new(node.CloseAccountNode)
 		realNode.Node = new(node.Node)
 		return realNode
+	case *node.AdditionalProfitNode:
+		realNode := new(node.AdditionalProfitNode)
+		realNode.Node = new(node.Node)
+		return realNode
 	default:
 		return nil
 	}
@@ -93,6 +97,7 @@ func SetUp() {
 		new(node.DepositAdditionalProfitNode),
 		new(node.PatchAccountNode),
 		new(node.CloseAccountNode),
+		new(node.AdditionalProfitNode),
 	)
 
 }
