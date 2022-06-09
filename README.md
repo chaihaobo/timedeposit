@@ -25,7 +25,7 @@ replace.
 
 - main.go - is the main definition of the service, handler and client
 
-## Dependencies
+## Dependencies  
 
 Install the following
 
