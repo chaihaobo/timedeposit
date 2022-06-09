@@ -20,6 +20,7 @@ func GetFlowTaskInfoRepository() IFlowTaskInfoRepository {
 type IFlowTaskInfoRepository interface {
 	Get(flowId string) *po.TFlowTaskInfo
 	Update(flowTaskInfo *po.TFlowTaskInfo)
+	GetLastByAccountId(accountId string) *po.TFlowTaskInfo
 	FailFlowList(pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo
 	AllFailFlowIdList() []string
 }
@@ -55,6 +56,15 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) AllFailFlowIdList() []stri
 	failFlowIdList := make([]string, 0)
 	db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc").Pluck("flow_id", &failFlowIdList)
 	return failFlowIdList
+}
+
+func (flowTaskInfoRepository *FlowTaskInfoRepository) GetLastByAccountId(accountId string) *po.TFlowTaskInfo {
+	taskInfo := new(po.TFlowTaskInfo)
+	db.GetDB().Where("account_id = ? and enable = ?", accountId, 1).Order("id desc").First(taskInfo)
+	if taskInfo.Id > 0 {
+		return taskInfo
+	}
+	return nil
 }
 
 func init() {

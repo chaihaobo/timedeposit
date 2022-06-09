@@ -6,6 +6,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
+	"github.com/uniplaces/carbon"
 	timeUtil "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
@@ -26,6 +27,12 @@ func StartFlow(c *gin.Context) {
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
+		accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(tmpTDAcc.ID)
+		if accountLastTask != nil && carbon.NewCarbon(accountLastTask.CreateTime).IsSameDay(carbon.Now()) {
+			zap.L().Info("account is already has task,skip it!")
+			continue
+		}
+
 		_ = engine.Pool.Invoke(tmpTDAcc.ID)
 		// go engine.Start(tmpTDAcc.ID)
 		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
@@ -47,7 +54,7 @@ func FailFlowList(c *gin.Context) {
 		d.AccountId = taskInfo.AccountId
 		d.FlowName = taskInfo.FlowName
 		d.FlowStatus = taskInfo.FlowStatus
-		d.FailedOperation = taskInfo.CurStatus
+		d.FailedOperation = taskInfo.CurNodeName
 		d.CreateTime = taskInfo.CreateTime
 		d.UpdateTime = taskInfo.UpdateTime
 		return d
