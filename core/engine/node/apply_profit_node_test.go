@@ -32,8 +32,8 @@ func TestApplyProfitNode_Run(t *testing.T) {
 			name: "apply profit test: 11645631879",
 			fields: fields{
 				Node: &Node{
-					FlowId:    "testFlowID_11645631879_1",
-					AccountId: "11645631879",
+					FlowId:    "testFlowID_11645631879_12",
+					AccountId: "11312188579",
 					NodeName:  "apply_profit_node",
 				},
 			},

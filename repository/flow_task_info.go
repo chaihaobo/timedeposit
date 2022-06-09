@@ -6,6 +6,7 @@ package repository
 import (
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/model/dto"
 	"gitlab.com/bns-engineering/td/model/po"
 	"time"
 )
@@ -19,7 +20,7 @@ func GetFlowTaskInfoRepository() IFlowTaskInfoRepository {
 type IFlowTaskInfoRepository interface {
 	Get(flowId string) *po.TFlowTaskInfo
 	Update(flowTaskInfo *po.TFlowTaskInfo)
-	FailFlowList(pageNo int, pageSize int, accountId string) ([]*po.TFlowTaskInfo, int64)
+	FailFlowList(pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo
 	AllFailFlowIdList() []string
 }
 
@@ -40,15 +41,14 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(flowTaskInfo *po.TF
 	db.GetDB().Save(flowTaskInfo)
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pageNo int, pageSize int, accountId string) ([]*po.TFlowTaskInfo, int64) {
+func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo {
 	failTaskInfoList := make([]*po.TFlowTaskInfo, 0)
-	var total int64
 	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc")
 	if accountId != "" {
 		query = query.Where("account_id", accountId)
 	}
-	db.FindPage(query, pageNo, pageSize, &failTaskInfoList, &total)
-	return failTaskInfoList, total
+	db.FindPage(query, pagination, &failTaskInfoList)
+	return failTaskInfoList
 }
 
 func (flowTaskInfoRepository *FlowTaskInfoRepository) AllFailFlowIdList() []string {

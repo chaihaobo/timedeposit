@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
+	"gitlab.com/bns-engineering/td/model/dto"
 	"go.uber.org/zap"
 	"gorm.io/gorm/logger"
 	"log"
@@ -38,7 +39,7 @@ func initDB() {
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Info,
+			LogLevel:                  logger.Warn,
 			IgnoreRecordNotFoundError: true,
 			Colorful:                  true,
 		},
@@ -69,27 +70,29 @@ func GetDB() *gorm.DB {
 	return _db
 }
 
-func Paginate(pageNo int, pageSize int) func(db *gorm.DB) *gorm.DB {
+func Paginate(pagination *dto.Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if pageNo <= 0 {
-			pageNo = 1
+		if pagination.Page <= 0 {
+			pagination.Page = 1
 		}
-		if pageSize > 100 {
-			pageNo = 100
+		if pagination.Perpage > 100 {
+			pagination.Perpage = 100
 		}
-		offset := (pageNo - 1) * pageSize
-		return db.Offset(offset).Limit(pageSize)
+		offset := (pagination.Page - 1) * pagination.Perpage
+		pagination.From = (pagination.Page-1)*pagination.Perpage + 1
+		pagination.To = (pagination.Page-1)*pagination.Perpage + pagination.Perpage
+		return db.Offset(offset).Limit(pagination.Perpage)
 	}
 }
 
-func FindPage(db *gorm.DB, pageNo int, pageSize int, resultBind interface{}, totalBind *int64) {
+func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
 	zap.L().Info("page query start")
 	startTime := time.Now()
 	countSql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return tx.Count(totalBind)
+		return tx.Count(&pagination.Total)
 	})
 	querySql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return tx.Scopes(Paginate(pageNo, pageSize)).Find(resultBind)
+		return tx.Scopes(Paginate(pagination)).Find(resultBind)
 	})
 	var wait sync.WaitGroup
 	wait.Add(2)
@@ -97,7 +100,7 @@ func FindPage(db *gorm.DB, pageNo int, pageSize int, resultBind interface{}, tot
 		zap.L().Info("query total task start...")
 		totalTaskStartTime := time.Now()
 		defer wait.Done()
-		GetDB().Raw(countSql).Scan(totalBind)
+		GetDB().Raw(countSql).Scan(&pagination.Total)
 		useTime := time.Now().Sub(totalTaskStartTime).Milliseconds()
 		zap.L().Info("query total task end.", zap.Int64("useTime", useTime))
 	}()

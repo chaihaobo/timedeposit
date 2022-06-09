@@ -104,7 +104,7 @@ type Otherinformation struct {
 	StopAro              string `json:"stopAro"`
 	SpecialERExpiration  string `json:"specialERExpiration"`
 	NisbahAkhir          string `json:"nisbahAkhir"`
-	IsSpecialRate        string `json:"isSpecialRate"`
+	IsSpecialER          string `json:"IsSpecialER"`
 	SpecialER            string `json:"specialER"`
 	AroNonAro            string `json:"aroNonAro"`
 }
@@ -199,7 +199,7 @@ func (tdAccInfo *TDAccount) IsValidBenefitAccount(benefitAccout *TDAccount, conf
 }
 
 func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
-	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialRate) == "TRUE"
+	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialER) == "TRUE"
 	specialRateExpireDate, err := time.Parse("2006-01-02", tdAccInfo.OtherInformation.SpecialERExpiration)
 	if err != nil {
 		zap.L().Error("Failed to convert SpecialERExpiration to time", zap.String("value", tdAccInfo.OtherInformation.SpecialERExpiration))
@@ -218,7 +218,7 @@ func (tdAccInfo *TDAccount) IsCaseB2() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseB2_1_1() bool {
-	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialRate) == "TRUE"
+	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialER) == "TRUE"
 	return tdAccInfo.IsCaseB2() && bSpecialRate
 }
 
@@ -229,7 +229,7 @@ func (tdAccInfo *TDAccount) IsCaseB3() bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseC() bool {
-	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
+	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "Non ARO"
 	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURE"
 	return !isARO && isMatureState
 }

@@ -4,8 +4,8 @@
 package node
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
@@ -34,10 +34,10 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 		account.IsCaseB2_1_1() ||
 		(account.IsCaseB3() &&
 			account.Balances.TotalBalance > 0 &&
-			strings.ToUpper(account.OtherInformation.IsSpecialRate) == "TRUE") ||
+			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") ||
 		(account.IsCaseC() &&
 			account.Balances.TotalBalance > 0 &&
-			strings.ToUpper(account.OtherInformation.IsSpecialRate) == "TRUE") {
+			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") {
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
 			zap.L().Error("is not a valid benefit account!")
 			return nil, constant.ErrBenefitAccountInvalid
@@ -69,7 +69,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 			zap.L().Error("Failed to deposit for td account", zap.String("account", account.ID))
 			zap.L().Error("depositResp error", zap.Any("depositResp", depositResp), zap.Error(err))
 
-			return nil, errors.New("call mambu deposit failed")
+			return nil, errors.Wrap(err, "call mambu deposit failed")
 		}
 		zap.L().Info("Finish deposit additional profit tax", zap.String("account", account.ID), zap.String("encodedKey", depositResp.EncodedKey))
 
@@ -93,7 +93,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 			if adjustErr != nil {
 				err = fmt.Errorf("adjust error:%w", err)
 			}
-			return nil, errors.New("call mambu withdraw failed")
+			return nil, errors.Wrap(err, "call mambu withdraw failed")
 		}
 		zap.L().Info("Finish withdraw balance", zap.String("account", account.ID), zap.String("encodedKey", withrawResp.EncodedKey))
 	} else {

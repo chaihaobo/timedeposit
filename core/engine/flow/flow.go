@@ -45,18 +45,6 @@ func GetNode(nodeName string) node.INode {
 		realNode := new(node.WithdrawBalanceNode)
 		realNode.Node = new(node.Node)
 		return realNode
-	case *node.DepositBalanceNode:
-		realNode := new(node.DepositBalanceNode)
-		realNode.Node = new(node.Node)
-		return realNode
-	case *node.WithdrawAdditionalProfitNode:
-		realNode := new(node.WithdrawAdditionalProfitNode)
-		realNode.Node = new(node.Node)
-		return realNode
-	case *node.DepositAdditionalProfitNode:
-		realNode := new(node.DepositAdditionalProfitNode)
-		realNode.Node = new(node.Node)
-		return realNode
 	case *node.PatchAccountNode:
 		realNode := new(node.PatchAccountNode)
 		realNode.Node = new(node.Node)
@@ -92,9 +80,6 @@ func SetUp() {
 		new(node.WithdrawNetprofitNode),
 		new(node.DepositNetprofitNode),
 		new(node.WithdrawBalanceNode),
-		new(node.DepositBalanceNode),
-		new(node.WithdrawAdditionalProfitNode),
-		new(node.DepositAdditionalProfitNode),
 		new(node.PatchAccountNode),
 		new(node.CloseAccountNode),
 		new(node.AdditionalProfitNode),

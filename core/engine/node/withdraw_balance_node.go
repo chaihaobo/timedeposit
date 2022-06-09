@@ -4,8 +4,8 @@
 package node
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
@@ -46,9 +46,31 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 			})
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
-			return nil, errors.New("call mambu withdraw failed")
+			return nil, errors.Wrap(err, "call mambu withdraw failed")
 		}
 		zap.L().Info(fmt.Sprintf("Finish withdraw balance for accNo: %v, encodedKey:%v", account.ID, withrawResp.EncodedKey))
+		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
+		// deposit
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, totalBalance,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc1,
+			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc3,
+			depositTransID, channelID, func(transactionReq *mambu.TransactionReq) {
+				transactionReq.Metadata.TranDesc2 = account.ID
+			})
+		if err != nil {
+			zap.L().Error(fmt.Sprintf("Failed to deposit for td account: %v", account.ID))
+			zap.L().Error(fmt.Sprintf("depositResp: %v", depositResp))
+
+			notes := fmt.Sprintf("eod_engine-%s-%s-%s", node.FlowId, node.NodeName, depositResp.ID)
+			// rollback withdraw transaction
+			err := transactionservice.AdjustTransaction(node.GetContext(), withrawResp.ID, notes)
+			if err != nil {
+				err = errors.Wrap(err, "adjust rollback fail!")
+			}
+			return nil, errors.Wrap(err, "call mambu deposit failed")
+		}
+		zap.L().Info(fmt.Sprintf("Finish deposit balance for accNo: %v, encodedKey:%v", account.ID, depositResp.EncodedKey))
+
 	} else {
 		zap.L().Info("not match! skip it")
 		return ResultSkip, nil

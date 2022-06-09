@@ -107,6 +107,7 @@ func retry(retryFun func() error, times int, flowId string, nodeName string) {
 			zap.L().Info("retry fail........ ", zap.Int("times", count), zap.Error(err), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
 		} else {
 			zap.L().Info("retry success use count ", zap.Int("times", count), zap.String("flowId", flowId), zap.String("nodeName", nodeName))
+			break
 		}
 
 	}

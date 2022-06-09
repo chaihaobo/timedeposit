@@ -10,16 +10,19 @@ type RetryFlowReqModel struct {
 }
 
 type RetryFlowSearchModel struct {
-	Page   *Page `json:"page"`
-	Search *Search
+	*Pagination
+	*Search
 }
 
 type Search struct {
-	AccountId string `json:"account_id"`
+	AccountId string `json:"account_id" form:"account_id"`
 }
 
 func DefaultRetryFlowSearchModel() *RetryFlowSearchModel {
-	return &RetryFlowSearchModel{Page: DefaultPage(), Search: new(Search)}
+	return &RetryFlowSearchModel{
+		DefaultPage(),
+		&Search{},
+	}
 }
 
 type FailFlowModel struct {
