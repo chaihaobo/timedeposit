@@ -8,6 +8,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/model/dto"
@@ -113,6 +114,8 @@ func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
 		zap.L().Info("query task end.", zap.Int64("useTime", useTime))
 	}()
 	wait.Wait()
+	// last page
+	pagination.LastPage = int(decimal.NewFromInt(pagination.Total).Div(decimal.NewFromInt(int64(pagination.Perpage))).Ceil().IntPart())
 	zap.L().Info("page query finished", zap.Int64("totalUseTime", time.Now().Sub(startTime).Milliseconds()))
 
 }
