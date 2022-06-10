@@ -2,11 +2,11 @@ package dto
 
 type Pagination struct {
 	Total    int64 `json:"total" form:"total"`
-	Perpage  int   `json:"per_page" form:"per_page"`
-	Page     int   `json:"page" form:"page"`
-	LastPage int   `json:"last_page" form:"last_page"`
-	From     int   `json:"from" form:"from"`
-	To       int   `json:"to" form:"to"`
+	Perpage  int64 `json:"per_page" form:"per_page"`
+	Page     int64 `json:"page" form:"page"`
+	LastPage int64 `json:"last_page" form:"last_page"`
+	From     int64 `json:"from" form:"from"`
+	To       int64 `json:"to" form:"to"`
 }
 
 type PageResult struct {

@@ -82,7 +82,7 @@ func Paginate(pagination *dto.Pagination) func(db *gorm.DB) *gorm.DB {
 		offset := (pagination.Page - 1) * pagination.Perpage
 		pagination.From = (pagination.Page-1)*pagination.Perpage + 1
 		pagination.To = (pagination.Page-1)*pagination.Perpage + pagination.Perpage
-		return db.Offset(offset).Limit(pagination.Perpage)
+		return db.Offset(int(offset)).Limit(int(pagination.Perpage))
 	}
 }
 
@@ -115,7 +115,11 @@ func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
 	}()
 	wait.Wait()
 	// last page
-	pagination.LastPage = int(decimal.NewFromInt(pagination.Total).Div(decimal.NewFromInt(int64(pagination.Perpage))).Ceil().IntPart())
+	pagination.LastPage = decimal.NewFromInt(pagination.Total).Div(decimal.NewFromInt(int64(pagination.Perpage))).Ceil().IntPart()
+	// to
+	if pagination.To > pagination.Total {
+		pagination.To = pagination.Total
+	}
 	zap.L().Info("page query finished", zap.Int64("totalUseTime", time.Now().Sub(startTime).Milliseconds()))
 
 }
