@@ -24,12 +24,13 @@ func StartFlow(c *gin.Context) {
 	if err != nil {
 		zap.L().Error("load mambu account list error")
 		c.JSON(http.StatusOK, Error("load mambu account list error"))
+		return
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
 		accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(tmpTDAcc.ID)
 		if accountLastTask != nil && carbon.NewCarbon(accountLastTask.CreateTime).IsSameDay(carbon.Now()) {
-			zap.L().Info("account is already has task,skip it!")
+			zap.L().Info("account today is already has task,skip it!")
 			continue
 		}
 
