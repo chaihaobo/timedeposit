@@ -1,0 +1,69 @@
+{
+  "log": {
+    "filename": "time_deposit_eod_engine.log",
+    "maxsize": 100000000,
+    "maxBackups": 5,
+    "maxAge": 28,
+    "level": "DEBUG"
+  },
+  "flow": {
+    "nodeFailRetryTimes": 3
+  },
+  "db": {
+    "username": "hugo",
+    "password": "123456",
+    "host": "192.168.31.58",
+    "port": 3306,
+    "db": "time_deposit_eod_engine",
+    "maxOpenConn": 100,
+    "maxIdleConn": 20
+  },
+  "redis": {
+    "addr": "192.168.31.58:6379",
+    "password": "123456",
+    "poolSize": 10,
+    "db": 0
+  },
+  "server": {
+    "RunMode": "debug",
+    "HttpPort": 8000,
+    "ReadTimeout": 60,
+    "WriteTimeout": 60
+  },
+  "mambu": {
+    "host": "https://cbs-dev1.aladinbank.id",
+    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
+  },
+  "transactionReqMetaData": {
+    "localHolderKey": "8ab08091812313d50181239d36020364",
+    "messageType": "TRANSACTION",
+    "externalOriTransactionID": null,
+    "externalOriTransactionDetailID": null,
+    "transactionType": 49,
+    "terminalType": 6021,
+    "terminalID": "TDE",
+    "terminalLocation": "1001-Head Office",
+    "productCode": 0,
+    "acquirerIID": 947,
+    "forwarderIID": 947,
+    "issuerIID": 947,
+    "issuerIName": "Aladin",
+    "destinationIID": 947,
+    "currency": "IDR",
+    "tranDesc": {
+      "withdrawAdditionalProfitTranDesc1": "Pajak Bonus Bagi Hasil",
+      "withdrawAdditionalProfitTranDesc3": null,
+      "withdrawBalanceTranDesc1": "Deposito Disbursement",
+      "withdrawBalanceTranDesc3": null,
+      "withdrawNetprofitTranDesc1": "Bagi Hasil Deposito",
+      "withdrawNetprofitTranDesc3": null,
+      "depositAdditionalProfitTranDesc1": "Bonus Bagi Hasil Deposito",
+      "depositAdditionalProfitTranDesc3": null,
+      "depositBalanceTranDesc1": "Deposito Disbursement",
+      "depositBalanceTranDesc3": null,
+      "depositNetprofitTranDesc1": "Bagi Hasil Deposito",
+      "depositNetprofitTranDesc3": null
+    }
+  },
+  "skipTests": true
+}

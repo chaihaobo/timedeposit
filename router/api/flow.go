@@ -4,6 +4,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
 	"github.com/uniplaces/carbon"
@@ -16,6 +17,7 @@ import (
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -49,6 +51,13 @@ func FailFlowList(c *gin.Context) {
 	// _ = c.BindJSON(retryFlowSearchModel)
 	list := repository.GetFlowTaskInfoRepository().FailFlowList(flowSearchModel.Pagination, flowSearchModel.AccountId)
 	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto.FailFlowModel {
+		failedTransactions := repository.GetFlowTransactionRepository().ListErrorTransactionByFlowId(taskInfo.FlowId)
+		currentFaildTransactions := funk.Filter(failedTransactions, func(failTransaction po.TFlowTransactions) bool {
+			if strings.Contains(failTransaction.TransId, fmt.Sprintf("%s-%s", taskInfo.FlowId, taskInfo.CurNodeName)) {
+				return true
+			}
+			return false
+		}).([]po.TFlowTransactions)
 		d := new(dto.FailFlowModel)
 		d.Id = taskInfo.Id
 		d.FlowId = taskInfo.FlowId
@@ -58,6 +67,10 @@ func FailFlowList(c *gin.Context) {
 		d.FailedOperation = taskInfo.CurNodeName
 		d.CreateTime = taskInfo.CreateTime
 		d.UpdateTime = taskInfo.UpdateTime
+		d.AmountToMovied = "0"
+		if len(currentFaildTransactions) > 0 {
+			d.AmountToMovied = fmt.Sprintf("%f", currentFaildTransactions[0].Amount)
+		}
 		return d
 	})
 	c.JSON(http.StatusOK, SuccessData(dto.NewPageResult(flowSearchModel.Pagination, result)))
