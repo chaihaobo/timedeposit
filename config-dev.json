@@ -10,17 +10,17 @@
     "nodeFailRetryTimes": 3
   },
   "db": {
-    "username": "svc_tda",
-    "password": "bA0mgmya3s9C2h5C",
-    "host": "10.16.40.228",
+    "username": "hugo",
+    "password": "123456",
+    "host": "192.168.31.58",
     "port": 3306,
-    "db": "time_deposit",
+    "db": "time_deposit_eod_engine",
     "maxOpenConn": 100,
     "maxIdleConn": 20
   },
   "redis": {
-    "addr": "10.16.41.11:6379",
-    "password": "ae0030b1-eaac-41b9-bcc3-f56275ca5333",
+    "addr": "192.168.31.58:6379",
+    "password": "123456",
     "poolSize": 10,
     "db": 0
   },
