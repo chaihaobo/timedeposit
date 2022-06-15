@@ -67,9 +67,9 @@ func FailFlowList(c *gin.Context) {
 		d.FailedOperation = taskInfo.CurNodeName
 		d.CreateTime = taskInfo.CreateTime
 		d.UpdateTime = taskInfo.UpdateTime
-		d.AmountToMovied = "0"
+		d.AmountToMove = "0"
 		if len(currentFaildTransactions) > 0 {
-			d.AmountToMovied = fmt.Sprintf("%f", currentFaildTransactions[0].Amount)
+			d.AmountToMove = fmt.Sprintf("%f", currentFaildTransactions[0].Amount)
 		}
 		return d
 	})
