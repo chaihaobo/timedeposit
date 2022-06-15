@@ -34,7 +34,7 @@ type FailFlowModel struct {
 	FlowName        string    `json:"flow_name"`
 	FlowStatus      string    `json:"flow_status"`
 	FailedOperation string    `json:"failed_operation"`
-	AmountToMovied  string    `json:"amount_to_movied"`
+	AmountToMove    string    `json:"amount_to_move"`
 	CreateTime      time.Time `json:"create_time"`
 	UpdateTime      time.Time `json:"update_time"`
 }
