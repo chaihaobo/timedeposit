@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	time2 "gitlab.com/bns-engineering/td/common/util/time"
+	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/holidayservice"
 	"go.uber.org/zap"
@@ -54,11 +54,11 @@ func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate tim
 		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
 		return "", errors.New("convert tenor to int failed")
 	}
-	resultDate := maturityDate.AddDate(0, tenorInt, 0)
+	resultDate := carbon.NewCarbon(maturityDate).AddMonths(tenorInt)
 	for _, tmpHoliday := range holidayservice.GetHolidayList(cxt) {
-		if time2.InSameDay(tmpHoliday, resultDate) {
-			resultDate = maturityDate.AddDate(0, 0, 1)
+		if resultDate.IsSameDay(carbon.NewCarbon(tmpHoliday)) {
+			resultDate.AddDays(1)
 		}
 	}
-	return time2.GetDate(resultDate), nil
+	return resultDate.DateString(), nil
 }
