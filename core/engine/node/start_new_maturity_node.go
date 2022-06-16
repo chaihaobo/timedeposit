@@ -55,10 +55,22 @@ func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate tim
 		return "", errors.New("convert tenor to int failed")
 	}
 	resultDate := carbon.NewCarbon(maturityDate).AddMonths(tenorInt)
-	for _, tmpHoliday := range holidayservice.GetHolidayList(cxt) {
-		if resultDate.IsSameDay(carbon.NewCarbon(tmpHoliday)) {
-			resultDate.AddDays(1)
+	holidayList := holidayservice.GetHolidayList(cxt)
+	for {
+		if resultDate.IsWeekend() || isHoliday(resultDate.Time, holidayList) {
+			resultDate = resultDate.AddDays(1)
+		} else {
+			break
 		}
 	}
 	return resultDate.DateString(), nil
+}
+
+func isHoliday(time time.Time, holidays []time.Time) bool {
+	for _, holiday := range holidays {
+		if carbon.NewCarbon(time).IsSameDay(carbon.NewCarbon(holiday)) {
+			return true
+		}
+	}
+	return false
 }
