@@ -38,10 +38,15 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 		(account.IsCaseC() &&
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") {
+		if account.IsSpecialERExpired() {
+			zap.L().Info("special ER expired! skip it")
+			return ResultSkip, nil
+		}
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
 			zap.L().Error("is not a valid benefit account!")
 			return nil, constant.ErrBenefitAccountInvalid
 		}
+
 		// Get last applied interest info
 		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {

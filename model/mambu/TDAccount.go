@@ -200,13 +200,19 @@ func (tdAccInfo *TDAccount) IsValidBenefitAccount(benefitAccout *TDAccount, conf
 
 func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
 	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialER) == "TRUE"
-	specialRateExpireDate, err := time.Parse("2006-01-02", tdAccInfo.OtherInformation.SpecialERExpiration)
-	if err != nil {
-		zap.L().Error("Failed to convert SpecialERExpiration to time", zap.String("value", tdAccInfo.OtherInformation.SpecialERExpiration))
-	}
 	return tdAccInfo.IsCaseB1_1() &&
-		bSpecialRate &&
-		specialRateExpireDate.After(time.Now())
+		bSpecialRate
+}
+
+func (tdAccInfo *TDAccount) IsSpecialERExpired() bool {
+	specialERExpiration, err := time.Parse(carbon.DateFormat, tdAccInfo.OtherInformation.SpecialERExpiration)
+	if err != nil {
+		return true
+	}
+
+	return carbon.NewCarbon(specialERExpiration).Before(time.Now()) &&
+		!carbon.NewCarbon(specialERExpiration).IsSameDay(carbon.Now())
+
 }
 
 func (tdAccInfo *TDAccount) IsCaseB2() bool {
