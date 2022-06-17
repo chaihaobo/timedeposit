@@ -27,7 +27,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 	}
 	if account.IsCaseA() {
 		// generate new Maturity Date
-		maturityDate, err := generateMaturityDateStr(node.GetContext(), account.OtherInformation.Tenor, account.MaturityDate)
+		maturityDate, err := generateMaturityDateStr(node.GetContext(), account.OtherInformation.Tenor, account.MaturityDate, account.MatureOnHoliday())
 		if err != nil {
 			zap.L().Info(fmt.Sprintf("Generate New Maturity Date failed, Account: %v", account.ID))
 			return nil, err
@@ -48,7 +48,7 @@ func (node *StartNewMaturityNode) Run() (INodeResult, error) {
 }
 
 // Calcuate the new maturity date by tenor
-func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate time.Time) (string, error) {
+func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate time.Time, matureOnHoliday bool) (string, error) {
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor))
@@ -56,13 +56,17 @@ func generateMaturityDateStr(cxt context.Context, tenor string, maturityDate tim
 	}
 	resultDate := carbon.NewCarbon(maturityDate).AddMonths(tenorInt)
 	holidayList := holidayservice.GetHolidayList(cxt)
-	for {
-		if resultDate.IsWeekend() || isHoliday(resultDate.Time, holidayList) {
-			resultDate = resultDate.AddDays(1)
-		} else {
-			break
+	if !matureOnHoliday {
+		for {
+			if resultDate.IsWeekend() || isHoliday(resultDate.Time, holidayList) {
+				resultDate = resultDate.AddDays(1)
+			} else {
+				break
+			}
 		}
+
 	}
+
 	return resultDate.DateString(), nil
 }
 

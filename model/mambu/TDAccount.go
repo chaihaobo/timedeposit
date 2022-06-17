@@ -107,6 +107,7 @@ type Otherinformation struct {
 	IsSpecialER          string `json:"IsSpecialER"`
 	SpecialER            string `json:"specialER"`
 	AroNonAro            string `json:"aroNonAro"`
+	MatureOnHoliday      string `json:"matureOnHoliday"`
 }
 type Datanasabah struct {
 	NasabahAccountAddressType string `json:"nasabahAccountAddressType"`
@@ -125,6 +126,10 @@ type OtherInformationCorporate struct {
 	InfoLimitNominalSetorNontunai   string `json:"infoLimitNominalSetorNontunai"`
 	InfoLimitFrekuensiSetorTunai    string `json:"infoLimitFrekuensiSetorTunai"`
 	InfoLimitNominalSetorTunai      string `json:"infoLimitNominalSetorTunai"`
+}
+
+func (tdAccInfo *TDAccount) MatureOnHoliday() bool {
+	return strings.EqualFold(tdAccInfo.OtherInformation.MatureOnHoliday, "TRUE")
 }
 
 func (tdAccInfo *TDAccount) IsCaseA() bool {
