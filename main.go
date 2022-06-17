@@ -28,7 +28,7 @@ import (
 
 // Initial configuration for this app
 func init() {
-	zone, _ := time.LoadLocation("Asia/Jakarta")
+	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
 	err := logger.SetUp(config.Setup("./config.json"))
 	if err != nil {
