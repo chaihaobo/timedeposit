@@ -28,6 +28,8 @@ import (
 
 // Initial configuration for this app
 func init() {
+	zone, _ := time.LoadLocation("Asia/Jakarta")
+	time.Local = zone
 	err := logger.SetUp(config.Setup("./config.json"))
 	if err != nil {
 		zap.L().Error("logger init error", zap.Error(err))
@@ -35,6 +37,7 @@ func init() {
 }
 
 func main() {
+
 	cores := runtime.NumCPU()
 	runtime.GOMAXPROCS(cores)
 	gin.SetMode(config.TDConf.Server.RunMode)

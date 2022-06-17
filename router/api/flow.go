@@ -133,7 +133,7 @@ func generateSearchTDAccountParam() mambu.SearchParam {
 			{
 				Field:       "_rekening.rekeningTanggalJatohTempo",
 				Operator:    "BETWEEN",
-				Value:       timeUtil.GetDate(time.Now()),                  // today
+				Value:       carbon.Now().DateString(),                     // today
 				SecondValue: timeUtil.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
 			},
 		},

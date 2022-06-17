@@ -15,7 +15,6 @@ import (
 	"gitlab.com/bns-engineering/td/common/util/id"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
-	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
@@ -79,8 +78,8 @@ func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
 			{
 				Field:       "creationDate",
 				Operator:    "BETWEEN",
-				Value:       time2.GetDate(time.Now()),                  // today
-				SecondValue: time2.GetDate(time.Now().AddDate(0, 0, 1)), // tomorrow
+				Value:       carbon.Now().DateString(),            // today
+				SecondValue: carbon.Now().AddDays(1).DateString(), // tomorrow
 			},
 		},
 		SortingCriteria: mambu.SortingCriteria{
