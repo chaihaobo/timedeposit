@@ -6,7 +6,7 @@ package node
 import (
 	"errors"
 	"fmt"
-	"gitlab.com/bns-engineering/td/common/util/time"
+	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"go.uber.org/zap"
 )
@@ -21,7 +21,7 @@ func (node *PatchAccountNode) Run() (INodeResult, error) {
 		return nil, err
 	}
 	if account.IsCaseB1_1() || account.IsCaseB2() {
-		newDate := time.GetDate(account.MaturityDate)
+		newDate := carbon.NewCarbon(account.MaturityDate).DateString()
 		isApplySucceed := accountservice.UpdateMaturifyDateForTDAccount(node.GetContext(), account.ID, newDate)
 		if !isApplySucceed {
 			zap.L().Error(fmt.Sprintf("Apply profit failed for account: %v", account.ID))
