@@ -52,6 +52,7 @@ func main() {
 	go func() {
 		zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
 		// service connections
+
 		err := server.ListenAndServe()
 		if err != http.ErrServerClosed {
 			util.CheckAndExit(err)

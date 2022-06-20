@@ -35,7 +35,7 @@ func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]ma
 
 	zap.L().Debug("transaction service", zap.String("postUrl", postUrl))
 	zap.L().Debug("transaction service", zap.String("postJsonStr", postJsonStr))
-	err = mambu_http.Post(postUrl, postJsonStr, &tmpTransList, persistence.DBPersistence(context, "GetTransactionByQueryParam"))
+	err = mambu_http.Post(postUrl, postJsonStr, &tmpTransList, nil, persistence.DBPersistence(context, "GetTransactionByQueryParam"))
 
 	if err != nil {
 		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
@@ -98,7 +98,7 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 		Notes: notes,
 	}
 	marshal, _ := json.Marshal(noteBody)
-	err := mambu_http.Post(adjustUrl, string(marshal), nil, persistence.DBPersistence(ctx, "AdjustTransaction"))
+	err := mambu_http.Post(adjustUrl, string(marshal), nil, nil, persistence.DBPersistence(ctx, "AdjustTransaction"))
 	return err
 }
 
@@ -129,7 +129,7 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.WithdrawTransactionUrl), tdAccount.ID)
-	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, persistence.DBPersistence(context, "WithdrawTransaction"))
+	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "WithdrawTransaction"))
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID))
@@ -168,7 +168,7 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.DepositTransactionUrl), benefitAccount.ID)
-	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, persistence.DBPersistence(context, "DepositTransaction"))
+	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "DepositTransaction"))
 
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))

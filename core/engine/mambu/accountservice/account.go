@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
@@ -16,10 +17,14 @@ import (
 	"time"
 )
 
+const (
+	maxLimitSearchAccount int32 = 1000
+)
+
 // GetTDAccountListByQueryParam Get TDAccount List from mambu api
 func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAccount, error) {
-	tdAccountList := []mambu.TDAccount{}
-	postUrl := constant.UrlOf(constant.SearchTDAccountListUrl)
+	var tdAccountList []mambu.TDAccount
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), 0, maxLimitSearchAccount)
 	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
@@ -29,12 +34,32 @@ func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAcco
 	postJsonStr := string(queryParamByte)
 	zap.L().Debug(fmt.Sprintf("PostUrl:%v", postUrl))
 	zap.L().Debug(fmt.Sprintf("postJsonStr:%v", postJsonStr))
-	err = mambu_http.Post(postUrl, postJsonStr, &tdAccountList, persistence.DBPersistence(nil, "GetTDAccountListByQueryParam"))
-
+	type RspHeader struct {
+		Total int32 `header:"items-total"`
+	}
+	responseHeader := new(RspHeader)
+	err = mambu_http.Post(postUrl, postJsonStr, &tdAccountList, responseHeader, persistence.DBPersistence(nil, "GetTDAccountListByQueryParam"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Search td account Info List failed! queryParam: %v", postJsonStr))
 		return tdAccountList, err
 	}
+
+	if responseHeader.Total > maxLimitSearchAccount {
+		zap.L().Info("Total has gt configured limit, Load more..")
+		// get all accounts
+		pages := int(decimal.NewFromInt32(responseHeader.Total).Div(decimal.NewFromInt32(maxLimitSearchAccount)).Ceil().IntPart())
+		for i := 1; i <= pages-1; i++ {
+			var moreAccountList []mambu.TDAccount
+			offset := i * int(maxLimitSearchAccount)
+			zap.L().Info("get more td account", zap.Int("offset", offset))
+			postUrl = fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), offset, maxLimitSearchAccount)
+			err = mambu_http.Post(postUrl, postJsonStr, &moreAccountList, responseHeader, persistence.DBPersistence(nil, "GetMoreTDAccountListByQueryParam"))
+			if err == nil {
+				tdAccountList = append(tdAccountList, moreAccountList...)
+			}
+		}
+	}
+
 	return tdAccountList, nil
 }
 
@@ -51,7 +76,7 @@ func GetAccountById(context context.Context, tdAccountID string) (*mambu.TDAccou
 
 func UndoMaturityDate(context context.Context, accountID string) bool {
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.UndoMaturityDateUrl), accountID)
-	err := mambu_http.Post(postUrl, "", nil, persistence.DBPersistence(context, "UndoMaturityDate"))
+	err := mambu_http.Post(postUrl, "", nil, nil, persistence.DBPersistence(context, "UndoMaturityDate"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("Undo MaturityDate for td account failed! td acc id: %v", accountID))
 		return false
@@ -75,7 +100,7 @@ func ChangeMaturityDate(context context.Context, accountID, maturityDate, note s
 	postJsonStr := string(postJsonByte)
 
 	var resultTDAccount mambu.TDAccount
-	err := mambu_http.Post(postUrl, postJsonStr, &resultTDAccount, persistence.DBPersistence(context, "ChangeMaturityDate"))
+	err := mambu_http.Post(postUrl, postJsonStr, &resultTDAccount, nil, persistence.DBPersistence(context, "ChangeMaturityDate"))
 	if err != nil {
 		zap.L().Error("Create MaturityDate for td account failed! ", zap.String("accountId", accountID))
 		return resultTDAccount, err
@@ -96,7 +121,7 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 		Notes:                   note,
 	})
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Post(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "ApplyProfit"))
+	err := mambu_http.Post(postUrl, postJsonStr, nil, nil, persistence.DBPersistence(context, "ApplyProfit"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("ApplyProfit for td account failed! td acc id: %v", accountID))
 		return false
@@ -144,7 +169,7 @@ func CloseAccount(context context.Context, accID, notes string) bool {
 	})
 
 	postJsonStr := string(postJsonByte)
-	err := mambu_http.Post(postUrl, postJsonStr, nil, persistence.DBPersistence(context, "CloseAccount"))
+	err := mambu_http.Post(postUrl, postJsonStr, nil, nil, persistence.DBPersistence(context, "CloseAccount"))
 	if err != nil {
 		zap.L().Error(fmt.Sprintf("CloseAccount for td account failed! td acc id: %v", accID))
 		return false

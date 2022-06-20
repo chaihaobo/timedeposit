@@ -54,7 +54,7 @@ func Patch(url, body string, resultBind interface{}, callback RequestCallbackFun
 	return err
 }
 
-func Post(url, body string, resultBind interface{}, callback RequestCallbackFun) error {
+func Post(url, body string, resultBind, headerBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string
 	call := gout.POST(url).SetHeader(getMambuHeader()).
@@ -63,6 +63,9 @@ func Post(url, body string, resultBind interface{}, callback RequestCallbackFun)
 		BindBody(&response)
 	if body != "" {
 		call.SetJSON(body)
+	}
+	if headerBind != nil {
+		call.BindHeader(headerBind)
 	}
 	err := call.Code(&code).Do()
 	if resultBind != nil && response != "" {
