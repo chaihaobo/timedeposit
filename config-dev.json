@@ -7,7 +7,8 @@
     "level": "DEBUG"
   },
   "flow": {
-    "nodeFailRetryTimes": 3
+    "nodeFailRetryTimes": 3,
+    "maxLimitSearchAccount": 1000
   },
   "db": {
     "username": "hugo",

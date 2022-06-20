@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
@@ -17,14 +18,10 @@ import (
 	"time"
 )
 
-const (
-	maxLimitSearchAccount int32 = 1000
-)
-
 // GetTDAccountListByQueryParam Get TDAccount List from mambu api
 func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAccount, error) {
 	var tdAccountList []mambu.TDAccount
-	postUrl := fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), 0, maxLimitSearchAccount)
+	postUrl := fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), 0, config.TDConf.Flow.MaxLimitSearchAccount)
 	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
@@ -44,15 +41,15 @@ func GetTDAccountListByQueryParam(searchParam mambu.SearchParam) ([]mambu.TDAcco
 		return tdAccountList, err
 	}
 
-	if responseHeader.Total > maxLimitSearchAccount {
+	if responseHeader.Total > config.TDConf.Flow.MaxLimitSearchAccount {
 		zap.L().Info("Total has gt configured limit, Load more..")
 		// get all accounts
-		pages := int(decimal.NewFromInt32(responseHeader.Total).Div(decimal.NewFromInt32(maxLimitSearchAccount)).Ceil().IntPart())
+		pages := int(decimal.NewFromInt32(responseHeader.Total).Div(decimal.NewFromInt32(config.TDConf.Flow.MaxLimitSearchAccount)).Ceil().IntPart())
 		for i := 1; i <= pages-1; i++ {
 			var moreAccountList []mambu.TDAccount
-			offset := i * int(maxLimitSearchAccount)
+			offset := i * int(config.TDConf.Flow.MaxLimitSearchAccount)
 			zap.L().Info("get more td account", zap.Int("offset", offset))
-			postUrl = fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), offset, maxLimitSearchAccount)
+			postUrl = fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), offset, config.TDConf.Flow.MaxLimitSearchAccount)
 			err = mambu_http.Post(postUrl, postJsonStr, &moreAccountList, responseHeader, persistence.DBPersistence(nil, "GetMoreTDAccountListByQueryParam"))
 			if err == nil {
 				tdAccountList = append(tdAccountList, moreAccountList...)

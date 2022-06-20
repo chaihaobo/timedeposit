@@ -33,7 +33,8 @@ type TDConfig struct {
 		MaxIdleConn int
 	}
 	Flow *struct {
-		NodeFailRetryTimes int
+		NodeFailRetryTimes    int
+		MaxLimitSearchAccount int32
 	}
 	TransactionReqMetaData *struct {
 		MessageType                    string
