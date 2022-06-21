@@ -60,7 +60,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
-		depositChannelID := "PPH_PS42_DEPOSITO"
+		depositChannelID := "BBN_BONUS_DEPMUDC"
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, additionalProfitTax,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc3,
@@ -80,7 +80,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 
 		// Withdraw additional profit
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-		channelID := "BBN_BAGHAS_DEPMUDC"
+		channelID := "PPH_PS42_DEPOSITO"
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), benefitAccount,
 			benefitAccount, additionalProfit,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc1,
