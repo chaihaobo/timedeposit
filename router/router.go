@@ -9,6 +9,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/td/common/logger"
+	"gitlab.com/bns-engineering/td/middleware"
 	"gitlab.com/bns-engineering/td/router/api"
 	"net/http"
 )
@@ -18,6 +19,7 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(logger.GinLogger())
 	r.Use(logger.GinRecovery(true))
+	r.Use(middleware.AuthMiddleware())
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "check success!")
