@@ -22,6 +22,7 @@ type TDConfig struct {
 		HttpPort     int
 		ReadTimeout  int
 		WriteTimeout int
+		AuthToken    string
 	}
 	Db *struct {
 		Username    string

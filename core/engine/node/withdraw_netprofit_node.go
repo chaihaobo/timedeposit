@@ -9,6 +9,7 @@ import (
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
+	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
 )
 
@@ -42,8 +43,11 @@ func (node *WithdrawNetprofitNode) Run() (INodeResult, error) {
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), account, benefitAccount, netProfit,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc1,
+
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc3,
-			withdrawTransID, channelID, nil)
+			withdrawTransID, channelID, func(transactionReq *mambu.TransactionReq) {
+				transactionReq.Metadata.TranDesc2 = account.ID
+			})
 		if err != nil {
 			zap.L().Error(fmt.Sprintf("Failed to withdraw for td account: %v", account.ID))
 			// Just return error, no need to reverse
