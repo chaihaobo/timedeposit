@@ -5,6 +5,7 @@ package engine
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/panjf2000/ants/v2"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/config"
@@ -14,6 +15,7 @@ import (
 	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -65,6 +67,10 @@ func Run(flowId string) {
 		runStartTime := time.Now()
 		zap.L().Info("flow node run start", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
 		run, err := runNode.Run()
+		// TODO only use to test case
+		if strings.EqualFold(gin.Mode(), "debug") {
+			time.Sleep(config.TDConf.Flow.NodeSleepTime)
+		}
 		if err != nil {
 			zap.L().Info("node run fail,now retry 3 times", zap.String("current node name", nodeName))
 			retry(func() error {

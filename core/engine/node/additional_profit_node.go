@@ -5,6 +5,7 @@ package node
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
@@ -12,6 +13,7 @@ import (
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
 	"strings"
+	"time"
 )
 
 type AdditionalProfitNode struct {
@@ -77,6 +79,10 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 			return nil, errors.Wrap(err, "call mambu deposit failed")
 		}
 		zap.L().Info("Finish deposit additional profit tax", zap.String("account", account.ID), zap.String("encodedKey", depositResp.EncodedKey))
+		// TODO only use to test case
+		if strings.EqualFold(gin.Mode(), "debug") {
+			time.Sleep(config.TDConf.Flow.NodeSleepTime)
+		}
 
 		// Withdraw additional profit
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"

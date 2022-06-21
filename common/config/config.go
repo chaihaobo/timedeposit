@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"os"
+	"time"
 )
 
 var TDConf = new(TDConfig)
@@ -36,6 +37,7 @@ type TDConfig struct {
 	Flow *struct {
 		NodeFailRetryTimes    int
 		MaxLimitSearchAccount int32
+		NodeSleepTime         time.Duration
 	}
 	TransactionReqMetaData *struct {
 		MessageType                    string
