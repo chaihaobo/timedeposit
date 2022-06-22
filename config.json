@@ -34,7 +34,7 @@
     "authToken": "Bearer BeeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOjF9.SfruT30UaAbE5Y0IsMvOWVJtoYmKa1jc3JpUkhtSMqk"
   },
   "mambu": {
-    "host": "https://cbs-dev1.aladinbank.id.cn",
+    "host": "https://cbs-dev1.aladinbank.id",
     "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
   },
   "transactionReqMetaData": {
