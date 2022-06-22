@@ -9,10 +9,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/common/telemetry"
+	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
+	commonlog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/logger"
+	"log"
+
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"runtime"
 	"syscall"
 	"time"
@@ -49,6 +55,22 @@ func main() {
 		Handler: routersInit,
 	}
 
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// telemetry
+	ins, close := getTelemetry()
+	defer close()
+
+	ins.Filter = new(telemetry.FilterConfig)
+	initLogBodyFilter([]string{"password","nik","motherName"}, ins)
+	initLogHeaderFilter([]string{"authorization,Authorization,deviceid"}, ins)
+
+	util.SetTelemetryLog(ins)
+	util.SetTelemetryDataDog(ins)
+	commonlog.NewLogger(ins)
+	util.SetTelemetryFilter(ins)
+	util.GetTelemetryDataDogOpt()
+
 	go func() {
 		zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
 		// service connections
@@ -70,4 +92,43 @@ func main() {
 	util.CheckAndExit(server.Shutdown(ctx))
 	engine.Pool.Release()
 
+}
+
+func getTelemetry() (*telemetry.API, func()) {
+	// TODO: please Help to configure
+	collectorURL := "http://localhost:14268/api/traces"
+	serviceName := "timedeposit"
+	sourceEnv := "local"
+	metricPort := 8181
+	agentAddress := "127.0.0.1:8125"
+	config := telemetry.APIConfig{
+		LoggerConfig: telemetry.LoggerConfig{},
+		TraceConfig:  telemetry.TraceConfig{CollectorEndpoint: collectorURL, ServiceName: serviceName, SourceEnv: sourceEnv},
+		MetricConfig: telemetry.MetricConfig{
+			Port:         int(metricPort),
+			AgentAddress: agentAddress,
+			SampleRate:   1,
+		},
+	}
+	ins, fn, _ := telemetry.NewInstrumentation(config)
+
+	return ins, fn
+}
+
+func initLogBodyFilter(configString []string, client *telemetry.API) {
+	// overide filter value
+	client.Filter.PayloadFilter = func(item *filter.TargetFilter) []*regexp.Regexp {
+		var rules []*regexp.Regexp
+		for _, v := range configString {
+			pattern := fmt.Sprintf(`(%s|\"%s\"\s*):\s?"([\w\s#-@]+)`, v, v)
+			regex := regexp.MustCompile(pattern)
+			rules = append(rules, regex)
+		}
+		return rules
+	}
+}
+
+func initLogHeaderFilter(arrayStringConfig []string, client *telemetry.API) {
+	// overide filter value
+	client.Filter.HeaderFilter = arrayStringConfig
 }
