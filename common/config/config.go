@@ -112,7 +112,6 @@ func setupViperGSM(viper *viper.Viper, parent string, version string) {
 }
 
 func Setup(path string) *TDConfig {
-	envConfigPath := os.Getenv("TD_CONFIG_PATH")
 	configViper := viper.New()
 	configViper.SetConfigType("json")
 
@@ -123,6 +122,7 @@ func Setup(path string) *TDConfig {
 		setupViperGSM(configViper, parent, version)
 
 	} else {
+		envConfigPath := os.Getenv("TD_CONFIG_PATH")
 		configViper.SetConfigFile(path)
 		if "" != envConfigPath {
 			configViper.SetConfigFile(envConfigPath)
