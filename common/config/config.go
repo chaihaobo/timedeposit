@@ -2,8 +2,13 @@
 package config
 
 import (
+	"bytes"
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"context"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
+	"log"
 	"os"
 	"time"
 )
@@ -82,22 +87,56 @@ type TDConfig struct {
 	}
 }
 
+func setupViperGSM(viper *viper.Viper, parent string, version string) {
+	// Create the client.
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("failed to setup client: %v", err)
+	}
+	defer client.Close()
+
+	// Build the request.
+	accessRequest := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: parent + "/" + version,
+	}
+	// Call the API.
+	result, err := client.AccessSecretVersion(ctx, accessRequest)
+	if err != nil {
+		log.Fatalf("failed to access secret version: %v", err)
+	}
+	err = viper.MergeConfig(bytes.NewReader(result.Payload.Data))
+	if err != nil {
+		log.Fatalf("failed to merge gsm config to viper %v", err)
+	}
+}
+
 func Setup(path string) *TDConfig {
 	envConfigPath := os.Getenv("TD_CONFIG_PATH")
 	configViper := viper.New()
-	configViper.SetConfigFile(path)
-	if "" != envConfigPath {
-		configViper.SetConfigFile(envConfigPath)
-	}
-	var err error
-	if err = configViper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			zap.L().Error("Config file not found. Please check the file path...")
-		} else {
-			zap.L().Error("Config file read error...")
+	configViper.SetConfigType("json")
+
+	gsmCredentialPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	parent := os.Getenv("PARENT")
+	version := os.Getenv("VERSION")
+	if "" != gsmCredentialPath && "" != parent && "" != version {
+		setupViperGSM(configViper, parent, version)
+
+	} else {
+		configViper.SetConfigFile(path)
+		if "" != envConfigPath {
+			configViper.SetConfigFile(envConfigPath)
+		}
+		var err error
+		if err = configViper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				zap.L().Error("Config file not found. Please check the file path...")
+			} else {
+				zap.L().Error("Config file read error...")
+			}
 		}
 	}
-	err = configViper.Unmarshal(TDConf)
+	err := configViper.Unmarshal(TDConf)
 	if err != nil {
 		zap.L().Error("config unmarshal error")
 	}
