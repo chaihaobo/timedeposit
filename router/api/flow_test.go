@@ -20,6 +20,9 @@ func init() {
 }
 
 func TestStartFlow(t *testing.T) {
+	if config.TDConf.SkipTests {
+		return
+	}
 	tmpTDAccountList, err := loadAccountList()
 	if err != nil {
 		zap.L().Error("load mambu account list error")

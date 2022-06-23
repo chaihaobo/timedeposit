@@ -85,6 +85,7 @@ type TDConfig struct {
 		Host   string
 		ApiKey string
 	}
+	SkipTests bool
 }
 
 func setupViperGSM(viper *viper.Viper, parent string, version string) {
