@@ -3,6 +3,7 @@ module gitlab.com/bns-engineering/td
 go 1.18
 
 require (
+	cloud.google.com/go/secretmanager v1.4.0
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis/v8 v8.11.5
@@ -15,6 +16,7 @@ require (
 	github.com/thoas/go-funk v0.9.2
 	github.com/uniplaces/carbon v0.2.2
 	go.uber.org/zap v1.21.0
+	google.golang.org/genproto v0.0.0-20220621134657-43db42f103f7
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.5
 )
@@ -23,7 +25,6 @@ require (
 	cloud.google.com/go v0.100.2 // indirect
 	cloud.google.com/go/compute v1.5.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
-	cloud.google.com/go/secretmanager v1.4.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
@@ -65,7 +66,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/api v0.74.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220621134657-43db42f103f7 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
