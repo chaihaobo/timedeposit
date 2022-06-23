@@ -20,14 +20,15 @@ func init() {
 }
 
 func TestStartFlow(t *testing.T) {
+	if config.TDConf.SkipTests {
+		return
+	}
 	tmpTDAccountList, err := loadAccountList()
 	if err != nil {
 		zap.L().Error("load mambu account list error")
 	}
 
-	for _, tmpTDAcc := range tmpTDAccountList {
-		engine.Start(tmpTDAcc.ID)
-		// go engine.Start(tmpTDAcc.ID)
-		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
+	if len(tmpTDAccountList) > 0 {
+		engine.Start(tmpTDAccountList[0].ID)
 	}
 }
