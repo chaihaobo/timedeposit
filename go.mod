@@ -1,6 +1,6 @@
 module gitlab.com/bns-engineering/td
 
-go 1.18
+go 1.16
 
 require (
 	cloud.google.com/go/secretmanager v1.4.0
@@ -26,6 +26,5 @@ require (
 	github.com/stretchr/testify v1.7.2 // indirect
 	gitlab.com/bns-engineering/common v1.3.22
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 )
