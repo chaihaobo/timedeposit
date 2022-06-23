@@ -175,7 +175,7 @@ func (tdAccInfo *TDAccount) GetNetProfit() (float64, error) {
 		zap.L().Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64", zap.String("value", tdAccInfo.Rekening.RekeningPrincipalAmount))
 		return 0, err
 	}
-	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(2).InexactFloat64()
+	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).Round(2).InexactFloat64()
 	return netProfit, nil
 }
 func (tdAccInfo *TDAccount) IsCaseB1_1() bool {

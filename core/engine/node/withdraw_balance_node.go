@@ -33,7 +33,7 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
 
-	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).RoundFloor(2).InexactFloat64()
+	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).Round(2).InexactFloat64()
 	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
 			zap.L().Error("is not a valid benefit account!")
