@@ -9,11 +9,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"gitlab.com/bns-engineering/common/telemetry"
 	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
 	commonlog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/logger"
-	"log"
 
 	"net/http"
 	"os"
@@ -43,26 +44,12 @@ func init() {
 }
 
 func main() {
-
-	cores := runtime.NumCPU()
-	runtime.GOMAXPROCS(cores)
-	gin.SetMode(config.TDConf.Server.RunMode)
-	routersInit := router.InitRouter()
-	endPoint := fmt.Sprintf(":%d", config.TDConf.Server.HttpPort)
-
-	server := &http.Server{
-		Addr:    endPoint,
-		Handler: routersInit,
-	}
-
-
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// telemetry
 	ins, close := getTelemetry()
 	defer close()
 
 	ins.Filter = new(telemetry.FilterConfig)
-	initLogBodyFilter([]string{"password","nik","motherName"}, ins)
+	initLogBodyFilter([]string{"password", "nik", "motherName"}, ins)
 	initLogHeaderFilter([]string{"authorization,Authorization,deviceid"}, ins)
 
 	util.SetTelemetryLog(ins)
@@ -70,6 +57,19 @@ func main() {
 	commonlog.NewLogger(ins)
 	util.SetTelemetryFilter(ins)
 	util.GetTelemetryDataDogOpt()
+
+	cores := runtime.NumCPU()
+	runtime.GOMAXPROCS(cores)
+	gin.SetMode(config.TDConf.Server.RunMode)
+	routersInit := router.InitRouter(ins)
+	endPoint := fmt.Sprintf(":%d", config.TDConf.Server.HttpPort)
+
+	server := &http.Server{
+		Addr:    endPoint,
+		Handler: routersInit,
+	}
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	go func() {
 		zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))

@@ -7,37 +7,28 @@
 package router
 
 import (
-	"context"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
-	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/common/telemetry"
 	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/router/api"
-	"net/http"
 )
 
 // InitRouter initialize routing information
-func InitRouter() *gin.Engine {
+func InitRouter(telemetry *telemetry.API) *gin.Engine {
 	r := gin.New()
-	r.Use(logger.GinLogger())
+	//r.Use(logger.GinLogger())
 	r.Use(logger.GinRecovery(true))
-	//r.Use(middleware.AuthMiddleware())
+	// r.Use(middleware.AuthMiddleware())
+
+	r.Use(logger.GinLoggerRequest(telemetry))
+	r.Use(logger.GinLoggerResponse(telemetry)) // should be appear after main router finish called
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "check success!")
 	})
 
-	r.GET("/ping", func(c *gin.Context) {
-
-		ctx:=context.Background()
-		err := errors.New("Internal server Error")
-		log.Error(ctx, "[UseCaseName] some_error_message : ", err)
-
-
-		c.JSON(http.StatusOK, api.Success())
-
-
-	})
 	flowGroup := r.Group("/flow")
 	{
 		flowGroup.POST("/start", api.StartFlow)
