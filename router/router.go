@@ -7,19 +7,24 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/middleware"
-	"gitlab.com/bns-engineering/td/router/api"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gitlab.com/bns-engineering/common/telemetry"
+	"gitlab.com/bns-engineering/td/common/logger"
+	"gitlab.com/bns-engineering/td/router/api"
 )
 
 // InitRouter initialize routing information
-func InitRouter() *gin.Engine {
+func InitRouter(telemetry *telemetry.API) *gin.Engine {
 	r := gin.New()
-	r.Use(logger.GinLogger())
+	// r.Use(logger.GinLogger()) // maybe we don't need this, I changed it to one that fits our standards
 	r.Use(logger.GinRecovery(true))
 	r.Use(middleware.AuthMiddleware())
+
+	r.Use(logger.GinLoggerRequest(telemetry))
+	r.Use(logger.GinLoggerResponse(telemetry)) // should be appear after main router finish called
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "check success!")
