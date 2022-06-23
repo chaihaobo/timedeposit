@@ -5,6 +5,7 @@ package node
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
@@ -12,6 +13,8 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"go.uber.org/zap"
+	"strings"
+	"time"
 )
 
 type WithdrawBalanceNode struct {
@@ -50,6 +53,10 @@ func (node *WithdrawBalanceNode) Run() (INodeResult, error) {
 		}
 		zap.L().Info(fmt.Sprintf("Finish withdraw balance for accNo: %v, encodedKey:%v", account.ID, withrawResp.EncodedKey))
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
+		// TODO only use to test case
+		if strings.EqualFold(gin.Mode(), "debug") {
+			time.Sleep(config.TDConf.Flow.NodeSleepTime)
+		}
 		// deposit
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, totalBalance,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc1,
