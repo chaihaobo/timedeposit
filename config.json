@@ -46,7 +46,7 @@
     "terminalType": 6021,
     "terminalID": "TDE",
     "terminalLocation": "1001-Head Office",
-    "productCode": 0,
+    "productCode": "000000",
     "acquirerIID": 947,
     "forwarderIID": 947,
     "issuerIID": 947,
