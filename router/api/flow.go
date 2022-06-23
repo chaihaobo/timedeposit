@@ -5,9 +5,14 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/td/common/log"
 	timeUtil "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
@@ -16,15 +21,15 @@ import (
 	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
-	"time"
 )
 
 func StartFlow(c *gin.Context) {
 	tmpTDAccountList, err := loadAccountList()
 	if err != nil {
 		zap.L().Error("load mambu account list error")
+
+		log.Error(c, "[StartFlow] load mambu account list error : ", err)
+
 		c.JSON(http.StatusOK, Error("load mambu account list error"))
 		return
 	}

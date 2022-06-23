@@ -1,23 +1,34 @@
 package logger
 
 import (
-	"github.com/natefinch/lumberjack"
-	"gitlab.com/bns-engineering/td/common/config"
+	"bytes"
+	"context"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/natefinch/lumberjack"
+	telemetry "gitlab.com/bns-engineering/common/telemetry"
+	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
+	"gitlab.com/bns-engineering/td/common/config"
+	commonlog "gitlab.com/bns-engineering/td/common/log"
+
 	"github.com/gin-gonic/gin"
+	ins "gitlab.com/bns-engineering/common/telemetry/instrumentation"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var lg *zap.Logger
+var SERVICENAME = "time_deposit" // please help configure
 
 // InitLogger init logger
 func SetUp(cfg *config.TDConfig) (err error) {
@@ -74,6 +85,118 @@ func GinLogger() gin.HandlerFunc {
 			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
 			zap.Duration("cost", cost),
 		)
+	}
+}
+func GinLoggerResponse(telemetry *telemetry.API) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		defer func(start time.Time) {
+			elapsedTime := time.Since(start).Milliseconds()
+
+			// send metrics to datadog
+			method := strings.ToLower(c.Request.Method)
+			name := SERVICENAME + fmt.Sprintf("%s_%s", method, c.Request.URL.Path)
+			if telemetry.ServiceAPI != "" {
+				name = telemetry.ServiceAPI
+			}
+			src_env := telemetry.SourceEnv
+
+			urlPath := c.Request.URL.Path
+
+			endpoint := fmt.Sprintf("%s.%s", urlPath, method)
+
+			// send metrics to datadog
+			tags := []string{
+				"http_endpoint:" + endpoint,
+				"src_env:" + src_env,
+				"response_code:" + strconv.FormatUint(uint64(c.Writer.Status()), 10),
+			}
+
+			telemetry.Metric().Count(name, 1, tags)
+			telemetry.Metric().Histogram(name+".histogram", float64(elapsedTime), tags)
+			telemetry.Metric().Distribution(name+".distribution", float64(elapsedTime), tags)
+		}(time.Now())
+
+		defer func() {
+
+			var makemapresp interface{}
+
+			var bytes = []byte{} // response writer in byte
+			filterConfig := telemetry.Filter
+			makemapresp = string(bytes)
+			if string(bytes) != "" && filterConfig != nil {
+				rules := filterConfig.PayloadFilter(&filter.TargetFilter{
+					Method: c.Request.URL.Path,
+				})
+
+				makemapresp = filter.BodyFilter(rules, makemapresp)
+			}
+
+			commonlog.Info(context.Background(), "Http Response",
+				[]commonlog.Field{
+					{Field: zap.String(ins.LabelHTTPService, c.Request.URL.Path)},
+					{Field: zap.Any(ins.LabelHTTPResponse, makemapresp)},
+					{Field: zap.Any(ins.LabelHTTPStatus, c.Writer.Status())},
+				}...,
+			)
+
+		}()
+
+	}
+}
+
+func GinLoggerRequest(telemetry *telemetry.API) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		path := c.Request.URL.Path
+		header := c.Request.Header
+		if c.Request.Method == http.MethodPost || c.Request.Method == http.MethodPatch || c.Request.Method == http.MethodPut {
+			var requestBody string
+			rawBody, err := ioutil.ReadAll(c.Request.Body)
+			if err == nil {
+				c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rawBody))
+				requestBody = string(rawBody)
+			}
+
+			var filteredBody interface{}
+			headerKeyFilter := filter.DefaultHeaderFilter
+			// set request and response default
+			filteredBody = requestBody
+			if telemetry.Filter != nil {
+				rules := telemetry.Filter.PayloadFilter(&filter.TargetFilter{
+					Method: path,
+				})
+
+				filteredBody = filter.BodyFilter(rules, requestBody)
+				headerKeyFilter = append(headerKeyFilter, telemetry.Filter.HeaderFilter...)
+			}
+
+			filteredHeader := filter.HeaderFilter(header, headerKeyFilter)
+
+			commonlog.Info(context.Background(), "Http Request",
+				[]commonlog.Field{
+					{Field: zap.String(ins.LabelHTTPService, c.Request.URL.Path)},
+					{Field: zap.Any(ins.LabelHTTPHeader, filteredHeader)},
+					{Field: zap.Any(ins.LabelHTTPRequest, filteredBody)},
+					{Field: zap.Any(ins.LabelHTTPMethod, c.Writer.Status())},
+				}...,
+			)
+
+		} else {
+			headerKeyFilter := filter.DefaultHeaderFilter
+			if telemetry.Filter != nil {
+				headerKeyFilter = append(headerKeyFilter, telemetry.Filter.HeaderFilter...)
+			}
+
+			filteredHeader := filter.HeaderFilter(header, headerKeyFilter)
+
+			commonlog.Info(context.Background(), "Http Request",
+				[]commonlog.Field{
+					{Field: zap.String(ins.LabelHTTPService, c.Request.URL.Path)},
+					{Field: zap.Any(ins.LabelHTTPHeader, filteredHeader)},
+					{Field: zap.Any(ins.LabelHTTPMethod, c.Writer.Status())},
+				}...,
+			)
+		}
 	}
 }
 
