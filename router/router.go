@@ -7,6 +7,7 @@
 package router
 
 import (
+	"gitlab.com/bns-engineering/td/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +19,9 @@ import (
 // InitRouter initialize routing information
 func InitRouter(telemetry *telemetry.API) *gin.Engine {
 	r := gin.New()
-	//r.Use(logger.GinLogger())
+	// r.Use(logger.GinLogger()) // maybe we don't need this, I changed it to one that fits our standards
 	r.Use(logger.GinRecovery(true))
-	// r.Use(middleware.AuthMiddleware())
+	r.Use(middleware.AuthMiddleware())
 
 	r.Use(logger.GinLoggerRequest(telemetry))
 	r.Use(logger.GinLoggerResponse(telemetry)) // should be appear after main router finish called
