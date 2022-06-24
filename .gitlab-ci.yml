@@ -2,5 +2,3 @@ include:
   - project: '${CORE_CI}'
     ref : '${CORE_CI_BRANCH}'
     file: '${CORE_CI_FILE}'
-before_script:
-  - git config --global url."https://gitlab-ci-token:glpat-iWsM8Lvm6L1vz27niar8@gitlab.com".insteadOf "https://gitlab.com"
