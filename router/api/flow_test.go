@@ -7,28 +7,29 @@
 package api
 
 import (
+	"context"
+	"gitlab.com/bns-engineering/td/common/log"
+	"gitlab.com/bns-engineering/td/transport"
 	"testing"
 
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
 	"gitlab.com/bns-engineering/td/core/engine"
-	"go.uber.org/zap"
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../config.json"))
+	transport.NewTdServer(config.Setup("../../config.json")).SetUp()
 }
 
 func TestStartFlow(t *testing.T) {
 	if config.TDConf.SkipTests {
 		return
 	}
-	tmpTDAccountList, err := loadAccountList()
+	tmpTDAccountList, err := loadAccountList(context.Background())
 	if err != nil {
-		zap.L().Error("load mambu account list error")
+		log.Error(context.Background(), "load mambu account list error", err)
 	}
 
 	if len(tmpTDAccountList) > 0 {
-		engine.Start(tmpTDAccountList[0].ID)
+		engine.Start(context.Background(), tmpTDAccountList[0].ID)
 	}
 }

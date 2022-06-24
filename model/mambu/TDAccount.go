@@ -7,8 +7,10 @@
 package mambu
 
 import (
+	"context"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/td/common/log"
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"go.uber.org/zap"
 	"strconv"
@@ -137,7 +139,7 @@ func (tdAccInfo *TDAccount) IsCaseA() bool {
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 
@@ -153,7 +155,7 @@ func (tdAccInfo *TDAccount) IsCaseB() bool {
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 	return isARO &&
@@ -172,7 +174,6 @@ func (tdAccInfo *TDAccount) IsCaseB1() bool {
 func (tdAccInfo *TDAccount) GetNetProfit() (float64, error) {
 	principal, err := strconv.ParseFloat(tdAccInfo.Rekening.RekeningPrincipalAmount, 64)
 	if err != nil {
-		zap.L().Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64", zap.String("value", tdAccInfo.Rekening.RekeningPrincipalAmount))
 		return 0, err
 	}
 	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).Round(2).InexactFloat64()

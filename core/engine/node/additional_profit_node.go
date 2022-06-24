@@ -4,10 +4,12 @@
 package node
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
@@ -20,15 +22,15 @@ type AdditionalProfitNode struct {
 	*Node
 }
 
-func (node *AdditionalProfitNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId, false)
+func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) {
+	account, err := node.GetMambuAccount(ctx, node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}
 	// Get benefit account info
-	benefitAccount, err := node.GetMambuBenefitAccountAccount(account.OtherInformation.BhdNomorRekPencairan, false)
+	benefitAccount, err := node.GetMambuBenefitAccountAccount(ctx, account.OtherInformation.BhdNomorRekPencairan, false)
 	if err != nil {
-		zap.L().Error("Failed to get benefit acc info of td account: %v, benefit acc id:%v", zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
+		log.Error(ctx, "Failed to get benefit acc info of td account: %v, benefit acc id:%v", err, zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
 
@@ -41,18 +43,18 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") {
 		if account.IsSpecialERExpired() {
-			zap.L().Info("special ER expired! skip it")
+			log.Info(ctx, "special ER expired! skip it")
 			return ResultSkip, nil
 		}
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
-			zap.L().Error("is not a valid benefit account!")
+			log.Error(ctx, "is not a valid benefit account!", constant.ErrBenefitAccountInvalid)
 			return nil, constant.ErrBenefitAccountInvalid
 		}
 
 		// Get last applied interest info
-		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(), account.EncodedKey)
+		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(ctx), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {
-			zap.L().Info("No applied profit, skip")
+			log.Info(ctx, "No applied profit, skip")
 			return nil, errors.New("no applied profit, skip")
 		}
 		lastAppliedInterestTrans := transList[0]
@@ -63,7 +65,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "BBN_BONUS_DEPMUDC"
-		depositResp, err := transactionservice.DepositTransaction(node.GetContext(), account, benefitAccount, additionalProfitTax,
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, additionalProfitTax,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc3,
 			depositTransID, depositChannelID, func(transactionReq *mambu.TransactionReq) {
@@ -73,12 +75,11 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 
 			})
 		if err != nil {
-			zap.L().Error("Failed to deposit for td account", zap.String("account", account.ID))
-			zap.L().Error("depositResp error", zap.Any("depositResp", depositResp), zap.Error(err))
+			log.Error(ctx, "Failed to deposit for td account", err, zap.String("account", account.ID))
 
 			return nil, errors.Wrap(err, "call mambu deposit failed")
 		}
-		zap.L().Info("Finish deposit additional profit tax", zap.String("account", account.ID), zap.String("encodedKey", depositResp.EncodedKey))
+		log.Info(ctx, "Finish deposit additional profit tax", zap.String("account", account.ID), zap.String("encodedKey", depositResp.EncodedKey))
 		// TODO only use to test case
 		if strings.EqualFold(gin.Mode(), "debug") {
 			time.Sleep(config.TDConf.Flow.NodeSleepTime)
@@ -87,7 +88,7 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 		// Withdraw additional profit
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		channelID := "PPH_PS42_DEPOSITO"
-		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(), benefitAccount,
+		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), benefitAccount,
 			benefitAccount, additionalProfit,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc3,
@@ -97,18 +98,18 @@ func (node *AdditionalProfitNode) Run() (INodeResult, error) {
 				transactionReq.Metadata.BeneficiaryAccountName = ""
 			})
 		if err != nil {
-			zap.L().Error("Failed to withdraw for td account", zap.String("account", account.ID))
+			log.Error(ctx, "Failed to withdraw for td account", err, zap.String("account", account.ID))
 			// rollback deposit transaction
 			notes := fmt.Sprintf("eod_engine-%s-%s-%s", node.FlowId, node.NodeName, depositResp.ID)
-			adjustErr := transactionservice.AdjustTransaction(node.GetContext(), depositResp.ID, notes)
+			adjustErr := transactionservice.AdjustTransaction(node.GetContext(ctx), depositResp.ID, notes)
 			if adjustErr != nil {
 				err = fmt.Errorf("adjust error:%w", err)
 			}
 			return nil, errors.Wrap(err, "call mambu withdraw failed")
 		}
-		zap.L().Info("Finish withdraw balance", zap.String("account", account.ID), zap.String("encodedKey", withrawResp.EncodedKey))
+		log.Info(ctx, "Finish withdraw balance", zap.String("account", account.ID), zap.String("encodedKey", withrawResp.EncodedKey))
 	} else {
-		zap.L().Info("not match! skip it")
+		log.Info(ctx, "not match! skip it")
 		return ResultSkip, nil
 	}
 	return ResultSuccess, nil

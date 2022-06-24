@@ -6,12 +6,12 @@ package holidayservice
 import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
+	"gitlab.com/bns-engineering/td/transport"
 	"testing"
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../../../config.json"))
+	transport.NewTdServer(config.Setup("../../../../config.json")).SetUp()
 }
 func TestGetHolidayList(t *testing.T) {
 

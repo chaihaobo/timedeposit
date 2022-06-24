@@ -4,21 +4,16 @@
 package node
 
 import (
+	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
-	"go.uber.org/zap"
+	"gitlab.com/bns-engineering/td/transport"
 	"reflect"
 	"testing"
 )
 
 func TestApplyProfitNode_Run(t *testing.T) {
 
-	config.Setup("./../../../config.json")
-	err := logger.SetUp(config.TDConf)
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
-
+	transport.NewTdServer(config.Setup("./../../../config.json")).SetUp()
 	type fields struct {
 		Node *Node
 	}
@@ -46,7 +41,7 @@ func TestApplyProfitNode_Run(t *testing.T) {
 			node := &ApplyProfitNode{
 				Node: tt.fields.Node,
 			}
-			got, err := node.Run()
+			got, err := node.Run(context.Background())
 			if (err != nil) != tt.wantErr {
 
 				return

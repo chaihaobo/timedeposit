@@ -30,7 +30,8 @@
     "RunMode": "debug",
     "HttpPort": 8000,
     "ReadTimeout": 60,
-    "WriteTimeout": 60
+    "WriteTimeout": 60,
+    "authToken": "Bearer BeeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOjF9.SfruT30UaAbE5Y0IsMvOWVJtoYmKa1jc3JpUkhtSMqk"
   },
   "mambu": {
     "host": "https://cbs-dev1.aladinbank.id",

@@ -1,31 +1,15 @@
 package util
 
 import (
-
 	"gitlab.com/bns-engineering/common/telemetry"
 )
 
-var telemetryLog telemetry.Logger
+var telemetryApi *telemetry.API
 
-var filter *telemetry.FilterConfig
-
-func SetTelemetryLog(telemetryAPI *telemetry.API) {
-	telemetryLog = telemetryAPI.Logger()
+func SetTelemetry(telemetryAPI *telemetry.API) {
+	telemetryApi = telemetryAPI
 }
 
-// SetTelemetryMockLog for testing purposes
-func SetTelemetryMockLog(mock telemetry.Logger) {
-	telemetryLog = mock
-}
-
-func GetTelemetryLog() telemetry.Logger {
-	return telemetryLog
-}
-
-func SetTelemetryFilter(telemetryAPI *telemetry.API) {
-	filter = telemetryAPI.Filter
-}
-
-func GetTelemetryFilter() *telemetry.FilterConfig {
-	return filter
+func GetTelemetry() *telemetry.API {
+	return telemetryApi
 }

@@ -7,20 +7,16 @@
 package node
 
 import (
+	"context"
+	"gitlab.com/bns-engineering/td/transport"
 	"reflect"
 	"testing"
 
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
-	"go.uber.org/zap"
 )
 
 func TestPatchAccountNode_Run(t *testing.T) {
-	config.Setup("./../../../config.json")
-	err := logger.SetUp(config.TDConf)
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
+	transport.NewTdServer(config.Setup("./../../../config.json")).SetUp()
 	tests := []struct {
 		name    string
 		node    *PatchAccountNode
@@ -42,7 +38,7 @@ func TestPatchAccountNode_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.node.Run()
+			got, err := tt.node.Run(context.Background())
 			if (err != nil) != tt.wantErr {
 
 				return

@@ -8,8 +8,6 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/guonaihong/gout v0.2.12
-	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/panjf2000/ants/v2 v2.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/viper v1.11.0
@@ -25,6 +23,11 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 	gitlab.com/bns-engineering/common v1.3.22
+	go.opentelemetry.io/contrib v0.13.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.13.0
+	go.opentelemetry.io/contrib/propagators v0.13.0
+	go.opentelemetry.io/otel v0.13.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	google.golang.org/appengine v1.6.7
 )

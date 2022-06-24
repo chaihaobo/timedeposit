@@ -34,19 +34,6 @@ func GetTelemetryDataDogOpt() *DataDogOptions {
 	return ddogOpt
 }
 
-// for unit test initiation
-func InitDDogTest() {
-	config := telemetry.APIConfig{
-		TraceConfig: telemetry.TraceConfig{CollectorEndpoint: "127.0.0.1/api/"},
-		MetricConfig: telemetry.MetricConfig{
-			AgentAddress: "127.0.0.1:8125",
-		},
-	}
-	ins, _, _ := telemetry.NewInstrumentation(config)
-	SetTelemetryDataDog(ins)
-
-}
-
 type datadogMetric struct {
 	tags       []string
 	startTime  time.Time

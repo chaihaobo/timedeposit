@@ -15,15 +15,15 @@ import (
 var flowTransactionRepository = new(FlowTransactionRepository)
 
 type IFlowTransactionRepository interface {
-	GetTransactionByTransId(transId string) *po.TFlowTransactions
-	ListErrorTransactionByFlowId(flowId string) []po.TFlowTransactions
+	GetTransactionByTransId(ctx context.Context, transId string) *po.TFlowTransactions
+	ListErrorTransactionByFlowId(ctx context.Context, flowId string) []po.TFlowTransactions
 	CreateSucceedFlowTransaction(ctx context.Context, transactionResp *mambu.TransactionResp) *po.TFlowTransactions
 	CreateFailedTransaction(ctx context.Context, transactionReq *mambu.TransactionReq, transType string, errorMsg string) *po.TFlowTransactions
 }
 
 type FlowTransactionRepository int
 
-func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(transId string) *po.TFlowTransactions {
+func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(ctx context.Context, transId string) *po.TFlowTransactions {
 	flowTransaction := new(po.TFlowTransactions)
 	rowsAffected := db.GetDB().Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
 	if rowsAffected > 0 {
@@ -32,7 +32,7 @@ func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTran
 	return nil
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) ListErrorTransactionByFlowId(flowId string) []po.TFlowTransactions {
+func (flowTransactionRepository *FlowTransactionRepository) ListErrorTransactionByFlowId(ctx context.Context, flowId string) []po.TFlowTransactions {
 	failedTransactions := make([]po.TFlowTransactions, 1)
 	db.GetDB().Model(new(po.TFlowTransactions)).Where("flow_id = ? and result=0", flowId).Order("id desc").Find(&failedTransactions)
 	return failedTransactions
