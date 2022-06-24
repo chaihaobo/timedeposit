@@ -22,8 +22,12 @@ func GetTelemetryCloser() func() {
 
 func SetupTelemetry(config *config.TDConfig) (*telemetry.API, func()) {
 	telemetryConfig := telemetry.APIConfig{
-		LoggerConfig: telemetry.LoggerConfig{},
-		TraceConfig:  telemetry.TraceConfig{CollectorEndpoint: config.Trace.CollectorURL, ServiceName: config.Trace.ServiceName, SourceEnv: config.Trace.SourceEnv},
+		LoggerConfig: telemetry.LoggerConfig{
+			FileName: config.Log.Filename,
+			MaxSize:  config.Log.Maxsize,
+			MaxAge:   config.Log.MaxAge,
+		},
+		TraceConfig: telemetry.TraceConfig{CollectorEndpoint: config.Trace.CollectorURL, ServiceName: config.Trace.ServiceName, SourceEnv: config.Trace.SourceEnv},
 		MetricConfig: telemetry.MetricConfig{
 			Port:         config.Metric.Port,
 			AgentAddress: config.Metric.AgentAddress,

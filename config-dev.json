@@ -1,4 +1,13 @@
 {
+  "trace": {
+    "collectorURL": "http://192.168.31.58:14268/api/traces",
+    "serviceName": "timedeposit",
+    "sourceEnv": "local"
+  },
+  "metric": {
+    "port": 8181,
+    "agentAddress": "127.0.0.1:8125"
+  },
   "log": {
     "filename": "time_deposit_eod_engine.log",
     "maxsize": 100000000,
