@@ -8,39 +8,25 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/bns-engineering/common/telemetry"
-	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
 	"gitlab.com/bns-engineering/td/common/config"
 	commonlog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/router"
 	"go.uber.org/zap"
 	"net/http"
-	"regexp"
 	"runtime"
 	"time"
 )
 
 type Server interface {
 	Start()
-	SetUp()
 	Shutdown()
 }
 
 type tdServer struct {
 	telemetryApi    *telemetry.API
 	telemetryCloser func()
-	conf            *config.TDConfig
 	server          *http.Server
-}
-
-func (s *tdServer) SetUp() {
-	s.telemetryApi.Filter = new(telemetry.FilterConfig)
-	initLogBodyFilter([]string{"password", "nik", "motherName"}, s.telemetryApi)
-	initLogHeaderFilter([]string{"authorization,Authorization,deviceid"}, s.telemetryApi)
-	util.SetTelemetryDataDog(s.telemetryApi)
-	util.SetTelemetry(s.telemetryApi)
-	commonlog.NewLogger(s.telemetryApi)
-
 }
 
 func (s *tdServer) Start() {
@@ -71,43 +57,10 @@ func (s *tdServer) Shutdown() {
 }
 
 func NewTdServer(config *config.TDConfig) Server {
-	ins, closer := getTelemetry()
+	ins, closer := util.SetupTelemetry(config)
 	return &tdServer{
 		telemetryApi:    ins,
 		telemetryCloser: closer,
-		conf:            config,
 	}
 
-}
-
-func getTelemetry() (*telemetry.API, func()) {
-	telemetryConfig := telemetry.APIConfig{
-		LoggerConfig: telemetry.LoggerConfig{},
-		TraceConfig:  telemetry.TraceConfig{CollectorEndpoint: config.TDConf.Trace.CollectorURL, ServiceName: config.TDConf.Trace.ServiceName, SourceEnv: config.TDConf.Trace.SourceEnv},
-		MetricConfig: telemetry.MetricConfig{
-			Port:         config.TDConf.Metric.Port,
-			AgentAddress: config.TDConf.Metric.AgentAddress,
-			SampleRate:   1,
-		},
-	}
-	ins, fn, _ := telemetry.NewInstrumentation(telemetryConfig)
-	return ins, fn
-}
-
-func initLogBodyFilter(configString []string, client *telemetry.API) {
-	// overide filter value
-	client.Filter.PayloadFilter = func(item *filter.TargetFilter) []*regexp.Regexp {
-		var rules []*regexp.Regexp
-		for _, v := range configString {
-			pattern := fmt.Sprintf(`(%s|\"%s\"\s*):\s?"([\w\s#-@]+)`, v, v)
-			regex := regexp.MustCompile(pattern)
-			rules = append(rules, regex)
-		}
-		return rules
-	}
-}
-
-func initLogHeaderFilter(arrayStringConfig []string, client *telemetry.API) {
-	// overide filter value
-	client.Filter.HeaderFilter = arrayStringConfig
 }

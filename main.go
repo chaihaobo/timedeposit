@@ -26,7 +26,6 @@ func main() {
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
 	server := transport.NewTdServer(config.Setup("./config.json"))
-	server.SetUp()
 	server.Start()
 	// graceful shutdown
 	sigs := make(chan os.Signal, 1)

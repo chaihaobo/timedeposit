@@ -6,14 +6,14 @@ package node
 import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/transport"
+	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
 )
 
 func TestApplyProfitNode_Run(t *testing.T) {
 
-	transport.NewTdServer(config.Setup("./../../../config.json")).SetUp()
+	util.SetupTelemetry(config.Setup("./../../../config.json"))
 	type fields struct {
 		Node *Node
 	}

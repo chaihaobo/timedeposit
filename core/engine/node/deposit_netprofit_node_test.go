@@ -9,14 +9,14 @@ package node
 import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/transport"
+	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
 )
 
 func TestDepositNetprofitNode_Run(t *testing.T) {
 
-	transport.NewTdServer(config.Setup("./../../../config.json")).SetUp()
+	util.SetupTelemetry(config.Setup("./../../../config.json"))
 	tests := []struct {
 		name    string
 		node    *DepositNetprofitNode

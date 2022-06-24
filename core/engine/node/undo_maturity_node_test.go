@@ -6,7 +6,7 @@ package node
 import (
 	"context"
 	"fmt"
-	"gitlab.com/bns-engineering/td/transport"
+	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
 
@@ -15,7 +15,7 @@ import (
 
 func TestUndoMaturityNode_Run(t *testing.T) {
 
-	transport.NewTdServer(config.Setup("./../../../config.json")).SetUp()
+	util.SetupTelemetry(config.Setup("./../../../config.json"))
 
 	type fields struct {
 		Node *Node

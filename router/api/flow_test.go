@@ -9,7 +9,7 @@ package api
 import (
 	"context"
 	"gitlab.com/bns-engineering/td/common/log"
-	"gitlab.com/bns-engineering/td/transport"
+	"gitlab.com/bns-engineering/td/common/util"
 	"testing"
 
 	"gitlab.com/bns-engineering/td/common/config"
@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	transport.NewTdServer(config.Setup("../../config.json")).SetUp()
+	util.SetupTelemetry(config.Setup("../../config.json"))
 }
 
 func TestStartFlow(t *testing.T) {
