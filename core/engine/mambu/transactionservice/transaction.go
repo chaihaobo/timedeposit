@@ -10,8 +10,10 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util/id"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
@@ -25,20 +27,18 @@ func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]ma
 	searchParam := generateTransactionSearchParam(enCodeKey)
 	tmpTransList := []mambu.TransactionBrief{}
 	postUrl := constant.UrlOf(constant.SearchTransactionUrl)
-	zap.L().Debug(fmt.Sprintf("postUrl: %v", postUrl))
+
 	queryParamByte, err := json.Marshal(searchParam)
 	if err != nil {
-		zap.L().Error("Convert searchParam to JsonStr Failed.", zap.Any("searchParam", searchParam))
+		log.Error(context, "Convert searchParam to JsonStr Failed.", err, zap.Any("searchParam", searchParam))
 		return tmpTransList, nil
 	}
 	postJsonStr := string(queryParamByte)
 
-	zap.L().Debug("transaction service", zap.String("postUrl", postUrl))
-	zap.L().Debug("transaction service", zap.String("postJsonStr", postJsonStr))
-	err = mambu_http.Post(postUrl, postJsonStr, &tmpTransList, nil, persistence.DBPersistence(context, "GetTransactionByQueryParam"))
+	err = mambu_http.Post(context, postUrl, postJsonStr, &tmpTransList, nil, persistence.DBPersistence(context, "GetTransactionByQueryParam"))
 
 	if err != nil {
-		zap.L().Error("Search td account Info List failed!", zap.String("queryParam", postJsonStr))
+		log.Error(context, "Search td account Info List failed!", err, zap.String("queryParam", postJsonStr))
 		return tmpTransList, err
 	}
 	return tmpTransList, nil
@@ -91,6 +91,9 @@ func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
 }
 
 func AdjustTransaction(ctx context.Context, transactionId string, notes string) error {
+	tr := tracer.StartTrace(ctx, "transactionservice-AdjustTransaction")
+	ctx = tr.Context()
+	defer tr.Finish()
 	adjustUrl := fmt.Sprintf(constant.UrlOf(constant.AdjustTransactionUrl), transactionId)
 	noteBody := struct {
 		Notes string `json:"notes"`
@@ -98,7 +101,7 @@ func AdjustTransaction(ctx context.Context, transactionId string, notes string) 
 		Notes: notes,
 	}
 	marshal, _ := json.Marshal(noteBody)
-	err := mambu_http.Post(adjustUrl, string(marshal), nil, nil, persistence.DBPersistence(ctx, "AdjustTransaction"))
+	err := mambu_http.Post(ctx, adjustUrl, string(marshal), nil, nil, persistence.DBPersistence(ctx, "AdjustTransaction"))
 	return err
 }
 
@@ -107,11 +110,15 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	transactionID, channelID string,
 	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
 ) (mambu.TransactionResp, error) {
-	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
+	tr := tracer.StartTrace(context, "transactionservice-WithdrawTransaction")
+	context = tr.Context()
+	defer tr.Finish()
+	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(context, transactionID)
 	if transaction != nil {
-		errMsg := "transaction is ready submit!"
-		zap.L().Error(errMsg, zap.String("transactionID", transactionID))
-		return mambu.TransactionResp{}, errors.New("")
+		errMsg := "transaction is ready submit"
+		err := errors.New(errMsg)
+		log.Error(context, errMsg, err, zap.String("transactionID", transactionID))
+		return mambu.TransactionResp{}, err
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Withdraw for flowTask: %v", transactionID)
@@ -122,22 +129,21 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
+		log.Error(context, fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte), err)
 		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.WithdrawTransactionUrl), tdAccount.ID)
-	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "WithdrawTransaction"))
+	err = mambu_http.Post(context, postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "WithdrawTransaction"))
 
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID))
+		log.Error(context, fmt.Sprintf("Withdraw Transaction Error! td acc id: %v", tdAccount.ID), err)
 		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionWithdraw, err.Error())
 		return transactionResp, err
 	}
 
-	zap.L().Debug(fmt.Sprintf("Withdraw Transaction for td account succeed. Result: %v", transactionResp))
 	repository.GetFlowTransactionRepository().CreateSucceedFlowTransaction(context, &transactionResp)
 	return transactionResp, nil
 }
@@ -146,11 +152,15 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	transactionID, channelID string,
 	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
 ) (mambu.TransactionResp, error) {
-	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(transactionID)
+	tr := tracer.StartTrace(context, "transactionservice-DepositTransaction")
+	context = tr.Context()
+	defer tr.Finish()
+	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(context, transactionID)
 	if transaction != nil {
-		errMsg := "transaction is ready submit!"
-		zap.L().Error(errMsg, zap.Any("transactionID", transactionID))
-		return mambu.TransactionResp{}, errors.New("")
+		errMsg := "transaction is ready submit"
+		err := errors.New(errMsg)
+		log.Error(context, errMsg, err, zap.String("transactionID", transactionID))
+		return mambu.TransactionResp{}, nil
 	}
 	transactionDetailID := transactionID + "-" + time.Now().Format("20060102150405")
 	custMessage := fmt.Sprintf("Deposit for flowTask: %v", transactionID)
@@ -161,17 +171,17 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	var transactionResp mambu.TransactionResp
 	queryParamByte, err := json.Marshal(tmpTransaction)
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte))
+		log.Error(context, fmt.Sprintf("Convert searchParam to JsonStr Failed. searchParam: %v", queryParamByte), err)
 		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionDeposit, err.Error())
 		return transactionResp, errors.New("build withdraw parameters failed")
 	}
 	postJsonStr := string(queryParamByte)
 
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.DepositTransactionUrl), benefitAccount.ID)
-	err = mambu_http.Post(postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "DepositTransaction"))
+	err = mambu_http.Post(context, postUrl, postJsonStr, &transactionResp, nil, persistence.DBPersistence(context, "DepositTransaction"))
 
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID))
+		log.Error(context, fmt.Sprintf("Deposit Transaction Error! td acc id: %v", tdAccount.ID), err)
 		repository.GetFlowTransactionRepository().CreateFailedTransaction(context, tmpTransaction, constant.TransactionDeposit, err.Error())
 		return transactionResp, err
 	}

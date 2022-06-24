@@ -1,31 +1,66 @@
 package util
 
 import (
-
+	"fmt"
 	"gitlab.com/bns-engineering/common/telemetry"
+	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
+	"gitlab.com/bns-engineering/td/common/config"
+	commonlog "gitlab.com/bns-engineering/td/common/log"
+	"regexp"
 )
 
-var telemetryLog telemetry.Logger
+var telemetryApi *telemetry.API
+var telemetryApiCloser func()
 
-var filter *telemetry.FilterConfig
-
-func SetTelemetryLog(telemetryAPI *telemetry.API) {
-	telemetryLog = telemetryAPI.Logger()
+func GetTelemetry() *telemetry.API {
+	return telemetryApi
 }
 
-// SetTelemetryMockLog for testing purposes
-func SetTelemetryMockLog(mock telemetry.Logger) {
-	telemetryLog = mock
+func GetTelemetryCloser() func() {
+	return telemetryApiCloser
 }
 
-func GetTelemetryLog() telemetry.Logger {
-	return telemetryLog
+func SetupTelemetry(config *config.TDConfig) (*telemetry.API, func()) {
+	telemetryConfig := telemetry.APIConfig{
+		LoggerConfig: telemetry.LoggerConfig{
+			FileName: config.Log.Filename,
+			MaxSize:  config.Log.Maxsize,
+			MaxAge:   config.Log.MaxAge,
+		},
+		TraceConfig: telemetry.TraceConfig{CollectorEndpoint: config.Trace.CollectorURL, ServiceName: config.Trace.ServiceName, SourceEnv: config.Trace.SourceEnv},
+		MetricConfig: telemetry.MetricConfig{
+			Port:         config.Metric.Port,
+			AgentAddress: config.Metric.AgentAddress,
+			SampleRate:   1,
+		},
+	}
+	ins, fn, _ := telemetry.NewInstrumentation(telemetryConfig)
+	telemetryApi = ins
+	telemetryApiCloser = fn
+
+	ins.Filter = new(telemetry.FilterConfig)
+	initLogBodyFilter([]string{"password", "nik", "motherName"}, ins)
+	initLogHeaderFilter([]string{"authorization,Authorization,deviceid"}, ins)
+	SetTelemetryDataDog(ins)
+	commonlog.NewLogger(ins)
+
+	return ins, fn
 }
 
-func SetTelemetryFilter(telemetryAPI *telemetry.API) {
-	filter = telemetryAPI.Filter
+func initLogBodyFilter(configString []string, client *telemetry.API) {
+	// overide filter value
+	client.Filter.PayloadFilter = func(item *filter.TargetFilter) []*regexp.Regexp {
+		var rules []*regexp.Regexp
+		for _, v := range configString {
+			pattern := fmt.Sprintf(`(%s|\"%s\"\s*):\s?"([\w\s#-@]+)`, v, v)
+			regex := regexp.MustCompile(pattern)
+			rules = append(rules, regex)
+		}
+		return rules
+	}
 }
 
-func GetTelemetryFilter() *telemetry.FilterConfig {
-	return filter
+func initLogHeaderFilter(arrayStringConfig []string, client *telemetry.API) {
+	// overide filter value
+	client.Filter.HeaderFilter = arrayStringConfig
 }

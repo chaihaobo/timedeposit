@@ -4,15 +4,16 @@
 package node
 
 import (
-	"go.uber.org/zap"
+	"context"
+	"gitlab.com/bns-engineering/td/common/log"
 )
 
 type EndNode struct {
 	*Node
 }
 
-func (node *EndNode) Run() (INodeResult, error) {
-	zap.L().Info("starting End node")
+func (node *EndNode) Run(ctx context.Context) (INodeResult, error) {
+	log.Info(ctx, "starting End node")
 
 	return ResultSuccess, nil
 }

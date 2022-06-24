@@ -4,22 +4,18 @@
 package node
 
 import (
+	"context"
 	"fmt"
-	"gitlab.com/bns-engineering/td/common/logger"
+	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
 
 	"gitlab.com/bns-engineering/td/common/config"
-	"go.uber.org/zap"
 )
 
 func TestUndoMaturityNode_Run(t *testing.T) {
 
-	config.Setup("./../../../config.json")
-	err := logger.SetUp(config.TDConf)
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
+	util.SetupTelemetry(config.Setup("./../../../config.json"))
 
 	type fields struct {
 		Node *Node
@@ -48,7 +44,7 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			node := &UndoMaturityNode{
 				Node: tt.fields.Node,
 			}
-			got, err := node.Run()
+			got, err := node.Run(context.Background())
 			if (err != nil) != tt.wantErr {
 
 				return

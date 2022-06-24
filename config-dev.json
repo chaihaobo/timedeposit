@@ -1,4 +1,13 @@
 {
+  "trace": {
+    "collectorURL": "http://192.168.31.58:14268/api/traces",
+    "serviceName": "timedeposit",
+    "sourceEnv": "local"
+  },
+  "metric": {
+    "port": 8181,
+    "agentAddress": "127.0.0.1:8125"
+  },
   "log": {
     "filename": "time_deposit_eod_engine.log",
     "maxsize": 100000000,
@@ -30,7 +39,8 @@
     "RunMode": "debug",
     "HttpPort": 8000,
     "ReadTimeout": 60,
-    "WriteTimeout": 60
+    "WriteTimeout": 60,
+    "authToken": "Bearer BeeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOjF9.SfruT30UaAbE5Y0IsMvOWVJtoYmKa1jc3JpUkhtSMqk"
   },
   "mambu": {
     "host": "https://cbs-dev1.aladinbank.id",

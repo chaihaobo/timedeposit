@@ -4,13 +4,14 @@
 package node
 
 import (
+	"context"
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
+	"gitlab.com/bns-engineering/td/common/util"
 	"testing"
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../../config.json"))
+	util.SetupTelemetry(config.Setup("../../../config.json"))
 }
 
 func TestAdditionalProfitNode_Run(t *testing.T) {
@@ -21,6 +22,5 @@ func TestAdditionalProfitNode_Run(t *testing.T) {
 			NodeName:  "additional_profit_node",
 		},
 	}
-	node.Run()
-
+	node.Run(context.Background())
 }

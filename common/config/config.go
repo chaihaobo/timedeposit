@@ -6,7 +6,6 @@ import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"context"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 	"log"
 	"os"
@@ -16,6 +15,15 @@ import (
 var TDConf = new(TDConfig)
 
 type TDConfig struct {
+	Trace *struct {
+		CollectorURL string
+		ServiceName  string
+		SourceEnv    string
+	}
+	Metric *struct {
+		Port         int
+		AgentAddress string
+	}
 	Log *struct {
 		Filename   string
 		Maxsize    int
@@ -131,15 +139,15 @@ func Setup(path string) *TDConfig {
 		var err error
 		if err = configViper.ReadInConfig(); err != nil {
 			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-				zap.L().Error("Config file not found. Please check the file path...")
+				log.Fatalf("Config file not found. Please check the file path...")
 			} else {
-				zap.L().Error("Config file read error...")
+				log.Fatalf("Config file read error...")
 			}
 		}
 	}
 	err := configViper.Unmarshal(TDConf)
 	if err != nil {
-		zap.L().Error("config unmarshal error")
+		log.Fatalf("config unmarshal error")
 	}
 	return TDConf
 }

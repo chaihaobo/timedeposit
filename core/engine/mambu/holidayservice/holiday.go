@@ -6,28 +6,32 @@ package holidayservice
 import (
 	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http/persistence"
-	"go.uber.org/zap"
 	"time"
 )
 
 func GetHolidayList(ctx context.Context) []time.Time {
+	tr := tracer.StartTrace(ctx, "holidayservice-GetHolidayList")
+	ctx = tr.Context()
+	defer tr.Finish()
 	var holidayList []time.Time
-	zap.L().Info(fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
+	log.Info(ctx, fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
 	var holidayInfo HolidayInfo
-	err := mambu_http.Get(constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, persistence.DBPersistence(ctx, "GetHolidayList"))
+	err := mambu_http.Get(ctx, constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, persistence.DBPersistence(ctx, "GetHolidayList"))
 	if err != nil {
-		zap.L().Error(fmt.Sprintf("Query holiday Info failed! query url: %v", constant.HolidayInfoUrl))
+		log.Error(ctx, fmt.Sprintf("Query holiday Info failed! query url: %v", constant.HolidayInfoUrl), err)
 		return holidayList
 	}
-	zap.L().Info(fmt.Sprintf("Query td account Info result: %v", holidayList))
+	log.Info(ctx, fmt.Sprintf("Query td account Info result: %v", holidayList))
 
 	for _, tmpHoliday := range holidayInfo.Holidays {
 		tmpDate, err := time.Parse("2006-01-02", tmpHoliday.Date)
 		if err != nil {
-			zap.L().Error(fmt.Sprintf("Parse holiday error, src holiday info:%v", tmpHoliday.Date))
+			log.Error(ctx, fmt.Sprintf("Parse holiday error, src holiday info:%v", tmpHoliday.Date), err)
 			continue
 		}
 		holidayList = append(holidayList, tmpDate)

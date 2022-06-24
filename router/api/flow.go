@@ -4,7 +4,9 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/common/tracer"
 	"net/http"
 	"strings"
 	"time"
@@ -24,39 +26,38 @@ import (
 )
 
 func StartFlow(c *gin.Context) {
-	tmpTDAccountList, err := loadAccountList()
+	tmpTDAccountList, err := loadAccountList(c.Request.Context())
 	if err != nil {
-		zap.L().Error("load mambu account list error")
-
 		log.Error(c, "[StartFlow] load mambu account list error : ", err)
-
 		c.JSON(http.StatusOK, Error("load mambu account list error"))
 		return
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
-		accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(tmpTDAcc.ID)
+		accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(c.Request.Context(), tmpTDAcc.ID)
 		if accountLastTask != nil && carbon.NewCarbon(accountLastTask.CreateTime).IsSameDay(carbon.Now()) {
-			zap.L().Info("account today is already has task,skip it!")
+			log.Info(c, "account today is already has task,skip it!")
 			continue
 		}
 
-		_ = engine.Pool.Invoke(tmpTDAcc.ID)
-		// go engine.Start(tmpTDAcc.ID)
-		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
+		go engine.Start(c.Request.Context(), tmpTDAcc.ID)
+		log.Info(c, "commit task success!", zap.String("account", tmpTDAcc.ID))
 
 	}
 	c.JSON(http.StatusOK, Success())
 }
 
 func FailFlowList(c *gin.Context) {
+	tr := tracer.StartTrace(c.Request.Context(), "controller-FailFlowList")
+	ctx := tr.Context()
+	defer tr.Finish()
 	flowSearchModel := dto.DefaultRetryFlowSearchModel()
 	_ = c.BindQuery(flowSearchModel)
 	// retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
 	// _ = c.BindJSON(retryFlowSearchModel)
-	list := repository.GetFlowTaskInfoRepository().FailFlowList(flowSearchModel.Pagination, flowSearchModel.AccountId)
+	list := repository.GetFlowTaskInfoRepository().FailFlowList(ctx, flowSearchModel.Pagination, flowSearchModel.AccountId)
 	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto.FailFlowModel {
-		failedTransactions := repository.GetFlowTransactionRepository().ListErrorTransactionByFlowId(taskInfo.FlowId)
+		failedTransactions := repository.GetFlowTransactionRepository().ListErrorTransactionByFlowId(c, taskInfo.FlowId)
 		currentFaildTransactions := funk.Filter(failedTransactions, func(failTransaction po.TFlowTransactions) bool {
 			if strings.Contains(failTransaction.TransId, fmt.Sprintf("%s-%s", taskInfo.FlowId, taskInfo.CurNodeName)) {
 				return true
@@ -86,16 +87,16 @@ func Retry(c *gin.Context) {
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
 	for _, flowId := range list {
-		_ = engine.RetryPool.Invoke(flowId)
+		go engine.Run(c.Request.Context(), flowId)
 	}
 	c.JSON(http.StatusOK, Success())
 }
 
 func RetryAll(c *gin.Context) {
-	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList()
+	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList(c.Request.Context())
 	for _, flowId := range failFlowIdList {
-		zap.L().Info("retry flow", zap.String("flowId", flowId))
-		_ = engine.RetryPool.Invoke(flowId)
+		log.Info(c, "retry flow", zap.String("flowId", flowId))
+		go engine.Run(c.Request.Context(), flowId)
 	}
 	c.JSON(http.StatusOK, Success())
 }
@@ -107,18 +108,18 @@ func Remove(c *gin.Context) {
 		return
 	}
 
-	flow := repository.GetFlowTaskInfoRepository().Get(flowId)
+	flow := repository.GetFlowTaskInfoRepository().Get(c.Request.Context(), flowId)
 	if flow != nil {
 		flow.Enable = false
-		repository.GetFlowTaskInfoRepository().Update(flow)
+		repository.GetFlowTaskInfoRepository().Update(c.Request.Context(), flow)
 	}
 	c.JSON(http.StatusOK, Success())
 }
 
-func loadAccountList() ([]mambu.TDAccount, error) {
+func loadAccountList(ctx context.Context) ([]mambu.TDAccount, error) {
 	// Get all td accounts which need to process
 	tmpQueryParam := generateSearchTDAccountParam()
-	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(tmpQueryParam)
+	tmpTDAccountList, err := accountservice.GetTDAccountListByQueryParam(ctx, tmpQueryParam)
 	return tmpTDAccountList, err
 }
 

@@ -7,9 +7,11 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
+	commonLog "gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/model/dto"
 	"go.uber.org/zap"
@@ -86,8 +88,8 @@ func Paginate(pagination *dto.Pagination) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
-	zap.L().Info("page query start")
+func FindPage(ctx context.Context, db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
+	commonLog.Info(ctx, "page query start")
 	startTime := time.Now()
 	countSql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
 		return tx.Count(&pagination.Total)
@@ -98,20 +100,20 @@ func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
 	var wait sync.WaitGroup
 	wait.Add(2)
 	go func() {
-		zap.L().Info("query total task start...")
+		commonLog.Info(ctx, "query total task start...")
 		totalTaskStartTime := time.Now()
 		defer wait.Done()
 		GetDB().Raw(countSql).Scan(&pagination.Total)
 		useTime := time.Now().Sub(totalTaskStartTime).Milliseconds()
-		zap.L().Info("query total task end.", zap.Int64("useTime", useTime))
+		commonLog.Info(ctx, "query total task end.", zap.Int64("useTime", useTime))
 	}()
 	go func() {
-		zap.L().Info("query task start...")
+		commonLog.Info(ctx, "query task start...")
 		queryTaskStartTime := time.Now()
 		defer wait.Done()
 		GetDB().Raw(querySql).Scan(resultBind)
 		useTime := time.Now().Sub(queryTaskStartTime).Milliseconds()
-		zap.L().Info("query task end.", zap.Int64("useTime", useTime))
+		commonLog.Info(ctx, "query task end.", zap.Int64("useTime", useTime))
 	}()
 	wait.Wait()
 	// last page
@@ -120,6 +122,6 @@ func FindPage(db *gorm.DB, pagination *dto.Pagination, resultBind interface{}) {
 	if pagination.To > pagination.Total {
 		pagination.To = pagination.Total
 	}
-	zap.L().Info("page query finished", zap.Int64("totalUseTime", time.Now().Sub(startTime).Milliseconds()))
+	commonLog.Info(ctx, "page query finished", zap.Int64("totalUseTime", time.Now().Sub(startTime).Milliseconds()))
 
 }
