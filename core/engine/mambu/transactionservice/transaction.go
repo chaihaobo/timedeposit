@@ -208,7 +208,7 @@ func BuildTransactionReq(tdAccount *mambu.TDAccount,
 			TerminalType:                config.TDConf.TransactionReqMetaData.TerminalType,
 			TerminalID:                  config.TDConf.TransactionReqMetaData.TerminalID,
 			TerminalLocation:            config.TDConf.TransactionReqMetaData.TerminalLocation,
-			TerminalRRN:                 generationTerminalRRN(),
+			TerminalRRN:                 GenerationTerminalRRN(),
 			ProductCode:                 config.TDConf.TransactionReqMetaData.ProductCode,
 			AcquirerIID:                 config.TDConf.TransactionReqMetaData.AcquirerIID,
 			ForwarderIID:                config.TDConf.TransactionReqMetaData.ForwarderIID,
@@ -232,6 +232,6 @@ func BuildTransactionReq(tdAccount *mambu.TDAccount,
 	return tmpTransaction
 }
 
-func generationTerminalRRN() string {
+func GenerationTerminalRRN() string {
 	return "TDE-" + id.RandomSnowFlakeId()
 }

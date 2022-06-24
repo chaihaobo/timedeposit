@@ -15,14 +15,14 @@ func init() {
 }
 
 func TestGetAccountById(t *testing.T) {
-	_, err := GetAccountById(nil, "11249460359")
+	_, err := GetAccountById(context.Background(), "11249460359")
 	if err != nil {
 
 	}
 }
 
 func TestUndoMaturityDate(t *testing.T) {
-	UndoMaturityDate(nil, "11249460359")
+	UndoMaturityDate(context.Background(), "11249460359")
 }
 
 func TestApplyProfit(t *testing.T) {
