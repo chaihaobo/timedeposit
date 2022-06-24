@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.18
 FROM golang:${GO_VERSION} AS builder
-#ENV GOPROXY="https://goproxy.cn"
+ENV GOPROXY="https://proxy.golang.org,direct"
 ENV APP_PATH="/app/td"
 WORKDIR "/app"
 COPY . .
