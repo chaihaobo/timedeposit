@@ -5,6 +5,7 @@ package repository
 
 import (
 	"context"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model/po"
 )
@@ -22,6 +23,9 @@ type IFlowNodeLogRepository interface {
 type FlowNodeLogRepository struct{}
 
 func (flowNodeLogRepository *FlowNodeLogRepository) Save(ctx context.Context, log *po.TFlowNodeLog) {
+	tr := tracer.StartTrace(ctx, "flow_node_log_repository-Save")
+	ctx = tr.Context()
+	defer tr.Finish()
 	db.GetDB().Save(log)
 }
 

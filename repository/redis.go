@@ -6,6 +6,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/cache"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/model/mambu"
@@ -31,6 +32,9 @@ type RedisRepository struct {
 }
 
 func (r *RedisRepository) SaveTDAccount(ctx context.Context, account *mambu.TDAccount, flowId string) error {
+	tr := tracer.StartTrace(ctx, "redis_repository-SaveTDAccount")
+	ctx = tr.Context()
+	defer tr.Finish()
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
@@ -40,6 +44,9 @@ func (r *RedisRepository) SaveTDAccount(ctx context.Context, account *mambu.TDAc
 }
 
 func (r *RedisRepository) SaveBenefitAccount(ctx context.Context, account *mambu.TDAccount, flowId string) error {
+	tr := tracer.StartTrace(ctx, "redis_repository-SaveBenefitAccount")
+	ctx = tr.Context()
+	defer tr.Finish()
 	marshal, err := json.Marshal(account)
 	if err != nil {
 		return err
@@ -49,6 +56,9 @@ func (r *RedisRepository) SaveBenefitAccount(ctx context.Context, account *mambu
 }
 
 func (r *RedisRepository) GetTDAccount(ctx context.Context, flowId string) *mambu.TDAccount {
+	tr := tracer.StartTrace(ctx, "redis_repository-GetTDAccount")
+	ctx = tr.Context()
+	defer tr.Finish()
 	val := cache.GetRedis().Get(context.Background(), tdAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil
@@ -63,6 +73,9 @@ func (r *RedisRepository) GetTDAccount(ctx context.Context, flowId string) *mamb
 }
 
 func (r *RedisRepository) GetBenefitAccount(ctx context.Context, flowId string) *mambu.TDAccount {
+	tr := tracer.StartTrace(ctx, "redis_repository-GetBenefitAccount")
+	ctx = tr.Context()
+	defer tr.Finish()
 	val := cache.GetRedis().Get(context.Background(), benefitAccountPrefix+flowId).Val()
 	if val == "" {
 		return nil

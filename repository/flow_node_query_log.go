@@ -5,6 +5,7 @@ package repository
 
 import (
 	"context"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model/po"
 	"time"
@@ -33,6 +34,9 @@ func (f *FlowNodeQueryLogRepository) SaveLog(ctx context.Context, flowId string,
 }
 
 func (f *FlowNodeQueryLogRepository) GetLog(ctx context.Context, flowId string, nodeName string, queryType string) *po.TFlowNodeQueryLog {
+	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetLog")
+	ctx = tr.Context()
+	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
 	db.GetDB().Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).First(log)
 	if log.ID > 0 {
@@ -42,6 +46,9 @@ func (f *FlowNodeQueryLogRepository) GetLog(ctx context.Context, flowId string, 
 }
 
 func (f *FlowNodeQueryLogRepository) GetNewLog(ctx context.Context, flowId string, queryType string) *po.TFlowNodeQueryLog {
+	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetNewLog")
+	ctx = tr.Context()
+	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
 	db.GetDB().Where("flow_id", flowId).Where("query_type", queryType).Last(log)
 	if log.ID > 0 {

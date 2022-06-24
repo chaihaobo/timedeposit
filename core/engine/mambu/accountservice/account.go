@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
@@ -20,6 +21,9 @@ import (
 
 // GetTDAccountListByQueryParam Get TDAccount List from mambu api
 func GetTDAccountListByQueryParam(ctx context.Context, searchParam mambu.SearchParam) ([]mambu.TDAccount, error) {
+	tr := tracer.StartTrace(ctx, "accountService-GetTDAccountListByQueryParam")
+	ctx = tr.Context()
+	defer tr.Finish()
 	var tdAccountList []mambu.TDAccount
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.SearchTDAccountListUrl), 0, config.TDConf.Flow.MaxLimitSearchAccount)
 
@@ -60,6 +64,9 @@ func GetTDAccountListByQueryParam(ctx context.Context, searchParam mambu.SearchP
 }
 
 func GetAccountById(context context.Context, tdAccountID string) (*mambu.TDAccount, error) {
+	tr := tracer.StartTrace(context, "accountService-GetAccountById")
+	context = tr.Context()
+	defer tr.Finish()
 	var tdAccount = new(mambu.TDAccount)
 	getUrl := fmt.Sprintf(constant.UrlOf(constant.GetTDAccountUrl), tdAccountID)
 	err := mambu_http.Get(context, getUrl, tdAccount, persistence.DBPersistence(context, "GetAccountById"))
@@ -71,6 +78,10 @@ func GetAccountById(context context.Context, tdAccountID string) (*mambu.TDAccou
 }
 
 func UndoMaturityDate(context context.Context, accountID string) bool {
+	tr := tracer.StartTrace(context, "accountService-UndoMaturityDate")
+	context = tr.Context()
+	defer tr.Finish()
+
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.UndoMaturityDateUrl), accountID)
 	err := mambu_http.Post(context, postUrl, "", nil, nil, persistence.DBPersistence(context, "UndoMaturityDate"))
 	if err != nil {
@@ -82,6 +93,10 @@ func UndoMaturityDate(context context.Context, accountID string) bool {
 
 // ChangeMaturityDate Create New Maturity Date for this TD account
 func ChangeMaturityDate(ctx context.Context, accountID, maturityDate, note string) (mambu.TDAccount, error) {
+	tr := tracer.StartTrace(ctx, "accountService-ChangeMaturityDate")
+	ctx = tr.Context()
+	defer tr.Finish()
+
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.StartMaturityDateUrl), accountID)
 	log.Info(ctx, fmt.Sprintf("StartMaturityDateUrl: %v", postUrl))
 
@@ -105,6 +120,10 @@ func ChangeMaturityDate(ctx context.Context, accountID, maturityDate, note strin
 }
 
 func ApplyProfit(context context.Context, accountID, note string) bool {
+	tr := tracer.StartTrace(context, "accountService-ApplyProfit")
+	context = tr.Context()
+	defer tr.Finish()
+
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.ApplyProfitUrl), accountID)
 
 	// Build the update maturity json struct
@@ -126,6 +145,10 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 }
 
 func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate string) bool {
+	tr := tracer.StartTrace(context, "accountService-UpdateMaturifyDateForTDAccount")
+	context = tr.Context()
+	defer tr.Finish()
+
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.UpdateTDAccountUrl), accountID)
 
 	// Build the update maturity json struct
@@ -151,6 +174,9 @@ func UpdateMaturifyDateForTDAccount(context context.Context, accountID, newDate 
 }
 
 func CloseAccount(context context.Context, accID, notes string) bool {
+	tr := tracer.StartTrace(context, "accountService-CloseAccount")
+	context = tr.Context()
+	defer tr.Finish()
 	postUrl := fmt.Sprintf(constant.UrlOf(constant.CloseAccountUrl), accID)
 
 	// Build the update maturity json struct

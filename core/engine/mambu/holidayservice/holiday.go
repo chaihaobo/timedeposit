@@ -6,6 +6,7 @@ package holidayservice
 import (
 	"context"
 	"fmt"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util/mambu_http"
@@ -14,6 +15,9 @@ import (
 )
 
 func GetHolidayList(ctx context.Context) []time.Time {
+	tr := tracer.StartTrace(ctx, "holidayservice-GetHolidayList")
+	ctx = tr.Context()
+	defer tr.Finish()
 	var holidayList []time.Time
 	log.Info(ctx, fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
 	var holidayInfo HolidayInfo

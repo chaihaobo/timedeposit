@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
@@ -90,6 +91,9 @@ func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
 }
 
 func AdjustTransaction(ctx context.Context, transactionId string, notes string) error {
+	tr := tracer.StartTrace(ctx, "transactionservice-AdjustTransaction")
+	ctx = tr.Context()
+	defer tr.Finish()
 	adjustUrl := fmt.Sprintf(constant.UrlOf(constant.AdjustTransactionUrl), transactionId)
 	noteBody := struct {
 		Notes string `json:"notes"`
@@ -106,6 +110,9 @@ func WithdrawTransaction(context context.Context, tdAccount, benefitAccount *mam
 	transactionID, channelID string,
 	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
 ) (mambu.TransactionResp, error) {
+	tr := tracer.StartTrace(context, "transactionservice-WithdrawTransaction")
+	context = tr.Context()
+	defer tr.Finish()
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(context, transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit"
@@ -145,6 +152,9 @@ func DepositTransaction(context context.Context, tdAccount, benefitAccount *mamb
 	transactionID, channelID string,
 	transactionReqConfigure func(transactionReq *mambu.TransactionReq),
 ) (mambu.TransactionResp, error) {
+	tr := tracer.StartTrace(context, "transactionservice-DepositTransaction")
+	context = tr.Context()
+	defer tr.Finish()
 	transaction := repository.GetFlowTransactionRepository().GetTransactionByTransId(context, transactionID)
 	if transaction != nil {
 		errMsg := "transaction is ready submit"

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
@@ -56,6 +57,9 @@ func Run(ctx context.Context, flowId string) {
 		}
 		currentNode := getNodeInNodeList(flowNodes, nodeName)
 		ctx = getContext(ctx, flowId, flowTaskInfo.AccountId, nodeName)
+
+		tr := tracer.StartTrace(ctx, fmt.Sprintf("%s_%s", flowId, nodeName))
+		ctx := tr.Context()
 		runNode := getINode(currentNode.NodePath)
 		runNode.SetUp(ctx, flowId, flowTaskInfo.AccountId, nodeName)
 		// update run status to running
@@ -63,6 +67,7 @@ func Run(ctx context.Context, flowId string) {
 		runStartTime := time.Now()
 		log.Info(ctx, "flow node run start", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName))
 		run, err := runNode.Run(ctx)
+		tr.Finish()
 		// TODO only use to test case
 		if strings.EqualFold(gin.Mode(), "debug") {
 			time.Sleep(config.TDConf.Flow.NodeSleepTime)
