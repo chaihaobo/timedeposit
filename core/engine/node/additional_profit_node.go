@@ -65,7 +65,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "BBN_BONUS_DEPMUDC"
-		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, additionalProfitTax,
+		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, additionalProfit,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositAdditionalProfitTranDesc3,
 			depositTransID, depositChannelID, func(transactionReq *mambu.TransactionReq) {
@@ -89,7 +89,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		channelID := "PPH_PS42_DEPOSITO"
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), benefitAccount,
-			benefitAccount, additionalProfit,
+			benefitAccount, additionalProfitTax,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawAdditionalProfitTranDesc3,
 			withdrawTransID, channelID, func(transactionReq *mambu.TransactionReq) {
