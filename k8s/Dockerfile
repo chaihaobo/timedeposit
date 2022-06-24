@@ -6,6 +6,7 @@ WORKDIR "/app"
 COPY . .
 #RUN git config --global http.extraheader "PRIVATE-TOKEN: glpat-UpdFVcqHGC_kxYB_8KsF"
 #RUN git config --global url."git@gitlab.com:".insteadof "https://gitlab.com/"
+ARG CI_JOB_TOKEN=glpat-H6kWpEbS2sqM4QrFEHVB
 RUN git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com".insteadOf "https://gitlab.com"
 RUN go mod download
 RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-w -s' -a -o ${APP_PATH} .
