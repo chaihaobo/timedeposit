@@ -37,4 +37,4 @@ Install the following
 go run main.go
 ```
 
-### Query Service 
+### Query Service
