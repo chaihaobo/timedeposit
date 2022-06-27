@@ -38,3 +38,9 @@ type FailFlowModel struct {
 	CreateTime      time.Time `json:"create_time"`
 	UpdateTime      time.Time `json:"update_time"`
 }
+
+type RetryResponseDTO struct {
+	FlowCount     int               `json:"flow_count"`
+	FlowFailCount int               `json:"flow_fail_count"`
+	FailInfo      map[string]string `json:"fail_info"`
+}

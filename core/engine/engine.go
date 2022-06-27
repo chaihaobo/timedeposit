@@ -27,24 +27,26 @@ const (
 	FirstNode = "start_node"
 )
 
-func Start(ctx context.Context, accountId string) {
+func Start(ctx context.Context, accountId string) error {
 	// create task info
 	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
 	createFlowTaskInfo(ctx, flowId, accountId)
 	log.Info(ctx, "create task info success!", zap.String("flowId", flowId))
 	// run flow by task flow id
-	Run(ctx, flowId)
+	return Run(ctx, flowId)
 }
 
-func Run(ctx context.Context, flowId string) {
+func Run(ctx context.Context, flowId string) error {
 	flowTaskInfo := repository.GetFlowTaskInfoRepository().Get(ctx, flowId)
 	if flowTaskInfo == nil {
-		log.Error(ctx, "could not find task info by flowId", errors.New("invalid flow id"), zap.String("flowId", flowId))
-		return
+		err := errors.New("invalid flow id")
+		log.Error(ctx, "could not find task info by flowId", err, zap.String("flowId", flowId))
+		return err
 	}
 	if flowTaskInfo.CurStatus != string(constant.FlowNodeFailed) && flowTaskInfo.CurStatus != string(constant.FlowNodeStart) {
-		log.Error(ctx, "flow is already running or finished", errors.New("flow status invalid"), zap.String("curStatus", flowTaskInfo.CurStatus))
-		return
+		err := errors.New("flow status invalid")
+		log.Error(ctx, "flow is already running or finished", err, zap.String("curStatus", flowTaskInfo.CurStatus))
+		return err
 	}
 	flowName := flowTaskInfo.FlowName
 	nodeName := flowTaskInfo.CurNodeName
@@ -86,7 +88,7 @@ func Run(ctx context.Context, flowId string) {
 				zap.String("error", fmt.Sprintf("%+v", errors.WithStack(err))),
 			)
 			taskError(ctx, flowTaskInfo)
-			break
+			return err
 		}
 		nodeResult := string(run.GetNodeResult())
 		log.Info(ctx, "flow node run finish", zap.String("flowId", flowId), zap.String("currentNodeName", nodeName),
@@ -103,6 +105,7 @@ func Run(ctx context.Context, flowId string) {
 		}
 		nodeName = relation.NextNode
 	}
+	return nil
 }
 
 func getContext(ctx context.Context, flowId string, accountId string, nodeName string) context.Context {

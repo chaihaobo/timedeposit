@@ -9,6 +9,7 @@ import (
 	"gitlab.com/bns-engineering/common/tracer"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -86,19 +87,56 @@ func Retry(c *gin.Context) {
 	m := new(dto.RetryFlowReqModel)
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
+	var lock sync.Mutex
+	var wait sync.WaitGroup
+	wait.Add(len(list))
+	errInfo := map[string]string{}
+	failCount := 0
 	for _, flowId := range list {
-		go engine.Run(c.Request.Context(), flowId)
+		id := flowId
+		go func() {
+			lock.Lock()
+			defer lock.Unlock()
+			defer wait.Done()
+			if err := engine.Run(c.Request.Context(), id); err != nil {
+				failCount++
+				errInfo[id] = err.Error()
+			}
+		}()
 	}
-	c.JSON(http.StatusOK, Success())
+	wait.Wait()
+	c.JSON(http.StatusOK, SuccessData(&dto.RetryResponseDTO{
+		FlowCount:     len(list),
+		FlowFailCount: failCount,
+		FailInfo:      errInfo,
+	}))
 }
 
 func RetryAll(c *gin.Context) {
 	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList(c.Request.Context())
+	var lock sync.Mutex
+	var wait sync.WaitGroup
+	wait.Add(len(failFlowIdList))
+	errInfo := map[string]string{}
+	failCount := 0
 	for _, flowId := range failFlowIdList {
-		log.Info(c, "retry flow", zap.String("flowId", flowId))
-		go engine.Run(c.Request.Context(), flowId)
+		id := flowId
+		go func() {
+			lock.Lock()
+			defer lock.Unlock()
+			defer wait.Done()
+			if err := engine.Run(c.Request.Context(), id); err != nil {
+				failCount++
+				errInfo[id] = err.Error()
+			}
+		}()
 	}
-	c.JSON(http.StatusOK, Success())
+	wait.Wait()
+	c.JSON(http.StatusOK, SuccessData(&dto.RetryResponseDTO{
+		FlowCount:     len(failFlowIdList),
+		FlowFailCount: failCount,
+		FailInfo:      errInfo,
+	}))
 }
 
 func Remove(c *gin.Context) {
