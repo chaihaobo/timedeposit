@@ -6,6 +6,8 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/cache"
 	"gitlab.com/bns-engineering/td/common/log"
@@ -19,6 +21,8 @@ var redisRepository = new(RedisRepository)
 const (
 	tdAccountPrefix      = "TD:ACCOUNT:"
 	benefitAccountPrefix = "BENEFIT:ACCOUNT:"
+	idempotencyKeyPrefix = "idempotencyKey:"
+	terminalRNNPrefix    = "terminalRNN:"
 )
 
 type IRedisRepository interface {
@@ -26,6 +30,8 @@ type IRedisRepository interface {
 	SaveBenefitAccount(ctx context.Context, account *mambu.TDAccount, flowId string) error
 	GetTDAccount(ctx context.Context, flowId string) *mambu.TDAccount
 	GetBenefitAccount(ctx context.Context, flowId string) *mambu.TDAccount
+	GetIdempotencyKey(ctx context.Context, flowId string, nodeName string) string
+	GetTerminalRRN(ctx context.Context, id string, name string, rrnGenerator func() string) string
 }
 
 type RedisRepository struct {
@@ -70,6 +76,30 @@ func (r *RedisRepository) GetTDAccount(ctx context.Context, flowId string) *mamb
 		return nil
 	}
 	return account
+}
+
+func (r *RedisRepository) GetIdempotencyKey(ctx context.Context, flowId string, nodeName string) string {
+	tr := tracer.StartTrace(ctx, fmt.Sprintf("redis_repository-GetIdempotencyKey-%s", nodeName))
+	ctx = tr.Context()
+	defer tr.Finish()
+	val := cache.GetRedis().Get(ctx, idempotencyKeyPrefix+flowId+nodeName).Val()
+	if val == "" {
+		val = uuid.New().String()
+		cache.GetRedis().Set(ctx, idempotencyKeyPrefix+flowId+nodeName, val, time.Hour*24*30)
+	}
+	return val
+}
+
+func (r *RedisRepository) GetTerminalRRN(ctx context.Context, flowId string, nodeName string, rrnGenerator func() string) string {
+	tr := tracer.StartTrace(ctx, fmt.Sprintf("redis_repository-GetTerminalRRN-%s", nodeName))
+	ctx = tr.Context()
+	defer tr.Finish()
+	val := cache.GetRedis().Get(ctx, terminalRNNPrefix+flowId+nodeName).Val()
+	if val == "" {
+		val = rrnGenerator()
+		cache.GetRedis().Set(ctx, terminalRNNPrefix+flowId+nodeName, val, time.Hour*24*30)
+	}
+	return val
 }
 
 func (r *RedisRepository) GetBenefitAccount(ctx context.Context, flowId string) *mambu.TDAccount {

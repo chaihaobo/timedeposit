@@ -4,7 +4,8 @@
 package constant
 
 const (
-	ContextAccountId = "accountId"
-	ContextFlowId    = "flowId"
-	ContextNodeName  = "nodeName"
+	ContextAccountId      = "accountId"
+	ContextFlowId         = "flowId"
+	ContextNodeName       = "nodeName"
+	ContextIdempotencyKey = "Idempotency-Key"
 )

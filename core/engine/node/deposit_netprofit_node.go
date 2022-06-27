@@ -42,6 +42,7 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 			return nil, err
 		}
 		// Deposit netProfit to benefit account
+		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, netProfit,
@@ -50,7 +51,7 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 			depositTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
 				if lastTransaction := repository.GetFlowTransactionRepository().GetLastByFlowId(ctx, node.FlowId); lastTransaction.TerminalRrn != "" {
-					transactionReq.Metadata.TerminalRRN = lastTransaction.TerminalRrn
+					transactionReq.Metadata.TerminalRRN = rrn
 				}
 
 			})

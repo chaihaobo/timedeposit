@@ -116,6 +116,8 @@ func getContext(ctx context.Context, flowId string, accountId string, nodeName s
 	if ctxNodeName == nil || ctxNodeName.(string) != nodeName {
 		ctx = context.WithValue(ctx, commomConstant.ContextNodeName, nodeName)
 	}
+	idempotencyKey := repository.GetRedisRepository().GetIdempotencyKey(ctx, flowId, nodeName)
+	ctx = context.WithValue(ctx, commomConstant.ContextIdempotencyKey, idempotencyKey)
 	return ctx
 }
 

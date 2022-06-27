@@ -12,6 +12,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
+	"gitlab.com/bns-engineering/td/repository"
 )
 
 type WithdrawNetprofitNode struct {
@@ -39,6 +40,7 @@ func (node *WithdrawNetprofitNode) Run(ctx context.Context) (INodeResult, error)
 		if err != nil {
 			return nil, err
 		}
+		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
 		// Withdraw netProfit for deposit account
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
@@ -47,6 +49,7 @@ func (node *WithdrawNetprofitNode) Run(ctx context.Context) (INodeResult, error)
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc3,
 			withdrawTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
+				transactionReq.Metadata.TerminalRRN = rrn
 			})
 		if err != nil {
 			log.Error(ctx, fmt.Sprintf("Failed to withdraw for td account: %v", account.ID), err)

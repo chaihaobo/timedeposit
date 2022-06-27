@@ -12,6 +12,7 @@ import (
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/log"
+	nodeConstant "gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
@@ -20,18 +21,25 @@ import (
 type RequestCallbackFun func(url string, code int, requestBody string, responseBody string, err error)
 
 // getMambuHeader get the base header
-func getMambuHeader() map[string][]string {
-	return map[string][]string{
-		"Accept": {constant.Accept},
-		"Apikey": {config.TDConf.Mambu.ApiKey},
+func getMambuHeader(ctx context.Context) map[string][]string {
+	value := ctx.Value(nodeConstant.ContextIdempotencyKey)
+	key := ""
+	if value != nil {
+		key = value.(string)
 	}
+	return map[string][]string{
+		"Accept":                           {constant.Accept},
+		"Apikey":                           {config.TDConf.Mambu.ApiKey},
+		nodeConstant.ContextIdempotencyKey: {key},
+	}
+
 }
 
 // Patch send http patch request
 func Patch(ctx context.Context, url, body string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string
-	call := gout.PATCH(url).SetHeader(getMambuHeader()).
+	call := gout.PATCH(url).SetHeader(getMambuHeader(ctx)).
 		RequestUse(&logRequestMiddler{ctx}).
 		ResponseUse(&logResponseMiddler{ctx}).
 		BindBody(&response)
@@ -59,7 +67,7 @@ func Patch(ctx context.Context, url, body string, resultBind interface{}, callba
 func Post(ctx context.Context, url, body string, resultBind, headerBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string
-	call := gout.POST(url).SetHeader(getMambuHeader()).
+	call := gout.POST(url).SetHeader(getMambuHeader(ctx)).
 		RequestUse(&logRequestMiddler{ctx}).
 		ResponseUse(&logResponseMiddler{ctx}).
 		BindBody(&response)
@@ -88,7 +96,7 @@ func Post(ctx context.Context, url, body string, resultBind, headerBind interfac
 func Get(ctx context.Context, url string, resultBind interface{}, callback RequestCallbackFun) error {
 	var code int
 	var response string
-	call := gout.GET(url).SetHeader(getMambuHeader()).
+	call := gout.GET(url).SetHeader(getMambuHeader(ctx)).
 		RequestUse(&logRequestMiddler{ctx}).
 		ResponseUse(&logResponseMiddler{ctx}).
 		BindBody(&response).Code(&code)

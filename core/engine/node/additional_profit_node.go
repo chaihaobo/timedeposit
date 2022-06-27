@@ -13,6 +13,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
+	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
 	"strings"
 	"time"
@@ -55,13 +56,13 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(ctx), account.EncodedKey)
 		if err != nil || len(transList) <= 0 {
 			log.Info(ctx, "No applied profit, skip")
-			return nil, errors.New("no applied profit, skip")
+			return ResultSkip, nil
 		}
 		lastAppliedInterestTrans := transList[0]
 
 		// Calculate additionalProfit & tax of additionalProfit
 		additionalProfit, additionalProfitTax := transactionservice.GetAdditionProfitAndTax(account, lastAppliedInterestTrans)
-		rrn := transactionservice.GenerationTerminalRRN()
+		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "BBN_BONUS_DEPMUDC"

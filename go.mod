@@ -20,6 +20,7 @@ require (
 )
 
 require (
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 	gitlab.com/bns-engineering/common v1.3.22

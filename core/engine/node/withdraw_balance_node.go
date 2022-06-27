@@ -14,6 +14,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
+	"gitlab.com/bns-engineering/td/repository"
 	"go.uber.org/zap"
 	"strings"
 	"time"
@@ -41,9 +42,9 @@ func (node *WithdrawBalanceNode) Run(ctx context.Context) (INodeResult, error) {
 			log.Error(ctx, "is not a valid benefit account!", constant.ErrBenefitAccountInvalid)
 			return nil, constant.ErrBenefitAccountInvalid
 		}
+		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
-		rrn := transactionservice.GenerationTerminalRRN()
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), account, benefitAccount, totalBalance,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc3,

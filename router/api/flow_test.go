@@ -8,7 +8,6 @@ package api
 
 import (
 	"context"
-	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/common/util"
 	"testing"
 
@@ -21,15 +20,6 @@ func init() {
 }
 
 func TestStartFlow(t *testing.T) {
-	if config.TDConf.SkipTests {
-		return
-	}
-	tmpTDAccountList, err := loadAccountList(context.Background())
-	if err != nil {
-		log.Error(context.Background(), "load mambu account list error", err)
-	}
 
-	if len(tmpTDAccountList) > 0 {
-		engine.Start(context.Background(), tmpTDAccountList[0].ID)
-	}
+	engine.Start(context.Background(), "11916000011")
 }
