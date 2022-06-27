@@ -61,7 +61,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 
 		// Calculate additionalProfit & tax of additionalProfit
 		additionalProfit, additionalProfitTax := transactionservice.GetAdditionProfitAndTax(account, lastAppliedInterestTrans)
-
+		rrn := transactionservice.GenerationTerminalRRN()
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "BBN_BONUS_DEPMUDC"
@@ -72,6 +72,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 				transactionReq.Metadata.TranDesc2 = account.ID
 				transactionReq.Metadata.SourceAccountNo = ""
 				transactionReq.Metadata.SourceAccountName = ""
+				transactionReq.Metadata.TerminalRRN = rrn
 
 			})
 		if err != nil {
@@ -96,6 +97,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 				transactionReq.Metadata.TranDesc2 = account.ID
 				transactionReq.Metadata.BeneficiaryAccountNo = ""
 				transactionReq.Metadata.BeneficiaryAccountName = ""
+				transactionReq.Metadata.TerminalRRN = rrn
 			})
 		if err != nil {
 			log.Error(ctx, "Failed to withdraw for td account", err, zap.String("account", account.ID))

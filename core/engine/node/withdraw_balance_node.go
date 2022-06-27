@@ -43,11 +43,13 @@ func (node *WithdrawBalanceNode) Run(ctx context.Context) (INodeResult, error) {
 		}
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
+		rrn := transactionservice.GenerationTerminalRRN()
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), account, benefitAccount, totalBalance,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawBalanceTranDesc3,
 			withdrawTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
+				transactionReq.Metadata.TerminalRRN = rrn
 			})
 		if err != nil {
 			log.Error(ctx, fmt.Sprintf("Failed to withdraw for td account: %v", account.ID), err)
@@ -59,12 +61,14 @@ func (node *WithdrawBalanceNode) Run(ctx context.Context) (INodeResult, error) {
 		if strings.EqualFold(gin.Mode(), "debug") {
 			time.Sleep(config.TDConf.Flow.NodeSleepTime)
 		}
+
 		// deposit
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, totalBalance,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc1,
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositBalanceTranDesc3,
 			depositTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
+				transactionReq.Metadata.TerminalRRN = rrn
 			})
 		if err != nil {
 			log.Error(ctx, fmt.Sprintf("Failed to deposit for td account: %v", account.ID), err)

@@ -20,6 +20,7 @@ type IFlowTransactionRepository interface {
 	ListErrorTransactionByFlowId(ctx context.Context, flowId string) []po.TFlowTransactions
 	CreateSucceedFlowTransaction(ctx context.Context, transactionResp *mambu.TransactionResp) *po.TFlowTransactions
 	CreateFailedTransaction(ctx context.Context, transactionReq *mambu.TransactionReq, transType string, errorMsg string) *po.TFlowTransactions
+	GetLastByFlowId(ctx context.Context, flowId string) *po.TFlowTransactions
 }
 
 type FlowTransactionRepository int
@@ -30,6 +31,19 @@ func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTran
 	defer tr.Finish()
 	flowTransaction := new(po.TFlowTransactions)
 	rowsAffected := db.GetDB().Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
+	if rowsAffected > 0 {
+		return flowTransaction
+	}
+	return nil
+}
+
+func (flowTransactionRepository *FlowTransactionRepository) GetLastByFlowId(ctx context.Context, flowId string) *po.TFlowTransactions {
+	tr := tracer.StartTrace(ctx, "flow_transaction_repository-GetLastByFlowId")
+	ctx = tr.Context()
+	defer tr.Finish()
+
+	flowTransaction := new(po.TFlowTransactions)
+	rowsAffected := db.GetDB().Where("flow_id", flowId).Where("result", 1).Last(flowTransaction).RowsAffected
 	if rowsAffected > 0 {
 		return flowTransaction
 	}

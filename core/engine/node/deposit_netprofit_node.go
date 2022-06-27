@@ -12,6 +12,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
+	"gitlab.com/bns-engineering/td/repository"
 )
 
 type DepositNetprofitNode struct {
@@ -19,7 +20,6 @@ type DepositNetprofitNode struct {
 }
 
 func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) {
-
 	account, err := node.GetMambuAccount(ctx, node.AccountId, false)
 	if err != nil {
 		return nil, err
@@ -49,6 +49,10 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 			config.TDConf.TransactionReqMetaData.TranDesc.DepositNetprofitTranDesc3,
 			depositTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
+				if lastTransaction := repository.GetFlowTransactionRepository().GetLastByFlowId(ctx, node.FlowId); lastTransaction.TerminalRrn != "" {
+					transactionReq.Metadata.TerminalRRN = lastTransaction.TerminalRrn
+				}
+
 			})
 		if err != nil {
 			log.Error(ctx, fmt.Sprintf("Failed to deposit for td account: %v", account.ID), err)
