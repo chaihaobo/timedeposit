@@ -95,10 +95,10 @@ func Retry(c *gin.Context) {
 	for _, flowId := range list {
 		id := flowId
 		go func() {
-			lock.Lock()
-			defer lock.Unlock()
 			defer wait.Done()
 			if err := engine.Run(c.Request.Context(), id); err != nil {
+				lock.Lock()
+				defer lock.Unlock()
 				failCount++
 				errInfo[id] = err.Error()
 			}
@@ -123,9 +123,9 @@ func RetryAll(c *gin.Context) {
 		id := flowId
 		go func() {
 			lock.Lock()
-			defer lock.Unlock()
-			defer wait.Done()
 			if err := engine.Run(c.Request.Context(), id); err != nil {
+				defer lock.Unlock()
+				defer wait.Done()
 				failCount++
 				errInfo[id] = err.Error()
 			}
