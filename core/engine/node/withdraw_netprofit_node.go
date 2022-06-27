@@ -44,7 +44,6 @@ func (node *WithdrawNetprofitNode) Run(ctx context.Context) (INodeResult, error)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), account, benefitAccount, netProfit,
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc1,
-
 			config.TDConf.TransactionReqMetaData.TranDesc.WithdrawNetprofitTranDesc3,
 			withdrawTransID, channelID, func(transactionReq *mambu.TransactionReq) {
 				transactionReq.Metadata.TranDesc2 = account.ID
