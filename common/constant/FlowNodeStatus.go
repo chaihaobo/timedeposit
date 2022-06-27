@@ -17,7 +17,6 @@ type FlowNodeStatus string
 
 const (
 	FlowNodeStart   FlowNodeStatus = "node_start"
-	FlowNodeSkip    FlowNodeStatus = "node_skip"
 	FlowNodeRunning FlowNodeStatus = "node_running"
 	FlowNodeFailed  FlowNodeStatus = "node_failed"
 	FlowNodeFinish  FlowNodeStatus = "node_finish"

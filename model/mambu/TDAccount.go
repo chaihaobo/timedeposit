@@ -242,6 +242,6 @@ func (tdAccInfo *TDAccount) IsCaseB3() bool {
 
 func (tdAccInfo *TDAccount) IsCaseC() bool {
 	isARO := strings.ToUpper(strings.ReplaceAll(tdAccInfo.OtherInformation.AroNonAro, " ", "")) == "NONARO"
-	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURE"
+	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURED"
 	return isARO && isMatureState
 }
