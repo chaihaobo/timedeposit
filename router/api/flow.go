@@ -90,7 +90,7 @@ func Retry(c *gin.Context) {
 	var lock sync.Mutex
 	var wait sync.WaitGroup
 	wait.Add(len(list))
-	errInfo := make([]dto.RetryFailInfoResponse, 5)
+	errInfo := make([]dto.RetryFailInfoResponse, 0)
 	failCount := 0
 	for _, flowId := range list {
 		id := flowId
@@ -120,7 +120,7 @@ func RetryAll(c *gin.Context) {
 	var lock sync.Mutex
 	var wait sync.WaitGroup
 	wait.Add(len(failFlowIdList))
-	errInfo := make([]dto.RetryFailInfoResponse, 5)
+	errInfo := make([]dto.RetryFailInfoResponse, 0)
 	failCount := 0
 	for i := range failFlowIdList {
 		id := failFlowIdList[i]
