@@ -40,7 +40,12 @@ type FailFlowModel struct {
 }
 
 type RetryResponseDTO struct {
-	FlowCount     int               `json:"flow_count"`
-	FlowFailCount int               `json:"flow_fail_count"`
-	FailInfo      map[string]string `json:"fail_info"`
+	FlowCount     int                     `json:"flow_count"`
+	FlowFailCount int                     `json:"flow_fail_count"`
+	FailInfo      []RetryFailInfoResponse `json:"fail_info"`
+}
+
+type RetryFailInfoResponse struct {
+	FlowId  string `json:"flow_id"`
+	Message string `json:"message"`
 }

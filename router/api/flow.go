@@ -90,7 +90,7 @@ func Retry(c *gin.Context) {
 	var lock sync.Mutex
 	var wait sync.WaitGroup
 	wait.Add(len(list))
-	errInfo := map[string]string{}
+	errInfo := make([]dto.RetryFailInfoResponse, 5)
 	failCount := 0
 	for _, flowId := range list {
 		id := flowId
@@ -100,7 +100,10 @@ func Retry(c *gin.Context) {
 				lock.Lock()
 				defer lock.Unlock()
 				failCount++
-				errInfo[id] = err.Error()
+				errInfo = append(errInfo, dto.RetryFailInfoResponse{
+					FlowId:  id,
+					Message: err.Error(),
+				})
 			}
 		}()
 	}
@@ -117,17 +120,20 @@ func RetryAll(c *gin.Context) {
 	var lock sync.Mutex
 	var wait sync.WaitGroup
 	wait.Add(len(failFlowIdList))
-	errInfo := map[string]string{}
+	errInfo := make([]dto.RetryFailInfoResponse, 5)
 	failCount := 0
-	for _, flowId := range failFlowIdList {
-		id := flowId
+	for i := range failFlowIdList {
+		id := failFlowIdList[i]
 		go func() {
 			lock.Lock()
 			if err := engine.Run(c.Request.Context(), id); err != nil {
 				defer lock.Unlock()
 				defer wait.Done()
 				failCount++
-				errInfo[id] = err.Error()
+				errInfo = append(errInfo, dto.RetryFailInfoResponse{
+					FlowId:  id,
+					Message: err.Error(),
+				})
 			}
 		}()
 	}
