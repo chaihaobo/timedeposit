@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
@@ -47,7 +48,9 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 		}
 		// Deposit netProfit to benefit account
 		// get last node rnn
-		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, lastNodeName, transactionservice.GenerationTerminalRRN)
+		rrn := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.FlowId, lastNodeName, constant.QueryTerminalRRN, transactionservice.GenerationTerminalRRN)
+		idKey := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.FlowId, lastNodeName, constant.QueryIdempotencyKey, uuid.New().String)
+		ctx = context.WithValue(ctx, constant.ContextIdempotencyKey, idKey)
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, netProfit,

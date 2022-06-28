@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/config"
@@ -119,7 +120,7 @@ func getContext(ctx context.Context, flowId string, accountId string, nodeName s
 	if ctxNodeName == nil || ctxNodeName.(string) != nodeName {
 		ctx = context.WithValue(ctx, commomConstant.ContextNodeName, nodeName)
 	}
-	idempotencyKey := repository.GetRedisRepository().GetIdempotencyKey(ctx, flowId, nodeName)
+	idempotencyKey := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, flowId, nodeName, commomConstant.QueryIdempotencyKey, uuid.New().String)
 	ctx = context.WithValue(ctx, commomConstant.ContextIdempotencyKey, idempotencyKey)
 	return ctx
 }

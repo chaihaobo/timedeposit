@@ -17,6 +17,7 @@ type IFlowNodeQueryLogRepository interface {
 	SaveLog(ctx context.Context, flowId string, nodeName string, queryType string, data string)
 	GetLog(ctx context.Context, flowId string, nodeName string, queryType string) *po.TFlowNodeQueryLog
 	GetNewLog(ctx context.Context, flowId string, queryType string) *po.TFlowNodeQueryLog
+	GetLogValueOr(ctx context.Context, flowId string, nodeName string, queryType string, valueGenerator func() string) string
 }
 
 type FlowNodeQueryLogRepository struct {
@@ -55,6 +56,23 @@ func (f *FlowNodeQueryLogRepository) GetNewLog(ctx context.Context, flowId strin
 		return log
 	}
 	return nil
+}
+
+func (f *FlowNodeQueryLogRepository) GetLogValueOr(ctx context.Context, flowId string, nodeName string, queryType string, valueGenerator func() string) string {
+	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetLogValueOr")
+	ctx = tr.Context()
+	defer tr.Finish()
+	log := new(po.TFlowNodeQueryLog)
+	genValue := valueGenerator()
+	db.GetDB().Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).FirstOrCreate(log, &po.TFlowNodeQueryLog{
+		FLowId:     flowId,
+		NodeName:   nodeName,
+		QueryType:  queryType,
+		Data:       genValue,
+		CreateTime: time.Now(),
+		UpdateTime: time.Now(),
+	})
+	return log.Data
 }
 
 func GetFlowNodeQueryLogRepository() IFlowNodeQueryLogRepository {

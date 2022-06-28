@@ -6,6 +6,7 @@ package node
 import (
 	"context"
 	"encoding/json"
+	"github.com/google/uuid"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
@@ -56,7 +57,7 @@ func (node *Node) GetContext(ctx context.Context) context.Context {
 	if cxtNodeName := ctx.Value(constant.ContextNodeName); cxtNodeName == nil {
 		ctx = context.WithValue(ctx, constant.ContextNodeName, node.NodeName)
 	}
-	idempotencyKey := repository.GetRedisRepository().GetIdempotencyKey(ctx, node.FlowId, node.NodeName)
+	idempotencyKey := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.NodeName, node.NodeName, constant.QueryIdempotencyKey, uuid.New().String)
 	ctx = context.WithValue(ctx, constant.ContextIdempotencyKey, idempotencyKey)
 	return ctx
 
