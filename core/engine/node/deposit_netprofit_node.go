@@ -15,6 +15,10 @@ import (
 	"gitlab.com/bns-engineering/td/repository"
 )
 
+const (
+	lastNodeName = "withdraw_netprofit_node"
+)
+
 type DepositNetprofitNode struct {
 	*Node
 }
@@ -42,7 +46,8 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 			return nil, err
 		}
 		// Deposit netProfit to benefit account
-		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
+		// get last node rnn
+		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, lastNodeName, transactionservice.GenerationTerminalRRN)
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositResp, err := transactionservice.DepositTransaction(node.GetContext(ctx), account, benefitAccount, netProfit,
