@@ -40,7 +40,7 @@ func (node *WithdrawNetprofitNode) Run(ctx context.Context) (INodeResult, error)
 		if err != nil {
 			return nil, err
 		}
-		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
+		rrn := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.FlowId, node.NodeName, constant.QueryTerminalRRN, transactionservice.GenerationTerminalRRN)
 		// Withdraw netProfit for deposit account
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
