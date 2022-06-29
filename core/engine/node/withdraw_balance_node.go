@@ -42,7 +42,7 @@ func (node *WithdrawBalanceNode) Run(ctx context.Context) (INodeResult, error) {
 			log.Error(ctx, "is not a valid benefit account!", constant.ErrBenefitAccountInvalid)
 			return nil, constant.ErrBenefitAccountInvalid
 		}
-		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
+		rrn := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.FlowId, node.NodeName, constant.QueryTerminalRRN, transactionservice.GenerationTerminalRRN)
 		channelID := fmt.Sprintf("RAKTRAN_DEPMUDC_%vM", account.OtherInformation.Tenor)
 		withdrawTransID := node.FlowId + "-" + node.NodeName + "-" + "Withdraw"
 		withrawResp, err := transactionservice.WithdrawTransaction(node.GetContext(ctx), account, benefitAccount, totalBalance,

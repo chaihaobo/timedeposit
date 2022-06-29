@@ -54,6 +54,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 
 		// Get last applied interest info
 		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(ctx), account.EncodedKey)
+
 		if err != nil || len(transList) <= 0 {
 			log.Info(ctx, "No applied profit, skip")
 			return ResultSkip, nil
@@ -62,7 +63,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 
 		// Calculate additionalProfit & tax of additionalProfit
 		additionalProfit, additionalProfitTax := transactionservice.GetAdditionProfitAndTax(account, lastAppliedInterestTrans)
-		rrn := repository.GetRedisRepository().GetTerminalRRN(ctx, node.FlowId, node.NodeName, transactionservice.GenerationTerminalRRN)
+		rrn := repository.GetFlowNodeQueryLogRepository().GetLogValueOr(ctx, node.FlowId, node.NodeName, constant.QueryTerminalRRN, transactionservice.GenerationTerminalRRN)
 		// Deposit additional profit
 		depositTransID := node.FlowId + "-" + node.NodeName + "-" + "Deposit"
 		depositChannelID := "BBN_BONUS_DEPMUDC"

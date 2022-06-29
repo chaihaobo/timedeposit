@@ -7,4 +7,6 @@ const (
 	QueryLastProfitApplied = "QueryLastProfitApplied"
 	QueryTDAccount         = "QueryTDAccount"
 	QueryBenefitAccount    = "QueryBenefitAccount"
+	QueryIdempotencyKey    = "QueryIdempotencyKey"
+	QueryTerminalRRN       = "QueryTerminalRRN"
 )
