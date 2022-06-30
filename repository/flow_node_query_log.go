@@ -64,14 +64,18 @@ func (f *FlowNodeQueryLogRepository) GetLogValueOr(ctx context.Context, flowId s
 	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
 	genValue := valueGenerator()
-	db.GetDB().Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).FirstOrCreate(log, &po.TFlowNodeQueryLog{
-		FLowId:     flowId,
-		NodeName:   nodeName,
-		QueryType:  queryType,
-		Data:       genValue,
-		CreateTime: time.Now(),
-		UpdateTime: time.Now(),
-	})
+	result := db.GetDB().Where("flow_id = ? and node_name=? and query_type = ?", flowId, nodeName, queryType).Order("id desc").First(log)
+	if result.RowsAffected <= 0 {
+		db.GetDB().Save(&po.TFlowNodeQueryLog{
+			FLowId:     flowId,
+			NodeName:   nodeName,
+			QueryType:  queryType,
+			Data:       genValue,
+			CreateTime: time.Now(),
+			UpdateTime: time.Now(),
+		})
+		return genValue
+	}
 	return log.Data
 }
 
