@@ -32,6 +32,9 @@ func Start(ctx context.Context, accountId string) error {
 	// create task info
 	flowId := fmt.Sprintf("%v_%v", time.Now().Format("20060102150405"), accountId)
 	createFlowTaskInfo(ctx, flowId, accountId)
+	// save account maturity date
+	// saveAccountMaturityDate(ctx, flowId, accountId, maturiryDate)
+
 	log.Info(ctx, "create task info success!", zap.String("flowId", flowId))
 	// run flow by task flow id
 	return Run(ctx, flowId)
@@ -107,6 +110,16 @@ func Run(ctx context.Context, flowId string) error {
 		nodeName = relation.NextNode
 	}
 	return nil
+}
+
+func saveAccountMaturityDate(ctx context.Context, flowId string, accountId string, maturityDate time.Time) {
+	repository.GetFlowAcountMaturityDayRepository().Save(ctx, &po.TFlowAccountMaturityDay{
+		FlowId:       flowId,
+		AccountId:    accountId,
+		MaturityDate: maturityDate,
+		CreateTime:   time.Now(),
+		UpdateTime:   time.Now(),
+	})
 }
 
 func getContext(ctx context.Context, flowId string, accountId string, nodeName string) context.Context {

@@ -29,7 +29,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		return nil, err
 	}
 	// Get benefit account info
-	benefitAccount, err := node.GetMambuBenefitAccountAccount(ctx, account.OtherInformation.BhdNomorRekPencairan, false)
+	benefitAccount, err := node.GetMambuBenefitAccountAccount(ctx, account.OtherInformation.BhdNomorRekPencairan)
 	if err != nil {
 		log.Error(ctx, "Failed to get benefit acc info of td account: %v, benefit acc id:%v", err, zap.String("account", account.ID), zap.String("benefit acc id", account.OtherInformation.BhdNomorRekPencairan))
 		return nil, errors.New("call mambu get benefit acc info failed")

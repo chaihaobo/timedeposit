@@ -40,7 +40,6 @@ func StartFlow(c *gin.Context) {
 			log.Info(c, "account today is already has task,skip it!")
 			continue
 		}
-
 		go engine.Start(c.Request.Context(), tmpTDAcc.ID)
 		log.Info(c, "commit task success!", zap.String("account", tmpTDAcc.ID))
 

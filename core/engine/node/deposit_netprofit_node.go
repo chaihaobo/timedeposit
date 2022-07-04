@@ -30,7 +30,7 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 		return nil, err
 	}
 	// Get benefit account info
-	benefitAccount, err := node.GetMambuBenefitAccountAccount(ctx, account.OtherInformation.BhdNomorRekPencairan, false)
+	benefitAccount, err := node.GetMambuBenefitAccountAccount(ctx, account.OtherInformation.BhdNomorRekPencairan)
 	if err != nil {
 		log.Error(ctx, fmt.Sprintf("Failed to get benefit acc info of td account: %v, benefit acc id:%v", account.ID, account.OtherInformation.BhdNomorRekPencairan), err)
 		return nil, errors.New("call mambu get benefit acc info failed")

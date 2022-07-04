@@ -63,44 +63,45 @@ func (node *Node) GetContext(ctx context.Context) context.Context {
 
 }
 
-func (node *Node) GetMambuBenefitAccountAccount(ctx context.Context, accountId string, realTime bool) (*mambu.TDAccount, error) {
-	if !realTime {
-		// from redis
-		account := repository.GetRedisRepository().GetBenefitAccount(ctx, node.AccountId)
-		if account != nil {
-			return account, nil
-		}
-		// from db
-		flowNodeQueryLog := repository.GetFlowNodeQueryLogRepository().GetNewLog(ctx, node.FlowId, constant.QueryBenefitAccount)
-		if flowNodeQueryLog != nil {
-			saveDBAccount := new(mambu.TDAccount)
-			data := flowNodeQueryLog.Data
-			err := json.Unmarshal([]byte(data), saveDBAccount)
-			if err != nil {
-				log.Error(ctx, "account from db can not map to struct", err)
-			}
-			if saveDBAccount.ID != "" {
-				return saveDBAccount, nil
-			}
-		}
-	}
+func (node *Node) GetMambuBenefitAccountAccount(ctx context.Context, accountId string) (*mambu.TDAccount, error) {
+	// if !realTime {
+	// 	// from redis
+	// 	account := repository.GetRedisRepository().GetBenefitAccount(ctx, node.FlowId+node.AccountId)
+	// 	if account != nil {
+	// 		return account, nil
+	// 	}
+	// 	// from db
+	// 	flowNodeQueryLog := repository.GetFlowNodeQueryLogRepository().GetNewLog(ctx, node.FlowId, constant.QueryBenefitAccount)
+	// 	if flowNodeQueryLog != nil {
+	// 		saveDBAccount := new(mambu.TDAccount)
+	// 		data := flowNodeQueryLog.Data
+	// 		err := json.Unmarshal([]byte(data), saveDBAccount)
+	// 		if err != nil {
+	// 			log.Error(ctx, "account from db can not map to struct", err)
+	// 		}
+	// 		if saveDBAccount.ID != "" {
+	// 			return saveDBAccount, nil
+	// 		}
+	// 	}
+	// }
 	// real
 	id, err := accountservice.GetAccountById(node.GetContext(ctx), accountId)
-	if err == nil {
-		marshal, _ := json.Marshal(id)
-		err = repository.GetRedisRepository().SaveBenefitAccount(ctx, id, node.FlowId)
-		repository.GetFlowNodeQueryLogRepository().SaveLog(ctx, node.FlowId, node.NodeName, constant.QueryBenefitAccount, string(marshal))
-	}
+	// if err == nil {
+	// 	marshal, _ := json.Marshal(id)
+	// 	err = repository.GetRedisRepository().SaveBenefitAccount(ctx, id, node.FlowId)
+	// 	repository.GetFlowNodeQueryLogRepository().SaveLog(ctx, node.FlowId, node.NodeName, constant.QueryBenefitAccount, string(marshal))
+	// }
 	return id, err
 
 }
 
 func (node *Node) GetMambuAccount(ctx context.Context, accountId string, realTime bool) (*mambu.TDAccount, error) {
+	// when retry get new from mambu
 	if !realTime {
 		// from redis
 		account := repository.GetRedisRepository().GetTDAccount(ctx, node.FlowId)
 		if account != nil {
-			return account, nil
+			return node.loadRealTimeFields(ctx, account)
 		}
 		// from db
 		nodeQueryLog := repository.GetFlowNodeQueryLogRepository().GetNewLog(ctx, node.FlowId, constant.QueryTDAccount)
@@ -112,7 +113,7 @@ func (node *Node) GetMambuAccount(ctx context.Context, accountId string, realTim
 				log.Error(ctx, "account from db can not map to struct", err)
 			}
 			if saveDBAccount.ID != "" {
-				return saveDBAccount, nil
+				return node.loadRealTimeFields(ctx, account)
 			}
 		}
 	}
@@ -125,4 +126,14 @@ func (node *Node) GetMambuAccount(ctx context.Context, accountId string, realTim
 	}
 	return id, err
 
+}
+
+func (node *Node) loadRealTimeFields(ctx context.Context, account *mambu.TDAccount) (*mambu.TDAccount, error) {
+	realTimeAccount, err := accountservice.GetAccountById(ctx, account.ID)
+	if err != nil {
+		log.Error(ctx, "get real time account failed", err)
+		return nil, err
+	}
+	account.OtherInformation.BhdNomorRekPencairan = realTimeAccount.OtherInformation.BhdNomorRekPencairan
+	return account, nil
 }

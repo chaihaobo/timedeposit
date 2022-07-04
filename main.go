@@ -16,15 +16,11 @@ import (
 	"syscall"
 )
 
-// Initial configuration for this app
-func init() {
-
-}
-
 func main() {
 
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
+
 	server := transport.NewTdServer(config.Setup("./config.json"))
 	server.Start()
 	// graceful shutdown

@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.0
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
 	gitlab.com/bns-engineering/common v1.3.22
@@ -30,5 +30,4 @@ require (
 	go.opentelemetry.io/otel v0.13.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
-	google.golang.org/appengine v1.6.7
 )
