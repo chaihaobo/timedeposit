@@ -21,9 +21,9 @@ func main() {
 
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
-	// set
-	dataflow.GlobalSetting.SetTimeout(config.TDConf.Mambu.Timeout)
+
 	server := transport.NewTdServer(config.Setup("./config.json"))
+	dataflow.GlobalSetting.SetTimeout(config.TDConf.Mambu.Timeout)
 	server.Start()
 	// graceful shutdown
 	sigs := make(chan os.Signal, 1)
