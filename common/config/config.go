@@ -90,8 +90,9 @@ type TDConfig struct {
 		DB       int
 	}
 	Mambu *struct {
-		Host   string
-		ApiKey string
+		Host    string
+		ApiKey  string
+		Timeout time.Duration
 	}
 	SkipTests bool
 }

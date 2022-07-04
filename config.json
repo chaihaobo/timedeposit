@@ -18,7 +18,7 @@
   "flow": {
     "nodeFailRetryTimes": 3,
     "maxLimitSearchAccount": 1000,
-    "nodeSleepTime": "0s"
+    "nodeSleepTime": "120s"
   },
   "db": {
     "username": "svc_tda",
@@ -44,7 +44,8 @@
   },
   "mambu": {
     "host": "https://cbs-dev1.aladinbank.id",
-    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
+    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg",
+    "timeout": "10s"
   },
   "transactionReqMetaData": {
     "localHolderKey": "8ab08091812313d50181239d36020364",
