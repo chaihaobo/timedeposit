@@ -8,7 +8,6 @@ package api
 
 import (
 	"context"
-	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
 	"gitlab.com/bns-engineering/td/core/engine"
@@ -20,6 +19,5 @@ func init() {
 }
 
 func TestStartFlow(t *testing.T) {
-	at, _ := carbon.Parse(carbon.DateFormat, "2022-08-31", "")
-	engine.Start(context.Background(), "11979664472", at.Time)
+	engine.Start(context.Background(), "11979664472")
 }
