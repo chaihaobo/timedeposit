@@ -62,7 +62,9 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 	resultDate := carbon.NewCarbon(maturityDate).AddMonths(tenorInt)
 	// if last maturity day of month is 31 .then next maturity day is last of that month
 	if activationDate != nil {
-		if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth && resultDate.Day() == endDayOfSmallMonth {
+		resultDate.DaysInMonth()
+		if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth &&
+			(resultDate.Day() == endDayOfSmallMonth || (resultDate.Month() == 2) && resultDate.Day() == resultDate.LastDayOfMonth().Day()) {
 			resultDate = resultDate.LastDayOfMonth()
 		}
 	}
