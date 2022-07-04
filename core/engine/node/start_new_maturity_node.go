@@ -59,12 +59,13 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 		log.Error(ctx, fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor), err)
 		return "", errors.New("convert tenor to int failed")
 	}
-	resultDate := carbon.NewCarbon(maturityDate).AddMonths(tenorInt)
+	carbonMaturityDate := carbon.NewCarbon(maturityDate)
+
+	resultDate := carbonMaturityDate.AddMonths(tenorInt)
 	// if last maturity day of month is 31 .then next maturity day is last of that month
 	if activationDate != nil {
-		resultDate.DaysInMonth()
 		if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth &&
-			(resultDate.Day() == endDayOfSmallMonth || (resultDate.Month() == 2) && resultDate.Day() == resultDate.LastDayOfMonth().Day()) {
+			(carbonMaturityDate.Day() == endDayOfSmallMonth || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.Day() == carbonMaturityDate.LastDayOfMonth().Day())) {
 			resultDate = resultDate.LastDayOfMonth()
 		}
 	}
