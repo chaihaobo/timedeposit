@@ -113,7 +113,7 @@ func (node *Node) GetMambuAccount(ctx context.Context, accountId string, realTim
 				log.Error(ctx, "account from db can not map to struct", err)
 			}
 			if saveDBAccount.ID != "" {
-				return node.loadRealTimeFields(ctx, account)
+				return node.loadRealTimeFields(ctx, saveDBAccount)
 			}
 		}
 	}
