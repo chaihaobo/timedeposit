@@ -77,6 +77,9 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 			(carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
 		diffInMonths++
 	}
+	if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 {
+		diffInMonths++
+	}
 
 	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + tenorInt)
 	holidayList := holidayservice.GetHolidayList(ctx)
