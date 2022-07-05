@@ -60,8 +60,8 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 }
 
 func TestName(t *testing.T) {
-	carbonMaturityDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-02-28T00:00:00+07:00", "")
-	carbonActivationDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-01-30T07:00:00+07:00", "")
+	carbonMaturityDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-02-27T00:00:00+07:00", "")
+	carbonActivationDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-01-28T07:00:00+07:00", "")
 	carbonActivationDate = carbonActivationDate.StartOfDay()
 	diffInMonths := carbonMaturityDate.DiffInMonths(carbonActivationDate, true)
 	if carbonActivationDate.Day() == 31 && (carbonMaturityDate.Day() == 30 || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
@@ -70,9 +70,7 @@ func TestName(t *testing.T) {
 	if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 {
 		diffInMonths++
 	}
-	// 正常情况下 == 1 如果
 
 	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + 1)
 	println(resultDate.DateString())
-	println(carbonActivationDate.AddMonthsNoOverflow(1).DateString())
 }
