@@ -60,16 +60,25 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 		return "", errors.New("convert tenor to int failed")
 	}
 	carbonMaturityDate := carbon.NewCarbon(maturityDate)
+	carbonActivationDate := carbon.NewCarbon(*activationDate).StartOfDay()
 
-	resultDate := carbonMaturityDate.AddMonths(tenorInt)
+	// resultDate := carbonMaturityDate.AddMonthsNoOverflow(tenorInt)
 	// if last maturity day of month is 31 .then next maturity day is last of that month
-	if activationDate != nil {
-		if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth &&
-			(carbonMaturityDate.Day() == endDayOfSmallMonth || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.Day() == carbonMaturityDate.LastDayOfMonth().Day())) {
-			resultDate = resultDate.LastDayOfMonth()
-		}
-
+	// if activationDate != nil {
+	// 	if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth &&
+	// 		(carbonMaturityDate.Day() == endDayOfSmallMonth || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.Day() == carbonMaturityDate.LastDayOfMonth().Day())) {
+	// 		resultDate = resultDate.LastDayOfMonth()
+	// 	}
+	//
+	// }
+	diffInMonths := carbonMaturityDate.DiffInMonths(carbonActivationDate, true)
+	if carbonActivationDate.Day() == endDayOfBigMonth &&
+		(carbonMaturityDate.Day() == endDayOfSmallMonth ||
+			(carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
+		diffInMonths++
 	}
+
+	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + tenorInt)
 	holidayList := holidayservice.GetHolidayList(ctx)
 	if !matureOnHoliday {
 		for {

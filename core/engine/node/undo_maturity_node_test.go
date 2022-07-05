@@ -6,6 +6,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
@@ -56,4 +57,18 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			fmt.Println("Run Undo Maturity Finished! result:", got)
 		})
 	}
+}
+
+func TestName(t *testing.T) {
+	carbonMaturityDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-04-16T00:00:00+07:00", "")
+	carbonActivationDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-03-15T07:00:00+07:00", "")
+	carbonActivationDate = carbonActivationDate.StartOfDay()
+	diffInMonths := carbonMaturityDate.DiffInMonths(carbonActivationDate, true)
+	if carbonActivationDate.Day() == 31 && (carbonMaturityDate.Day() == 30 || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
+		diffInMonths++
+	}
+	// 正常情况下 == 1 如果
+
+	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + 1)
+	println(resultDate.DateString())
 }
