@@ -15,7 +15,7 @@ This is a EOD engine for calculating the interest rate and do some transferring 
 
 # Getting started
 
-First thing to do is update `main.go` with your new project path:
+First thing to do is update `main.go` with your new project path: 
  
 
 Note that these are not actual environment variables, but values you should
