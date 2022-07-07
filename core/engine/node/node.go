@@ -12,6 +12,7 @@ import (
 	"gitlab.com/bns-engineering/td/core/engine/node/constant"
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/repository"
+	"time"
 )
 
 const (
@@ -21,7 +22,7 @@ const (
 
 type INode interface {
 	Run(ctx context.Context) (INodeResult, error)
-	SetUp(ctx context.Context, flowId string, accountId string, nodeName string)
+	SetUp(ctx context.Context, flowId string, accountId string, nodeName string, taskCreateTime time.Time)
 }
 
 type INodeResult interface {
@@ -35,15 +36,17 @@ func (nodeResult Result) GetNodeResult() Result {
 }
 
 type Node struct {
-	FlowId    string
-	AccountId string
-	NodeName  string
+	FlowId         string
+	AccountId      string
+	NodeName       string
+	TaskCreateTime time.Time
 }
 
-func (node *Node) SetUp(ctx context.Context, flowId string, accountId string, nodeName string) {
+func (node *Node) SetUp(ctx context.Context, flowId string, accountId string, nodeName string, taskCreateTime time.Time) {
 	node.FlowId = flowId
 	node.AccountId = accountId
 	node.NodeName = nodeName
+	node.TaskCreateTime = taskCreateTime
 }
 
 func (node *Node) GetContext(ctx context.Context) context.Context {

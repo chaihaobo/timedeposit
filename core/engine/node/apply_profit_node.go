@@ -20,7 +20,7 @@ func (node *ApplyProfitNode) Run(ctx context.Context) (INodeResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	if account.IsCaseB() {
+	if account.IsCaseB(node.TaskCreateTime) {
 		isApplySucceed := accountservice.ApplyProfit(node.GetContext(ctx), account.ID, fmt.Sprintf("TDE-AUTO-%s", node.FlowId))
 		if !isApplySucceed {
 			err := errors.New("call Mambu service failed")

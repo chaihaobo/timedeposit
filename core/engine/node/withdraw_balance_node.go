@@ -37,7 +37,7 @@ func (node *WithdrawBalanceNode) Run(ctx context.Context) (INodeResult, error) {
 	}
 
 	totalBalance := decimal.NewFromFloat(account.Balances.TotalBalance).Round(2).InexactFloat64()
-	if (account.IsCaseB3() || account.IsCaseC()) && totalBalance > 0 {
+	if (account.IsCaseB3(node.TaskCreateTime) || account.IsCaseC()) && totalBalance > 0 {
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
 			log.Error(ctx, "is not a valid benefit account!", constant.ErrBenefitAccountInvalid)
 			return nil, constant.ErrBenefitAccountInvalid

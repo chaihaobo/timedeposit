@@ -36,7 +36,7 @@ func (node *DepositNetprofitNode) Run(ctx context.Context) (INodeResult, error) 
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
 
-	if account.IsCaseB1_1() {
+	if account.IsCaseB1_1(node.TaskCreateTime) {
 		if !account.IsValidBenefitAccount(benefitAccount, config.TDConf.TransactionReqMetaData.LocalHolderKey) {
 			log.Error(ctx, "is not a valid benefit account!", constant.ErrBenefitAccountInvalid)
 			return nil, constant.ErrBenefitAccountInvalid

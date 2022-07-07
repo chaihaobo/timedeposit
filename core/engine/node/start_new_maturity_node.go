@@ -31,7 +31,7 @@ func (node *StartNewMaturityNode) Run(ctx context.Context) (INodeResult, error) 
 	if err != nil {
 		return nil, err
 	}
-	if account.IsCaseA() {
+	if account.IsCaseA(node.TaskCreateTime) {
 		activationDate := account.ActivationDate
 		maturityDate, err := generateMaturityDateStr(node.GetContext(ctx), account.OtherInformation.Tenor, account.MaturityDate, account.MatureOnHoliday(), activationDate)
 		if err != nil {

@@ -21,7 +21,7 @@ func (node *PatchAccountNode) Run(ctx context.Context) (INodeResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	if account.IsCaseB1_1() || account.IsCaseB2() {
+	if account.IsCaseB1_1(node.TaskCreateTime) || account.IsCaseB2(node.TaskCreateTime) {
 		newDate := carbon.NewCarbon(account.MaturityDate).DateString()
 		isApplySucceed := accountservice.UpdateMaturifyDateForTDAccount(node.GetContext(ctx), account.ID, newDate)
 		if !isApplySucceed {

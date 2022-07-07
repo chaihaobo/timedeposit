@@ -20,7 +20,7 @@ func (node *UndoMaturityNode) Run(ctx context.Context) (INodeResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	if account.IsCaseA() {
+	if account.IsCaseA(node.TaskCreateTime) {
 		undoMaturityResult := accountservice.UndoMaturityDate(node.GetContext(ctx), account.ID)
 		if !undoMaturityResult {
 			return nil, errors.New("undo Maturity Date Failed")

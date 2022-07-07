@@ -35,15 +35,15 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		return nil, errors.New("call mambu get benefit acc info failed")
 	}
 
-	if account.IsCaseB1_1_1_1() ||
-		account.IsCaseB2_1_1() ||
-		(account.IsCaseB3() &&
+	if account.IsCaseB1_1_1_1(node.TaskCreateTime) ||
+		account.IsCaseB2_1_1(node.TaskCreateTime) ||
+		(account.IsCaseB3(node.TaskCreateTime) &&
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") ||
 		(account.IsCaseC() &&
 			account.Balances.TotalBalance > 0 &&
 			strings.ToUpper(account.OtherInformation.IsSpecialER) == "TRUE") {
-		if account.IsSpecialERExpired() {
+		if account.IsSpecialERExpired(node.TaskCreateTime) {
 			log.Info(ctx, "special ER expired! skip it")
 			return ResultSkip, nil
 		}

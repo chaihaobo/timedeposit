@@ -67,7 +67,7 @@ func Run(ctx context.Context, flowId string) error {
 		tr := tracer.StartTrace(ctx, fmt.Sprintf("%s_%s", flowId, nodeName))
 		ctx := tr.Context()
 		runNode := getINode(currentNode.NodePath)
-		runNode.SetUp(ctx, flowId, flowTaskInfo.AccountId, nodeName)
+		runNode.SetUp(ctx, flowId, flowTaskInfo.AccountId, nodeName, flowTaskInfo.CreateTime)
 		// update run status to running
 		taskRunning(ctx, flowTaskInfo, nodeName)
 		runStartTime := time.Now()

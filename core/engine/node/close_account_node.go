@@ -22,7 +22,7 @@ func (node *CloseAccountNode) Run(ctx context.Context) (INodeResult, error) {
 	}
 
 	totalBalance := account.Balances.TotalBalance
-	if (account.IsCaseB3() && totalBalance > 0) ||
+	if (account.IsCaseB3(node.TaskCreateTime) && totalBalance > 0) ||
 		(account.IsCaseC() && totalBalance > 0) {
 		notes := fmt.Sprintf("AccountNo:%v, FlowID:%v", account.ID, node.FlowId)
 		isApplySucceed := accountservice.CloseAccount(node.GetContext(ctx), account.ID, notes)
