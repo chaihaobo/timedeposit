@@ -23,8 +23,8 @@ import (
 	"time"
 )
 
-func GetTransactionByQueryParam(context context.Context, enCodeKey string) ([]mambu.TransactionBrief, error) {
-	searchParam := generateTransactionSearchParam(enCodeKey)
+func GetTransactionByQueryParam(context context.Context, enCodeKey string, taskCreateTime time.Time) ([]mambu.TransactionBrief, error) {
+	searchParam := generateTransactionSearchParam(enCodeKey, taskCreateTime)
 	tmpTransList := []mambu.TransactionBrief{}
 	postUrl := constant.UrlOf(constant.SearchTransactionUrl)
 
@@ -62,7 +62,7 @@ func GetAdditionProfitAndTax(tmpTDAccount *mambu.TDAccount, lastAppliedInterestT
 	return additionalProfit.Round(2).InexactFloat64(), additionalProfitTax.Round(2).InexactFloat64()
 }
 
-func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
+func generateTransactionSearchParam(encodedKey string, taskCreateTime time.Time) mambu.SearchParam {
 	tmpQueryParam := mambu.SearchParam{
 		FilterCriteria: []mambu.FilterCriteria{
 			{
@@ -78,8 +78,8 @@ func generateTransactionSearchParam(encodedKey string) mambu.SearchParam {
 			{
 				Field:       "creationDate",
 				Operator:    "BETWEEN",
-				Value:       carbon.Now().DateString(),            // today
-				SecondValue: carbon.Now().AddDays(1).DateString(), // tomorrow
+				Value:       carbon.NewCarbon(taskCreateTime).DateString(),            // today
+				SecondValue: carbon.NewCarbon(taskCreateTime).AddDays(1).DateString(), // tomorrow
 			},
 		},
 		SortingCriteria: mambu.SortingCriteria{

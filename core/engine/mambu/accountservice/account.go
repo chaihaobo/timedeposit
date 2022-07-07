@@ -119,7 +119,7 @@ func ChangeMaturityDate(ctx context.Context, accountID, maturityDate, note strin
 	return resultTDAccount, nil
 }
 
-func ApplyProfit(context context.Context, accountID, note string) bool {
+func ApplyProfit(context context.Context, accountID, note string, interestApplicationDate time.Time) bool {
 	tr := tracer.StartTrace(context, "accountService-ApplyProfit")
 	context = tr.Context()
 	defer tr.Finish()
@@ -132,7 +132,7 @@ func ApplyProfit(context context.Context, accountID, note string) bool {
 		InterestApplicationDate time.Time `json:"interestApplicationDate"`
 		Notes                   string    `json:"notes"`
 	}{
-		InterestApplicationDate: time.Now(),
+		InterestApplicationDate: interestApplicationDate,
 		Notes:                   note,
 	})
 	postJsonStr := string(postJsonByte)

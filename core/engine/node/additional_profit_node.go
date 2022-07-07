@@ -53,7 +53,7 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 		}
 
 		// Get last applied interest info
-		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(ctx), account.EncodedKey)
+		transList, err := transactionservice.GetTransactionByQueryParam(node.GetContext(ctx), account.EncodedKey, node.TaskCreateTime)
 
 		if err != nil || len(transList) <= 0 {
 			log.Info(ctx, "No applied profit, skip")
