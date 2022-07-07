@@ -24,7 +24,3 @@ func TestGetAccountById(t *testing.T) {
 func TestUndoMaturityDate(t *testing.T) {
 	UndoMaturityDate(context.Background(), "11249460359")
 }
-
-func TestApplyProfit(t *testing.T) {
-	ApplyProfit(context.WithValue(context.WithValue(context.Background(), "flowId", "test"), "nodeName", "test Node"), "11714744288", "ok")
-}

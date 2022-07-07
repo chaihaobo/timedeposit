@@ -63,7 +63,7 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 func TestName(t *testing.T) {
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
-	date := time.Date(2022, 5, 31, 0, 0, 0, 0, zone)
-	date2 := time.Date(2022, 7, 1, 0, 0, 0, 0, zone)
-	println(carbon.NewCarbon(date2).DiffInMonths(carbon.NewCarbon(date), true))
+	parse, _ := carbon.Parse(carbon.DateFormat, "2022-01-31", "")
+	println(parse.AddMonthsNoOverflow(1).DateString())
+
 }
