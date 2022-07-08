@@ -7,10 +7,8 @@
 package api
 
 import (
-	"context"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
-	"gitlab.com/bns-engineering/td/core/engine"
 	"testing"
 	"time"
 )
@@ -22,5 +20,5 @@ func init() {
 }
 
 func TestStartFlow(t *testing.T) {
-	engine.Start(context.Background(), "11961471326")
+	// engine.Start(context.Background(), "11666979513")
 }

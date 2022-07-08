@@ -60,10 +60,18 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 	}
 }
 
-func TestName(t *testing.T) {
+func TestTime(t *testing.T) {
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
-	parse, _ := carbon.Parse(carbon.DateFormat, "2022-01-31", "")
-	println(parse.AddMonthsNoOverflow(1).DateString())
+	acticationDate, _ := carbon.Parse(carbon.DateFormat, "2022-06-01", "")
+	// currentMaturityDate, _ := carbon.Parse(carbon.DateFormat, "2022-07-31", "")
+	//
+	// day := getNextMaturityDay(acticationDate.Time, currentMaturityDate.Time, 1)
+	// println(day.String())
+	// array := generateTensorArray(1000, acticationDate.Time)
+	// for _, t := range array {
+	// 	println(t.String())
+	// }
+	println(acticationDate.AddMonths(1).String())
 
 }
