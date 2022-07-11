@@ -21,17 +21,17 @@
     "nodeSleepTime": "0s"
   },
   "db": {
-    "username": "svc_tda",
-    "password": "bA0mgmya3s9C2h5C",
-    "host": "10.16.40.228",
+    "username": "hugo",
+    "password": "123456",
+    "host": "192.168.31.58",
     "port": 3306,
-    "db": "time_deposit",
+    "db": "time_deposit_eod_engine",
     "maxOpenConn": 100,
     "maxIdleConn": 20
   },
   "redis": {
-    "addr": "10.16.41.11:6379",
-    "password": "ae0030b1-eaac-41b9-bcc3-f56275ca5333",
+    "addr": "192.168.31.58:6379",
+    "password": "123456",
     "poolSize": 10,
     "db": 0
   },
@@ -44,8 +44,7 @@
   },
   "mambu": {
     "host": "https://cbs-dev1.aladinbank.id",
-    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg",
-    "timeout": "10s"
+    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg"
   },
   "transactionReqMetaData": {
     "localHolderKey": "8ab08091812313d50181239d36020364",
@@ -56,7 +55,7 @@
     "terminalType": 6021,
     "terminalID": "TDE",
     "terminalLocation": "1001-Head Office",
-    "productCode": "000000",
+    "productCode": 0,
     "acquirerIID": 947,
     "forwarderIID": 947,
     "issuerIID": 947,
@@ -78,5 +77,6 @@
       "depositNetprofitTranDesc3": null
     }
   },
+
   "skipTests": true
 }

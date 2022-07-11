@@ -4,22 +4,20 @@
 package node
 
 import (
+	"context"
 	"fmt"
-	"gitlab.com/bns-engineering/td/common/logger"
+	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
+	"time"
 
 	"gitlab.com/bns-engineering/td/common/config"
-	"go.uber.org/zap"
 )
 
 func TestUndoMaturityNode_Run(t *testing.T) {
 
-	config.Setup("./../../../config.json")
-	err := logger.SetUp(config.TDConf)
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
+	util.SetupTelemetry(config.Setup("./../../../config.json"))
 
 	type fields struct {
 		Node *Node
@@ -48,7 +46,7 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			node := &UndoMaturityNode{
 				Node: tt.fields.Node,
 			}
-			got, err := node.Run()
+			got, err := node.Run(context.Background())
 			if (err != nil) != tt.wantErr {
 
 				return
@@ -60,4 +58,20 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 			fmt.Println("Run Undo Maturity Finished! result:", got)
 		})
 	}
+}
+
+func TestTime(t *testing.T) {
+	zone := time.FixedZone("CST", 7*3600)
+	time.Local = zone
+	acticationDate, _ := carbon.Parse(carbon.DateFormat, "2022-06-01", "")
+	// currentMaturityDate, _ := carbon.Parse(carbon.DateFormat, "2022-07-31", "")
+	//
+	// day := getNextMaturityDay(acticationDate.Time, currentMaturityDate.Time, 1)
+	// println(day.String())
+	// array := generateTensorArray(1000, acticationDate.Time)
+	// for _, t := range array {
+	// 	println(t.String())
+	// }
+	println(acticationDate.AddMonths(1).String())
+
 }

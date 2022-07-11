@@ -7,27 +7,18 @@
 package api
 
 import (
-	"testing"
-
 	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/logger"
-	"gitlab.com/bns-engineering/td/core/engine"
-	"go.uber.org/zap"
+	"gitlab.com/bns-engineering/td/common/util"
+	"testing"
+	"time"
 )
 
 func init() {
-	logger.SetUp(config.Setup("../../config.json"))
+	util.SetupTelemetry(config.Setup("../../config.json"))
+	zone := time.FixedZone("CST", 7*3600)
+	time.Local = zone
 }
 
 func TestStartFlow(t *testing.T) {
-	tmpTDAccountList, err := loadAccountList()
-	if err != nil {
-		zap.L().Error("load mambu account list error")
-	}
-
-	for _, tmpTDAcc := range tmpTDAccountList {
-		engine.Start(tmpTDAcc.ID)
-		// go engine.Start(tmpTDAcc.ID)
-		zap.L().Info("commit task success!", zap.String("account", tmpTDAcc.ID))
-	}
+	// engine.Start(context.Background(), "11666979513")
 }

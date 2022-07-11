@@ -7,8 +7,10 @@
 package mambu
 
 import (
+	"context"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
+	"gitlab.com/bns-engineering/td/common/log"
 	time2 "gitlab.com/bns-engineering/td/common/util/time"
 	"go.uber.org/zap"
 	"strconv"
@@ -107,6 +109,7 @@ type Otherinformation struct {
 	IsSpecialER          string `json:"IsSpecialER"`
 	SpecialER            string `json:"specialER"`
 	AroNonAro            string `json:"aroNonAro"`
+	MatureOnHoliday      string `json:"matureOnHoliday"`
 }
 type Datanasabah struct {
 	NasabahAccountAddressType string `json:"nasabahAccountAddressType"`
@@ -127,58 +130,61 @@ type OtherInformationCorporate struct {
 	InfoLimitNominalSetorTunai      string `json:"infoLimitNominalSetorTunai"`
 }
 
-func (tdAccInfo *TDAccount) IsCaseA() bool {
+func (tdAccInfo *TDAccount) MatureOnHoliday() bool {
+	return strings.EqualFold(tdAccInfo.OtherInformation.MatureOnHoliday, "TRUE")
+}
+
+func (tdAccInfo *TDAccount) IsCaseA(taskCreateTime time.Time) bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 
-	tomorrow := time.Now().AddDate(0, 0, 1)
+	tomorrow := taskCreateTime.AddDate(0, 0, 1)
 	return isARO &&
 		activeState &&
 		time2.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
 		time2.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.MaturityDate)
 }
 
-func (tdAccInfo *TDAccount) IsCaseB() bool {
+func (tdAccInfo *TDAccount) IsCaseB(taskCreateTime time.Time) bool {
 	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "ARO"
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		zap.L().Error("Error in parsing timeFormat for rekeningTanggalJatohTempoDate", zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 	return isARO &&
 		activeState &&
-		time2.InSameDay(rekeningTanggalJatohTempoDate, time.Now()) &&
+		time2.InSameDay(rekeningTanggalJatohTempoDate, taskCreateTime) &&
 		rekeningTanggalJatohTempoDate.Before(tdAccInfo.MaturityDate)
 }
 
-func (tdAccInfo *TDAccount) IsCaseB1() bool {
+func (tdAccInfo *TDAccount) IsCaseB1(taskCreateTime time.Time) bool {
 	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "FALSE"
 	aroType := strings.ToUpper(tdAccInfo.OtherInformation.AroType)
-	return tdAccInfo.IsCaseB() &&
+	return tdAccInfo.IsCaseB(taskCreateTime) &&
 		isStopARO &&
 		aroType == "PRINCIPALONLY"
 }
 func (tdAccInfo *TDAccount) GetNetProfit() (float64, error) {
 	principal, err := strconv.ParseFloat(tdAccInfo.Rekening.RekeningPrincipalAmount, 64)
 	if err != nil {
-		zap.L().Error("Failed to convert Rekening.RekeningPrincipalAmount from string to float64", zap.String("value", tdAccInfo.Rekening.RekeningPrincipalAmount))
 		return 0, err
 	}
-	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).RoundFloor(2).InexactFloat64()
+	netProfit := decimal.NewFromFloat(tdAccInfo.Balances.TotalBalance).Sub(decimal.NewFromFloat(principal)).Round(2).InexactFloat64()
 	return netProfit, nil
 }
-func (tdAccInfo *TDAccount) IsCaseB1_1() bool {
+func (tdAccInfo *TDAccount) IsCaseB1_1(taskCreateTime time.Time) bool {
 	netProfit, err := tdAccInfo.GetNetProfit()
 	if err != nil {
 		return false
 	}
-	return tdAccInfo.IsCaseB1() && netProfit > 0
+	return tdAccInfo.IsCaseB1(taskCreateTime) && netProfit > 0
 }
 
 func (tdAccInfo *TDAccount) IsValidBenefitAccount(benefitAccout *TDAccount, configHolderKey string) bool {
@@ -198,38 +204,44 @@ func (tdAccInfo *TDAccount) IsValidBenefitAccount(benefitAccout *TDAccount, conf
 	return false
 }
 
-func (tdAccInfo *TDAccount) IsCaseB1_1_1_1() bool {
+func (tdAccInfo *TDAccount) IsCaseB1_1_1_1(taskCreateTime time.Time) bool {
 	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialER) == "TRUE"
-	specialRateExpireDate, err := time.Parse("2006-01-02", tdAccInfo.OtherInformation.SpecialERExpiration)
-	if err != nil {
-		zap.L().Error("Failed to convert SpecialERExpiration to time", zap.String("value", tdAccInfo.OtherInformation.SpecialERExpiration))
-	}
-	return tdAccInfo.IsCaseB1_1() &&
-		bSpecialRate &&
-		specialRateExpireDate.After(time.Now())
+	return tdAccInfo.IsCaseB1_1(taskCreateTime) &&
+		bSpecialRate
 }
 
-func (tdAccInfo *TDAccount) IsCaseB2() bool {
+func (tdAccInfo *TDAccount) IsSpecialERExpired(taskCreateTime time.Time) bool {
+	specialERExpiration, err := time.Parse(carbon.DateFormat, tdAccInfo.OtherInformation.SpecialERExpiration)
+	if err != nil {
+		return true
+	}
+
+	return carbon.NewCarbon(specialERExpiration).Before(taskCreateTime) &&
+		!carbon.NewCarbon(specialERExpiration).IsSameDay(carbon.NewCarbon(taskCreateTime))
+
+}
+
+func (tdAccInfo *TDAccount) IsCaseB2(taskCreateTime time.Time) bool {
 	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "FALSE"
 	aroType := tdAccInfo.OtherInformation.AroType
-	return tdAccInfo.IsCaseB() &&
+	return tdAccInfo.IsCaseB(taskCreateTime) &&
 		isStopARO &&
 		strings.ToUpper(aroType) == "FULL"
 }
 
-func (tdAccInfo *TDAccount) IsCaseB2_1_1() bool {
+func (tdAccInfo *TDAccount) IsCaseB2_1_1(taskCreateTime time.Time) bool {
 	bSpecialRate := strings.ToUpper(tdAccInfo.OtherInformation.IsSpecialER) == "TRUE"
-	return tdAccInfo.IsCaseB2() && bSpecialRate
+	return tdAccInfo.IsCaseB2(taskCreateTime) && bSpecialRate
 }
 
-func (tdAccInfo *TDAccount) IsCaseB3() bool {
+func (tdAccInfo *TDAccount) IsCaseB3(taskCreateTime time.Time) bool {
 	isStopARO := strings.ToUpper(tdAccInfo.OtherInformation.StopAro) == "TRUE"
-	return tdAccInfo.IsCaseB() &&
+	return tdAccInfo.IsCaseB(taskCreateTime) &&
 		isStopARO
 }
 
 func (tdAccInfo *TDAccount) IsCaseC() bool {
-	isARO := strings.ToUpper(tdAccInfo.OtherInformation.AroNonAro) == "Non ARO"
-	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURE"
-	return !isARO && isMatureState
+	isARO := strings.ToUpper(strings.ReplaceAll(tdAccInfo.OtherInformation.AroNonAro, " ", "")) == "NONARO"
+	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURED"
+	return isARO && isMatureState
 }

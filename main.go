@@ -7,63 +7,30 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"gitlab.com/bns-engineering/td/common/logger"
-	"net/http"
-	"os"
-	"os/signal"
-	"runtime"
-	"syscall"
+	"github.com/guonaihong/gout/dataflow"
+	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/transport"
 	"time"
 
-	"gitlab.com/bns-engineering/td/common/util"
-	"gitlab.com/bns-engineering/td/core/engine"
-	"go.uber.org/zap"
-
-	"github.com/gin-gonic/gin"
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/router"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-// Initial configuration for this app
-func init() {
-	err := logger.SetUp(config.Setup("./config.json"))
-	if err != nil {
-		zap.L().Error("logger init error", zap.Error(err))
-	}
-}
-
 func main() {
-	cores := runtime.NumCPU()
-	runtime.GOMAXPROCS(cores)
-	gin.SetMode(config.TDConf.Server.RunMode)
-	routersInit := router.InitRouter()
-	endPoint := fmt.Sprintf(":%d", config.TDConf.Server.HttpPort)
 
-	server := &http.Server{
-		Addr:    endPoint,
-		Handler: routersInit,
-	}
+	zone := time.FixedZone("CST", 7*3600)
+	time.Local = zone
 
-	go func() {
-		zap.L().Info("start http server listening ", zap.String("endPoint", endPoint))
-		// service connections
-		err := server.ListenAndServe()
-		if err != http.ErrServerClosed {
-			util.CheckAndExit(err)
-		}
-	}()
-
+	server := transport.NewTdServer(config.Setup("./config.json"))
+	dataflow.GlobalSetting.SetTimeout(config.TDConf.Mambu.Timeout)
+	server.Start()
 	// graceful shutdown
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	<-sigs
 	// stop gin engine
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	util.CheckAndExit(server.Shutdown(ctx))
-	engine.Pool.Release()
+	server.Shutdown()
 
 }

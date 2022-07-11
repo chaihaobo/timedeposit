@@ -15,14 +15,14 @@ This is a EOD engine for calculating the interest rate and do some transferring 
 
 # Getting started
 
-First thing to do is update `main.go` with your new project path:
-
+First thing to do is update `main.go` with your new project path: 
+ 
 
 Note that these are not actual environment variables, but values you should
-replace.
+replace.   
 
 ## What's contained in this project
-
+  
 - main.go - is the main definition of the service, handler and client
 
 ## Dependencies  
@@ -37,4 +37,4 @@ Install the following
 go run main.go
 ```
 
-## Query Service
+## Query Service 

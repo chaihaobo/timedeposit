@@ -4,29 +4,31 @@
 package node
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
-	"go.uber.org/zap"
 )
 
 type ApplyProfitNode struct {
 	*Node
 }
 
-func (node *ApplyProfitNode) Run() (INodeResult, error) {
-	account, err := node.GetMambuAccount(node.AccountId, false)
+func (node *ApplyProfitNode) Run(ctx context.Context) (INodeResult, error) {
+	account, err := node.GetMambuAccount(ctx, node.AccountId, false)
 	if err != nil {
 		return nil, err
 	}
-	if account.IsCaseB() {
-		isApplySucceed := accountservice.ApplyProfit(node.GetContext(), account.ID, node.FlowId)
+	if account.IsCaseB(node.TaskCreateTime) {
+		isApplySucceed := accountservice.ApplyProfit(node.GetContext(ctx), account.ID, fmt.Sprintf("TDE-AUTO-%s", node.FlowId), node.TaskCreateTime)
 		if !isApplySucceed {
-			zap.L().Error(fmt.Sprintf("Apply profit failed for account: %v", account.ID))
-			return nil, errors.New("call Mambu service failed")
+			err := errors.New("call Mambu service failed")
+			log.Error(ctx, fmt.Sprintf("Apply profit failed for account: %v", account.ID), err)
+			return nil, err
 		}
 	} else {
-		zap.L().Info("not match! skip it")
+		log.Info(ctx, "not match! skip it")
 		return ResultSkip, nil
 
 	}

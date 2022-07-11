@@ -12,7 +12,7 @@ import "gitlab.com/bns-engineering/td/common/config"
 
 var (
 	GetTDAccountUrl        = "/api/deposits/%v?detailsLevel=FULL"
-	SearchTDAccountListUrl = "/api/deposits:search?detailsLevel=FULL&offset=0&limit=500"
+	SearchTDAccountListUrl = "/api/deposits:search?detailsLevel=FULL&offset=%d&limit=%d&paginationDetails=ON"
 
 	UndoMaturityDateUrl  = "/api/deposits/%v:undoMaturity"
 	StartMaturityDateUrl = "/api/deposits/%v:startMaturity"
