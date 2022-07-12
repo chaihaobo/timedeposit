@@ -22,7 +22,7 @@ Note that these are not actual environment variables, but values you should
 replace.   
 
 ## What's contained in this project
-  
+    
 - main.go - is the main definition of the service, handler and client
 
 ## Dependencies  
@@ -37,4 +37,4 @@ Install the following
 go run main.go
 ```
 
-## Query Service
+## Query Service  
