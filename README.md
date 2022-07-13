@@ -23,7 +23,7 @@ replace.
 
 ## What's contained in this project
     
-- main.go - is the main definition of the service, handler and client
+- main.go - is the main definition of the service, handler and client 
 
 ## Dependencies  
 
