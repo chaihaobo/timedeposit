@@ -52,7 +52,11 @@ func FailFlowList(c *gin.Context) {
 	ctx := tr.Context()
 	defer tr.Finish()
 	flowSearchModel := dto.DefaultRetryFlowSearchModel()
-	_ = c.BindQuery(flowSearchModel)
+	err := c.ShouldBindQuery(flowSearchModel)
+	if err != nil {
+		c.JSON(http.StatusOK, Error(err.Error()))
+		return
+	}
 	// retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
 	// _ = c.BindJSON(retryFlowSearchModel)
 	list := repository.GetFlowTaskInfoRepository().FailFlowList(ctx, flowSearchModel.Pagination, flowSearchModel.AccountId)
