@@ -55,7 +55,7 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(ctx context.C
 	ctx = tr.Context()
 	defer tr.Finish()
 	failTaskInfoList := make([]*po.TFlowTaskInfo, 0)
-	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1)
+	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("create_time")
 	if accountId != "" {
 		query = query.Where("account_id", accountId)
 	}
