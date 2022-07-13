@@ -155,6 +155,9 @@ func Remove(c *gin.Context) {
 	if flow != nil {
 		flow.Enable = false
 		repository.GetFlowTaskInfoRepository().Update(c.Request.Context(), flow)
+	} else {
+		c.JSON(http.StatusOK, Error("flow id not exist!"))
+		return
 	}
 	c.JSON(http.StatusOK, Success())
 }
