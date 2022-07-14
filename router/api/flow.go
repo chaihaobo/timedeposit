@@ -192,9 +192,8 @@ func Metric(c *gin.Context) (interface{}, error) {
 		metricDays = append(metricDays, carbonStart.ToDateString())
 		carbonStart = carbonStart.AddDay()
 	}
-	return funk.Map(metricDays, func(day string) *dto.FlowMetricResultModel {
-		return repository.GetFlowTaskInfoRepository().MetricByDay(c.Request.Context(), day)
-	}), nil
+
+	return repository.GetFlowTaskInfoRepository().MetricByDay(c.Request.Context(), metricDays), nil
 }
 
 func loadAccountList(ctx context.Context) ([]mambu.TDAccount, error) {

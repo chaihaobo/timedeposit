@@ -6,11 +6,13 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/thoas/go-funk"
 	"gitlab.com/bns-engineering/common/tracer"
 	"gitlab.com/bns-engineering/td/common/constant"
 	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model/dto"
 	"gitlab.com/bns-engineering/td/model/po"
+	"strings"
 	"time"
 )
 
@@ -26,7 +28,7 @@ type IFlowTaskInfoRepository interface {
 	GetLastByAccountId(ctx context.Context, accountId string) *po.TFlowTaskInfo
 	FailFlowList(ctx context.Context, pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo
 	AllFailFlowIdList(ctx context.Context) []string
-	MetricByDay(ctx context.Context, date string) *dto.FlowMetricResultModel
+	MetricByDay(ctx context.Context, dayList []string) []dto.FlowMetricResultModel
 }
 
 type FlowTaskInfoRepository struct{}
@@ -86,21 +88,26 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) GetLastByAccountId(ctx con
 	return nil
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) MetricByDay(ctx context.Context, date string) *dto.FlowMetricResultModel {
+func (flowTaskInfoRepository *FlowTaskInfoRepository) MetricByDay(ctx context.Context, dayList []string) []dto.FlowMetricResultModel {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-MetricByDay")
 	ctx = tr.Context()
 	defer tr.Finish()
+	dateSql := strings.Join(funk.Map(dayList, func(day string) string {
+		return fmt.Sprintf("select '%s' create_time", day)
+	}).([]string), " union ")
+
 	sql := fmt.Sprintf(`
 	select t1.create_time create_date, count(t2.id) task_cnt,sum(if(t2.flow_status='flow_finish',1,0)) success_cnt,
 		sum(if(t2.flow_status='flow_running',1,0)) running_cnt,
 		sum(if(t2.flow_status='flow_failed',1,0)) fail_cnt,
 		(exists(select id from t_mambu_request_logs t3 where date(t3.create_time)=t1.create_time)) is_call
-		from (select '%s' create_time) t1
+		from (%s) t1
 			left join t_flow_task_infos t2 on t1.create_time = date(t2.create_time)
 			group by 1
-`, date)
-	result := new(dto.FlowMetricResultModel)
-	db.GetDB().Raw(sql).Scan(result)
+`, dateSql)
+
+	result := make([]dto.FlowMetricResultModel, 0)
+	db.GetDB().Raw(sql).Scan(&result)
 	return result
 }
 
