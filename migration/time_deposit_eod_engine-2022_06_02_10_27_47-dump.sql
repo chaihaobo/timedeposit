@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.29, for macos12.2 (arm64)
 --
--- Host: 192.168.31.16    Database: time_deposit_eod_engine
+-- Host: 192.168.31.16    Database: time_deposit
 -- ------------------------------------------------------
 -- Server version	8.0.28
 
@@ -19,10 +19,12 @@
 -- Table structure for table `t_flow_node_logs`
 --
 create
-database if not exists time_deposit_eod_engine;
+    database if not exists time_deposit;
+use time_deposit;
 DROP TABLE IF EXISTS `t_flow_node_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `t_flow_node_logs`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
@@ -182,149 +184,149 @@ CREATE TABLE `t_mambu_request_logs`
 ) ENGINE=InnoDB AUTO_INCREMENT=717 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (1, 'eod_flow', 'start_node', 'StartNode', 'start_node', '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (2, 'eod_flow', 'undo_maturity_node', 'UndoMaturityNode', 'undo_maturity_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (3, 'eod_flow', 'start_new_maturity_node', 'StartNewMaturityNode', 'start_new_maturity_node',
         '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (4, 'eod_flow', 'apply_profit_node', 'ApplyProfitNode', 'apply_profit_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (5, 'eod_flow', 'withdraw_netprofit_node', 'WithdrawNetprofitNode', 'withdraw_netprofit_node',
         '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (6, 'eod_flow', 'deposit_netprofit_node', 'DepositNetprofitNode', 'deposit_netprofit_node',
         '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (7, 'eod_flow', 'withdraw_balance_node', 'WithdrawBalanceNode', 'withdraw_balance_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (8, 'eod_flow', 'deposit_balance_node', 'DepositBalanceNode', 'deposit_balance_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (9, 'eod_flow', 'search_last_profit_applied_node', 'SearchLastProfitAppliedNode',
         'search_last_profit_applied_node', '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (10, 'eod_flow', 'withdraw_additional_profit_node', 'WithdrawAdditionalProfitNode',
         'withdraw_additional_profit_node', '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (11, 'eod_flow', 'deposit_additional_profit_node', 'DepositAdditionalProfitNode',
         'deposit_additional_profit_node', '2022-05-30 10:43:44', '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (12, 'eod_flow', 'patch_account_node', 'PatchAccountNode', 'patch_account_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (13, 'eod_flow', 'close_account_node', 'CloseAccountNode', 'close_account_node', '2022-05-30 10:43:44',
         '2022-05-30 10:43:47');
-INSERT INTO time_deposit_eod_engine.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
-                                                  update_time)
+INSERT INTO time_deposit.t_flow_nodes (id, flow_name, node_name, node_path, node_detail, create_time,
+                                       update_time)
 VALUES (14, 'eod_flow', 'end_node', 'EndNode', 'end_node', '2022-05-30 10:43:44', '2022-05-30 10:43:47');
 
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (1, 'eod_flow', 'start_node', 'success', 'undo_maturity_node', '2022-05-30 10:50:11', '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (2, 'eod_flow', 'undo_maturity_node', 'success', 'start_new_maturity_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (3, 'eod_flow', 'start_new_maturity_node', 'success', 'apply_profit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (4, 'eod_flow', 'apply_profit_node', 'success', 'withdraw_netprofit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (5, 'eod_flow', 'withdraw_netprofit_node', 'success', 'deposit_netprofit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (6, 'eod_flow', 'deposit_netprofit_node', 'success', 'withdraw_balance_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (7, 'eod_flow', 'withdraw_balance_node', 'success', 'deposit_balance_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (8, 'eod_flow', 'deposit_balance_node', 'success', 'deposit_additional_profit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (10, 'eod_flow', 'withdraw_additional_profit_node', 'success', 'patch_account_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (11, 'eod_flow', 'deposit_additional_profit_node', 'success', 'withdraw_additional_profit_node',
         '2022-05-30 10:50:11', '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (12, 'eod_flow', 'patch_account_node', 'success', 'close_account_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (13, 'eod_flow', 'close_account_node', 'success', 'end_node', '2022-05-30 10:50:11', '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (14, 'eod_flow', 'undo_maturity_node', 'skip', 'start_new_maturity_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (15, 'eod_flow', 'start_new_maturity_node', 'skip', 'apply_profit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (16, 'eod_flow', 'apply_profit_node', 'skip', 'withdraw_netprofit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (17, 'eod_flow', 'withdraw_netprofit_node', 'skip', 'deposit_netprofit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (18, 'eod_flow', 'deposit_netprofit_node', 'skip', 'withdraw_balance_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (19, 'eod_flow', 'withdraw_balance_node', 'skip', 'deposit_balance_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (20, 'eod_flow', 'deposit_balance_node', 'skip', 'deposit_additional_profit_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (21, 'eod_flow', 'withdraw_additional_profit_node', 'skip', 'patch_account_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (22, 'eod_flow', 'deposit_additional_profit_node', 'skip', 'withdraw_additional_profit_node',
         '2022-05-30 10:50:11', '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (23, 'eod_flow', 'patch_account_node', 'skip', 'close_account_node', '2022-05-30 10:50:11',
         '2022-05-30 10:50:12');
-INSERT INTO time_deposit_eod_engine.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
-                                                           create_time, update_time)
+INSERT INTO time_deposit.t_flow_node_relations (id, flow_name, node_name, result_code, next_node,
+                                                create_time, update_time)
 VALUES (24, 'eod_flow', 'close_account_node', 'skip', 'end_node', '2022-05-30 10:50:11', '2022-05-30 10:50:12');
 
 
