@@ -31,11 +31,12 @@ func InitRouter(telemetry *telemetry.API) *gin.Engine {
 
 	flowGroup := r.Group("/flow")
 	{
-		flowGroup.POST("/start", api.StartFlow)
-		flowGroup.GET("/failFlows", api.FailFlowList)
-		flowGroup.POST("/retry", api.Retry)
-		flowGroup.POST("/retryAll", api.RetryAll)
-		flowGroup.DELETE("/:flowId", api.Remove)
+		flowGroup.POST("/start", GinWrapper(api.StartFlow))
+		flowGroup.GET("/failFlows", GinWrapper(api.FailFlowList))
+		flowGroup.POST("/retry", GinWrapper(api.Retry))
+		flowGroup.POST("/retryAll", GinWrapper(api.RetryAll))
+		flowGroup.DELETE("/:flowId", GinWrapper(api.Remove))
+		flowGroup.POST("/metric", GinWrapper(api.Metric))
 	}
 	return r
 }

@@ -6,8 +6,9 @@ package api
 import (
 	"context"
 	"fmt"
+	carbonv2 "github.com/golang-module/carbon/v2"
+	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/common/tracer"
-	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -26,12 +27,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func StartFlow(c *gin.Context) {
+func StartFlow(c *gin.Context) (interface{}, error) {
 	tmpTDAccountList, err := loadAccountList(c.Request.Context())
 	if err != nil {
 		log.Error(c, "[StartFlow] load mambu account list error : ", err)
-		c.JSON(http.StatusOK, Error("load mambu account list error"))
-		return
+		return nil, err
 	}
 
 	for _, tmpTDAcc := range tmpTDAccountList {
@@ -44,21 +44,18 @@ func StartFlow(c *gin.Context) {
 		log.Info(c, "commit task success!", zap.String("account", tmpTDAcc.ID))
 
 	}
-	c.JSON(http.StatusOK, Success())
+	return OK, nil
 }
 
-func FailFlowList(c *gin.Context) {
+func FailFlowList(c *gin.Context) (interface{}, error) {
 	tr := tracer.StartTrace(c.Request.Context(), "controller-FailFlowList")
 	ctx := tr.Context()
 	defer tr.Finish()
 	flowSearchModel := dto.DefaultRetryFlowSearchModel()
 	err := c.ShouldBindQuery(flowSearchModel)
 	if err != nil {
-		c.JSON(http.StatusOK, Error(err.Error()))
-		return
+		return nil, err
 	}
-	// retryFlowSearchModel := dto.DefaultRetryFlowSearchModel()
-	// _ = c.BindJSON(retryFlowSearchModel)
 	list := repository.GetFlowTaskInfoRepository().FailFlowList(ctx, flowSearchModel.Pagination, flowSearchModel.AccountId)
 	result := funk.Map(list, func(taskInfo *po.TFlowTaskInfo) *dto.FailFlowModel {
 		failedTransactions := repository.GetFlowTransactionRepository().ListErrorTransactionByFlowId(c, taskInfo.FlowId)
@@ -83,10 +80,10 @@ func FailFlowList(c *gin.Context) {
 		}
 		return d
 	})
-	c.JSON(http.StatusOK, SuccessData(dto.NewPageResult(flowSearchModel.Pagination, result)))
+	return dto.NewPageResult(flowSearchModel.Pagination, result), nil
 }
 
-func Retry(c *gin.Context) {
+func Retry(c *gin.Context) (interface{}, error) {
 	m := new(dto.RetryFlowReqModel)
 	_ = c.BindJSON(m)
 	list := m.FlowIdList
@@ -111,14 +108,14 @@ func Retry(c *gin.Context) {
 		}()
 	}
 	wait.Wait()
-	c.JSON(http.StatusOK, SuccessData(&dto.RetryResponseDTO{
+	return &dto.RetryResponseDTO{
 		FlowCount:     len(list),
 		FlowFailCount: failCount,
 		FailInfo:      errInfo,
-	}))
+	}, nil
 }
 
-func RetryAll(c *gin.Context) {
+func RetryAll(c *gin.Context) (interface{}, error) {
 	failFlowIdList := repository.GetFlowTaskInfoRepository().AllFailFlowIdList(c.Request.Context())
 	var lock sync.Mutex
 	var wait sync.WaitGroup
@@ -141,18 +138,17 @@ func RetryAll(c *gin.Context) {
 		}()
 	}
 	wait.Wait()
-	c.JSON(http.StatusOK, SuccessData(&dto.RetryResponseDTO{
+	return &dto.RetryResponseDTO{
 		FlowCount:     len(failFlowIdList),
 		FlowFailCount: failCount,
 		FailInfo:      errInfo,
-	}))
+	}, nil
 }
 
-func Remove(c *gin.Context) {
+func Remove(c *gin.Context) (interface{}, error) {
 	flowId := c.Param("flowId")
 	if flowId == "" {
-		c.JSON(http.StatusOK, Error("flow id must not bee null"))
-		return
+		return nil, errors.New("flow id must not bee null")
 	}
 
 	flow := repository.GetFlowTaskInfoRepository().Get(c.Request.Context(), flowId)
@@ -160,10 +156,44 @@ func Remove(c *gin.Context) {
 		flow.Enable = false
 		repository.GetFlowTaskInfoRepository().Update(c.Request.Context(), flow)
 	} else {
-		c.JSON(http.StatusOK, Error("flow id not exist!"))
-		return
+		return nil, errors.New("flow id not exist!")
 	}
-	c.JSON(http.StatusOK, Success())
+	return OK, nil
+}
+
+func Metric(c *gin.Context) (interface{}, error) {
+	metricRequest := new(dto.FlowMetricQueryModel)
+	err := c.ShouldBindJSON(metricRequest)
+	if err != nil {
+		return nil, err
+	}
+	startDate := metricRequest.StartDate
+	endDate := metricRequest.EndDate
+
+	if startDate == "" || endDate == "" {
+		return nil, errors.New("These parameters are empty(start_date or end_date)")
+	}
+
+	carbonStart := carbonv2.ParseByFormat(startDate, carbonv2.DateLayout)
+	if carbonStart.Error != nil {
+		return nil, errors.New("start date format error")
+	}
+
+	carbonEnd := carbonv2.ParseByFormat(endDate, carbonv2.DateLayout)
+	if carbonEnd.Error != nil {
+		return nil, errors.New("end date format error")
+	}
+	if carbonStart.Gt(carbonEnd) {
+		return nil, errors.New("start date can not after end date")
+	}
+
+	var metricDays = make([]string, 0)
+	for carbonStart.Lte(carbonEnd) {
+		metricDays = append(metricDays, carbonStart.ToDateString())
+		carbonStart = carbonStart.AddDay()
+	}
+
+	return repository.GetFlowTaskInfoRepository().MetricByDay(c.Request.Context(), metricDays), nil
 }
 
 func loadAccountList(ctx context.Context) ([]mambu.TDAccount, error) {

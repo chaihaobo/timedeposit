@@ -19,7 +19,7 @@ First thing to do is update `main.go` with your new project path:
  
 
 Note that these are not actual environment variables, but values you should
-replace.   
+replace.    
 
 ## What's contained in this project
     
@@ -37,4 +37,4 @@ Install the following
 go run main.go
 ```
 
-## Query Service
+## Query Service 
