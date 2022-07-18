@@ -14,29 +14,18 @@ import (
 	"time"
 )
 
-func GetHolidayList(ctx context.Context) []time.Time {
+func GetHolidayList(ctx context.Context) HolidayInfo {
 	tr := tracer.StartTrace(ctx, "holidayservice-GetHolidayList")
 	ctx = tr.Context()
 	defer tr.Finish()
-	var holidayList []time.Time
 	log.Info(ctx, fmt.Sprintf("getUrl: %v", constant.HolidayInfoUrl))
 	var holidayInfo HolidayInfo
 	err := mambu_http.Get(ctx, constant.UrlOf(constant.HolidayInfoUrl), &holidayInfo, persistence.DBPersistence(ctx, "GetHolidayList"))
 	if err != nil {
 		log.Error(ctx, fmt.Sprintf("Query holiday Info failed! query url: %v", constant.HolidayInfoUrl), err)
-		return holidayList
+		return holidayInfo
 	}
-	log.Info(ctx, fmt.Sprintf("Query td account Info result: %v", holidayList))
-
-	for _, tmpHoliday := range holidayInfo.Holidays {
-		tmpDate, err := time.Parse("2006-01-02", tmpHoliday.Date)
-		if err != nil {
-			log.Error(ctx, fmt.Sprintf("Parse holiday error, src holiday info:%v", tmpHoliday.Date), err)
-			continue
-		}
-		holidayList = append(holidayList, tmpDate)
-	}
-	return holidayList
+	return holidayInfo
 }
 
 type HolidayInfo struct {
