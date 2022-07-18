@@ -101,11 +101,17 @@ func getNextMaturityDay(acticationDate, currentMaturityDate time.Time, tensor in
 	return time.Now()
 }
 
-func isHoliday(time time.Time, holidays []time.Time) bool {
-	for _, holiday := range holidays {
-		if carbon.NewCarbon(time).IsSameDay(carbon.NewCarbon(holiday)) {
+func isHoliday(time time.Time, holidayInfo holidayservice.HolidayInfo) bool {
+	for _, holiday := range holidayInfo.Holidays {
+		holidayDate := carbonv2.Parse(holiday.Date)
+		carbonTime := carbonv2.Time2Carbon(time)
+		if carbonTime.IsSameDay(holidayDate) {
 			return true
 		}
+		if holiday.IsAnnuallyRecurring == true && carbonTime.Month() == holidayDate.Month() && carbonTime.DayOfMonth() == holidayDate.DayOfMonth() {
+			return true
+		}
+
 	}
 	return false
 }

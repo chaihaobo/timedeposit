@@ -145,6 +145,7 @@ func (tdAccInfo *TDAccount) IsCaseA(taskCreateTime time.Time) bool {
 
 	tomorrow := taskCreateTime.AddDate(0, 0, 1)
 	return isARO &&
+		strings.EqualFold(tdAccInfo.OtherInformation.StopAro, "FALSE") &&
 		activeState &&
 		time2.InSameDay(rekeningTanggalJatohTempoDate, tomorrow) &&
 		time2.InSameDay(rekeningTanggalJatohTempoDate, tdAccInfo.MaturityDate)
