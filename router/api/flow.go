@@ -9,6 +9,7 @@ import (
 	carbonv2 "github.com/golang-module/carbon/v2"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/common/tracer"
+	"gitlab.com/bns-engineering/td/common/constant"
 	"strings"
 	"sync"
 	"time"
@@ -152,7 +153,12 @@ func Remove(c *gin.Context) (interface{}, error) {
 	}
 
 	flow := repository.GetFlowTaskInfoRepository().Get(c.Request.Context(), flowId)
+
 	if flow != nil {
+		if flow.FlowStatus != constant.FlowFailed {
+			return nil, errors.New("Only tasks with failed status can be removed")
+		}
+
 		flow.Enable = false
 		repository.GetFlowTaskInfoRepository().Update(c.Request.Context(), flow)
 	} else {
