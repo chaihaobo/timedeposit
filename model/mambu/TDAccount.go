@@ -242,7 +242,10 @@ func (tdAccInfo *TDAccount) IsCaseB3(taskCreateTime time.Time) bool {
 }
 
 func (tdAccInfo *TDAccount) IsCaseC() bool {
-	isARO := strings.ToUpper(strings.ReplaceAll(tdAccInfo.OtherInformation.AroNonAro, " ", "")) == "NONARO"
+	isNoARO := strings.ToUpper(strings.ReplaceAll(tdAccInfo.OtherInformation.AroNonAro, " ", "")) == "NONARO"
+	isARO := strings.ToUpper(strings.ReplaceAll(tdAccInfo.OtherInformation.AroNonAro, " ", "")) == "ARO"
+	isStopARO := strings.EqualFold(tdAccInfo.OtherInformation.StopAro, "TRUE")
 	isMatureState := strings.ToUpper(tdAccInfo.AccountState) == "MATURED"
-	return isARO && isMatureState
+	return (isNoARO || (isARO && isStopARO)) &&
+		isMatureState
 }
