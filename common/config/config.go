@@ -51,6 +51,7 @@ type TDConfig struct {
 		NodeFailRetryTimes    int
 		MaxLimitSearchAccount int32
 		NodeSleepTime         time.Duration
+		FlowStartSleepTime    time.Duration
 	}
 	TransactionReqMetaData *struct {
 		MessageType                    string

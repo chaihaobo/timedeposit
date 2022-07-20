@@ -9,7 +9,10 @@ import (
 	carbonv2 "github.com/golang-module/carbon/v2"
 	"github.com/pkg/errors"
 	"gitlab.com/bns-engineering/common/tracer"
+	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/constant"
+	"gitlab.com/bns-engineering/td/common/log"
+	"go.uber.org/zap"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +20,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thoas/go-funk"
 	"github.com/uniplaces/carbon"
-	"gitlab.com/bns-engineering/td/common/log"
 	timeUtil "gitlab.com/bns-engineering/td/common/util/time"
 	"gitlab.com/bns-engineering/td/core/engine"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/accountservice"
@@ -25,26 +27,29 @@ import (
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/model/po"
 	"gitlab.com/bns-engineering/td/repository"
-	"go.uber.org/zap"
 )
 
 func StartFlow(c *gin.Context) (interface{}, error) {
-	tmpTDAccountList, err := loadAccountList(c.Request.Context())
-	if err != nil {
-		log.Error(c, "[StartFlow] load mambu account list error : ", err)
-		return nil, err
-	}
-
-	for _, tmpTDAcc := range tmpTDAccountList {
-		accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(c.Request.Context(), tmpTDAcc.ID)
-		if accountLastTask != nil && carbon.NewCarbon(accountLastTask.CreateTime).IsSameDay(carbon.Now()) {
-			log.Info(c, "account today is already has task,skip it!")
-			continue
+	go func() {
+		log.Info(c.Request.Context(), "flow start sleep")
+		time.Sleep(config.TDConf.Flow.FlowStartSleepTime)
+		log.Info(c.Request.Context(), "flow start sleep end")
+		tmpTDAccountList, err := loadAccountList(c.Request.Context())
+		if err != nil {
+			log.Error(c, "[StartFlow] load mambu account list error : ", err)
 		}
-		go engine.Start(c.Request.Context(), tmpTDAcc.ID)
-		log.Info(c, "commit task success!", zap.String("account", tmpTDAcc.ID))
 
-	}
+		for _, tmpTDAcc := range tmpTDAccountList {
+			accountLastTask := repository.GetFlowTaskInfoRepository().GetLastByAccountId(c.Request.Context(), tmpTDAcc.ID)
+			if accountLastTask != nil && carbon.NewCarbon(accountLastTask.CreateTime).IsSameDay(carbon.Now()) {
+				log.Info(c, "account today is already has task,skip it!")
+				continue
+			}
+			go engine.Start(c.Request.Context(), tmpTDAcc.ID)
+			log.Info(c, "commit task success!", zap.String("account", tmpTDAcc.ID))
+		}
+	}()
+
 	return OK, nil
 }
 

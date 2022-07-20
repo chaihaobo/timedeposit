@@ -34,7 +34,6 @@ func Start(ctx context.Context, accountId string) error {
 	createFlowTaskInfo(ctx, flowId, accountId)
 	// save account maturity date
 	// saveAccountMaturityDate(ctx, flowId, accountId, maturiryDate)
-
 	log.Info(ctx, "create task info success!", zap.String("flowId", flowId))
 	// run flow by task flow id
 	return Run(ctx, flowId)

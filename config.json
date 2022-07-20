@@ -18,7 +18,8 @@
   "flow": {
     "nodeFailRetryTimes": 3,
     "maxLimitSearchAccount": 1000,
-    "nodeSleepTime": "0s"
+    "nodeSleepTime": "0s",
+    "flowStartSleepTime": "1h"
   },
   "db": {
     "username": "svc_tda",
