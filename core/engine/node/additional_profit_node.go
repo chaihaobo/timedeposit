@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/log"
 	"gitlab.com/bns-engineering/td/core/engine/mambu/transactionservice"
@@ -57,6 +58,12 @@ func (node *AdditionalProfitNode) Run(ctx context.Context) (INodeResult, error) 
 
 		if err != nil || len(transList) <= 0 {
 			log.Info(ctx, "No applied profit, skip")
+			return ResultSkip, nil
+		}
+		// check ER
+		specialER, erError := decimal.NewFromString(account.OtherInformation.SpecialER)
+		ER := decimal.NewFromFloat(account.InterestSettings.InterestRateSettings.InterestRate)
+		if erError != nil || specialER.LessThanOrEqual(ER) {
 			return ResultSkip, nil
 		}
 		lastAppliedInterestTrans := transList[0]
