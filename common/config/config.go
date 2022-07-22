@@ -12,90 +12,61 @@ import (
 	"time"
 )
 
-var TDConf = new(TDConfig)
+type Config struct {
+	Trace                  Trace
+	Metric                 Metric
+	Log                    Log
+	Server                 Server
+	Db                     DB
+	Flow                   Flow
+	TransactionReqMetaData TransactionReqMetaData
+	Redis                  Redis
+	Mambu                  Mambu
+}
 
-type TDConfig struct {
-	Trace *struct {
-		CollectorURL string
-		ServiceName  string
-		SourceEnv    string
+type TransactionReqMetaData struct {
+	MessageType                    string
+	LocalHolderKey                 string
+	ExternalOriTransactionID       string
+	ExternalOriTransactionDetailID string
+	TransactionType                string
+	TerminalType                   string
+	TerminalID                     string
+	TerminalLocation               string
+	ProductCode                    string
+	AcquirerIID                    string
+	ForwarderIID                   string
+	IssuerIID                      string
+	IssuerIName                    string
+	DestinationIID                 string
+	Currency                       string
+	TranDesc                       *struct {
+		WithdrawAdditionalProfitTranDesc1 string
+		WithdrawAdditionalProfitTranDesc3 string
+		WithdrawBalanceTranDesc1          string
+		WithdrawBalanceTranDesc3          string
+		WithdrawNetprofitTranDesc1        string
+		WithdrawNetprofitTranDesc3        string
+		DepositAdditionalProfitTranDesc1  string
+		DepositAdditionalProfitTranDesc3  string
+		DepositBalanceTranDesc1           string
+		DepositBalanceTranDesc3           string
+		DepositNetprofitTranDesc1         string
+		DepositNetprofitTranDesc3         string
 	}
-	Metric *struct {
-		Port         int
-		AgentAddress string
-	}
-	Log *struct {
-		Filename   string
-		Maxsize    int
-		MaxBackups int
-		MaxAge     int
-		Level      string
-	}
-	Server *struct {
-		RunMode      string
-		HttpPort     int
-		ReadTimeout  int
-		WriteTimeout int
-		AuthToken    string
-	}
-	Db *struct {
-		Username    string
-		Password    string
-		Host        string
-		Port        int
-		Db          string
-		MaxOpenConn int
-		MaxIdleConn int
-	}
-	Flow *struct {
-		NodeFailRetryTimes    int
-		MaxLimitSearchAccount int32
-		NodeSleepTime         time.Duration
-		FlowStartSleepTime    time.Duration
-	}
-	TransactionReqMetaData *struct {
-		MessageType                    string
-		LocalHolderKey                 string
-		ExternalOriTransactionID       string
-		ExternalOriTransactionDetailID string
-		TransactionType                string
-		TerminalType                   string
-		TerminalID                     string
-		TerminalLocation               string
-		ProductCode                    string
-		AcquirerIID                    string
-		ForwarderIID                   string
-		IssuerIID                      string
-		IssuerIName                    string
-		DestinationIID                 string
-		Currency                       string
-		TranDesc                       *struct {
-			WithdrawAdditionalProfitTranDesc1 string
-			WithdrawAdditionalProfitTranDesc3 string
-			WithdrawBalanceTranDesc1          string
-			WithdrawBalanceTranDesc3          string
-			WithdrawNetprofitTranDesc1        string
-			WithdrawNetprofitTranDesc3        string
-			DepositAdditionalProfitTranDesc1  string
-			DepositAdditionalProfitTranDesc3  string
-			DepositBalanceTranDesc1           string
-			DepositBalanceTranDesc3           string
-			DepositNetprofitTranDesc1         string
-			DepositNetprofitTranDesc3         string
-		}
-	}
-	Redis *struct {
-		Addr     string
-		Password string
-		PoolSize int
-		DB       int
-	}
-	Mambu *struct {
-		Host    string
-		ApiKey  string
-		Timeout time.Duration
-	}
-	SkipTests bool
+}
+
+type Redis struct {
+	Addr     string
+	Password string
+	PoolSize int
+	DB       int
+}
+
+type Mambu struct {
+	Host    string
+	ApiKey  string
+	Timeout time.Duration
 }
 
 func setupViperGSM(viper *viper.Viper, parent string, version string) {
@@ -122,7 +93,51 @@ func setupViperGSM(viper *viper.Viper, parent string, version string) {
 	}
 }
 
-func Setup(path string) *TDConfig {
+type Trace struct {
+	CollectorURL string
+	ServiceName  string
+	SourceEnv    string
+}
+
+type Metric struct {
+	Port         int
+	AgentAddress string
+}
+
+type Log struct {
+	Filename   string
+	Maxsize    int
+	MaxBackups int
+	MaxAge     int
+	Level      string
+}
+
+type Server struct {
+	RunMode      string
+	HttpPort     int
+	ReadTimeout  int
+	WriteTimeout int
+	AuthToken    string
+}
+
+type DB struct {
+	Username    string
+	Password    string
+	Host        string
+	Port        int
+	Db          string
+	MaxOpenConn int
+	MaxIdleConn int
+}
+
+type Flow struct {
+	NodeFailRetryTimes    int
+	MaxLimitSearchAccount int32
+	NodeSleepTime         time.Duration
+	FlowStartSleepTime    time.Duration
+}
+
+func NewConfig(path string) *Config {
 	configViper := viper.New()
 	configViper.SetConfigType("json")
 
@@ -131,7 +146,6 @@ func Setup(path string) *TDConfig {
 	version := os.Getenv("VERSION")
 	if "" != gsmCredentialPath && "" != parent && "" != version {
 		setupViperGSM(configViper, parent, version)
-
 	} else {
 		envConfigPath := os.Getenv("TD_CONFIG_PATH")
 		configViper.SetConfigFile(path)
@@ -147,9 +161,10 @@ func Setup(path string) *TDConfig {
 			}
 		}
 	}
-	err := configViper.Unmarshal(TDConf)
+	var config Config
+	err := configViper.Unmarshal(&config)
 	if err != nil {
 		log.Fatalf("config unmarshal error")
 	}
-	return TDConf
+	return &config
 }

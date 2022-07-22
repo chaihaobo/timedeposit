@@ -1,26 +1,22 @@
-package util
+// Package common
+// @author： Boice
+// @createTime：2022/7/22 15:53
+package common
 
 import (
 	"fmt"
 	"gitlab.com/bns-engineering/common/telemetry"
 	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
 	"gitlab.com/bns-engineering/td/common/config"
-	commonlog "gitlab.com/bns-engineering/td/common/log"
 	"regexp"
 )
 
-var telemetryApi *telemetry.API
-var telemetryApiCloser func()
-
-func GetTelemetry() *telemetry.API {
-	return telemetryApi
+type Telemetry struct {
+	API    *telemetry.API
+	Closer func()
 }
 
-func GetTelemetryCloser() func() {
-	return telemetryApiCloser
-}
-
-func SetupTelemetry(config *config.TDConfig) (*telemetry.API, func()) {
+func NewTelemetry(config *config.Config) *Telemetry {
 	telemetryConfig := telemetry.APIConfig{
 		LoggerConfig: telemetry.LoggerConfig{
 			FileName: config.Log.Filename,
@@ -35,16 +31,14 @@ func SetupTelemetry(config *config.TDConfig) (*telemetry.API, func()) {
 		},
 	}
 	ins, fn, _ := telemetry.NewInstrumentation(telemetryConfig)
-	telemetryApi = ins
-	telemetryApiCloser = fn
 
 	ins.Filter = new(telemetry.FilterConfig)
 	initLogBodyFilter([]string{"password", "nik", "motherName"}, ins)
 	initLogHeaderFilter([]string{"authorization,Authorization,deviceid"}, ins)
-	SetTelemetryDataDog(ins)
-	commonlog.NewLogger(ins)
-
-	return ins, fn
+	return &Telemetry{
+		ins,
+		fn,
+	}
 }
 
 func initLogBodyFilter(configString []string, client *telemetry.API) {

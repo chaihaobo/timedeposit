@@ -1,8 +1,10 @@
-package log
+// Package common
+// @author： Boice
+// @createTime：2022/7/22 16:10
+package common
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -15,71 +17,16 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"runtime"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
 )
 
-type log struct {
-	logProvider telemetry.Logger
-}
+type Logger telemetry.Logger
 
-const (
-	skip        = 2
-	SERVICENAME = "time_deposit"
-)
-
-var logInstance *log
-
-func NewLogger(telemetryAPI *telemetry.API) {
-	if logInstance == nil {
-		logInstance = &log{
-			logProvider: telemetryAPI.Logger(),
-		}
-	}
-}
-
-func Error(ctx context.Context, msg string, err error, fields ...zap.Field) {
-	file, line := getFileAndLine()
-	fileNLine := fmt.Sprintf("%s:%d", file, line)
-	fields = append(fields, zap.String("file", fileNLine))
-	logInstance.logProvider.Error(ctx, msg, err, fields...)
-}
-
-func Info(ctx context.Context, msg string, fields ...zap.Field) {
-	file, line := getFileAndLine()
-	fileNLine := fmt.Sprintf("%s:%d", file, line)
-	fields = append(fields, zap.String("file", fileNLine))
-	logInstance.logProvider.Info(ctx, msg, fields...)
-}
-
-func Warn(ctx context.Context, msg string, fields ...zap.Field) {
-	file, line := getFileAndLine()
-	fileNLine := fmt.Sprintf("%s:%d", file, line)
-	fields = append(fields, zap.String("file", fileNLine))
-	logInstance.logProvider.Warn(ctx, msg, fields...)
-}
-
-func getFileAndLine() (string, int) {
-	_, file, line, ok := runtime.Caller(skip)
-	if !ok {
-		file = "<???>"
-		line = 1
-	} else {
-		i := strings.Index(file, "td")
-		file = file[i:]
-	}
-
-	return file, line
-}
-
-func SetFieldString(param map[string]string) (fields []Field) {
-	for i, val := range param {
-		fields = append(fields, Field{Field: zap.String(i, val)})
-	}
-	return
+func NewLogger(telemetryAPI *telemetry.API) Logger {
+	return telemetryAPI.Logger()
 }
 
 func GinLoggerResponse(telemetry *telemetry.API) gin.HandlerFunc {
@@ -92,7 +39,7 @@ func GinLoggerResponse(telemetry *telemetry.API) gin.HandlerFunc {
 
 			// send metrics to datadog
 			method := strings.ToLower(c.Request.Method)
-			name := SERVICENAME + fmt.Sprintf("%s_%s", method, c.Request.URL.Path)
+			name := telemetry.ServiceAPI + fmt.Sprintf("%s_%s", method, c.Request.URL.Path)
 			if telemetry.ServiceAPI != "" {
 				name = telemetry.ServiceAPI
 			}
@@ -115,9 +62,7 @@ func GinLoggerResponse(telemetry *telemetry.API) gin.HandlerFunc {
 		}(time.Now())
 
 		defer func() {
-
 			var makemapresp interface{}
-
 			var responseBytes []byte // response writer in byte
 			filterConfig := telemetry.Filter
 			makemapresp = string(responseBytes)
@@ -130,7 +75,7 @@ func GinLoggerResponse(telemetry *telemetry.API) gin.HandlerFunc {
 				makemapresp = filter.BodyFilter(rules, makemapresp)
 			}
 
-			Info(c.Request.Context(), "Http Response",
+			telemetry.Logger().Info(c.Request.Context(), "Http Response",
 				[]zap.Field{
 					zap.String(ins.LabelHTTPService, c.Request.URL.Path),
 					zap.Any(ins.LabelHTTPResponse, makemapresp),
@@ -170,7 +115,7 @@ func GinLoggerRequest(telemetry *telemetry.API) gin.HandlerFunc {
 
 			filteredHeader := filter.HeaderFilter(header, headerKeyFilter)
 
-			Info(c.Request.Context(), "Http Request",
+			telemetry.Logger().Info(c.Request.Context(), "Http Request",
 				[]zap.Field{
 					zap.String(ins.LabelHTTPService, c.Request.URL.Path),
 					zap.Any(ins.LabelHTTPHeader, filteredHeader),
@@ -187,7 +132,7 @@ func GinLoggerRequest(telemetry *telemetry.API) gin.HandlerFunc {
 
 			filteredHeader := filter.HeaderFilter(header, headerKeyFilter)
 
-			Info(c.Request.Context(), "Http Request",
+			telemetry.Logger().Info(c.Request.Context(), "Http Request",
 				[]zap.Field{
 					zap.String(ins.LabelHTTPService, c.Request.URL.Path),
 					zap.Any(ins.LabelHTTPHeader, filteredHeader),
@@ -200,7 +145,7 @@ func GinLoggerRequest(telemetry *telemetry.API) gin.HandlerFunc {
 
 }
 
-func GinRecovery(stack bool) gin.HandlerFunc {
+func GinRecovery(telemetry *telemetry.API, stack bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -217,7 +162,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					Error(c.Request.Context(), c.Request.URL.Path,
+					telemetry.Logger().Error(c.Request.Context(), c.Request.URL.Path,
 						errors.New(fmt.Sprintf("%v", err)),
 						zap.String("request", string(httpRequest)),
 					)
@@ -228,13 +173,13 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					Error(c.Request.Context(), "[Recovery from panic]",
+					telemetry.Logger().Error(c.Request.Context(), "[Recovery from panic]",
 						errors.New(fmt.Sprintf("%v", err)),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					Error(c.Request.Context(), "[Recovery from panic]",
+					telemetry.Logger().Error(c.Request.Context(), "[Recovery from panic]",
 						errors.New(fmt.Sprintf("%v", err)),
 						zap.String("request", string(httpRequest)),
 					)

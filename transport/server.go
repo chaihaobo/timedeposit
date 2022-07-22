@@ -56,7 +56,7 @@ func (s *tdServer) Shutdown() {
 	util.CheckAndExit(s.server.Shutdown(ctx))
 }
 
-func NewTdServer(config *config.TDConfig) Server {
+func NewTdServer(config *config.Config) Server {
 	ins, closer := util.SetupTelemetry(config)
 	return &tdServer{
 		telemetryApi:    ins,
