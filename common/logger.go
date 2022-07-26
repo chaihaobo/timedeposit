@@ -20,12 +20,19 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
+var L Logger
+var LOnce sync.Once
+
 type Logger telemetry.Logger
 
-func NewLogger(telemetryAPI *telemetry.API) Logger {
+func newLogger(telemetryAPI *telemetry.API) Logger {
+	LOnce.Do(func() {
+		L = telemetryAPI.Logger()
+	})
 	return telemetryAPI.Logger()
 }
 

@@ -8,19 +8,13 @@ import (
 	"fmt"
 	"github.com/thoas/go-funk"
 	"gitlab.com/bns-engineering/common/tracer"
+	"gitlab.com/bns-engineering/td/common"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model/dto"
 	"gitlab.com/bns-engineering/td/model/po"
 	"strings"
 	"time"
 )
-
-var flowTaskInfoRepository *FlowTaskInfoRepository
-
-func GetFlowTaskInfoRepository() IFlowTaskInfoRepository {
-	return flowTaskInfoRepository
-}
 
 type IFlowTaskInfoRepository interface {
 	Get(ctx context.Context, flowId string) *po.TFlowTaskInfo
@@ -31,64 +25,65 @@ type IFlowTaskInfoRepository interface {
 	MetricByDay(ctx context.Context, dayList []string) []dto.FlowMetricResultModel
 }
 
-type FlowTaskInfoRepository struct{}
+type flowTaskInfoRepository struct {
+	common *common.Common
+}
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) Get(ctx context.Context, flowId string) *po.TFlowTaskInfo {
+func (f *flowTaskInfoRepository) Get(ctx context.Context, flowId string) *po.TFlowTaskInfo {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-GetFlowNodeRelatiGetonListByFlowName")
 	ctx = tr.Context()
 	defer tr.Finish()
 	flowTaskInfo := new(po.TFlowTaskInfo)
-	db.GetDB().Where("flow_id =? and enable = ?", flowId, 1).Last(flowTaskInfo)
+	f.common.DB.Where("flow_id =? and enable = ?", flowId, 1).Last(flowTaskInfo)
 	if flowTaskInfo.Id > 0 {
 		return flowTaskInfo
-	} else {
-		return nil
 	}
+	return nil
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) Update(ctx context.Context, flowTaskInfo *po.TFlowTaskInfo) {
+func (f *flowTaskInfoRepository) Update(ctx context.Context, flowTaskInfo *po.TFlowTaskInfo) {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-Update")
 	ctx = tr.Context()
 	defer tr.Finish()
 	flowTaskInfo.UpdateTime = time.Now()
-	db.GetDB().Save(flowTaskInfo)
+	f.common.DB.Save(flowTaskInfo)
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) FailFlowList(ctx context.Context, pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo {
+func (f *flowTaskInfoRepository) FailFlowList(ctx context.Context, pagination *dto.Pagination, accountId string) []*po.TFlowTaskInfo {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-FailFlowList")
 	ctx = tr.Context()
 	defer tr.Finish()
 	failTaskInfoList := make([]*po.TFlowTaskInfo, 0)
-	query := db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("create_time")
+	query := f.common.DB.Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("create_time")
 	if accountId != "" {
 		query = query.Where("account_id", accountId)
 	}
-	db.FindPage(ctx, query, pagination, &failTaskInfoList)
+	common.FindPage(ctx, query, pagination, &failTaskInfoList)
 	return failTaskInfoList
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) AllFailFlowIdList(ctx context.Context) []string {
+func (f *flowTaskInfoRepository) AllFailFlowIdList(ctx context.Context) []string {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-AllFailFlowIdList")
 	ctx = tr.Context()
 	defer tr.Finish()
 	failFlowIdList := make([]string, 0)
-	db.GetDB().Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc").Pluck("flow_id", &failFlowIdList)
+	f.common.DB.Model(new(po.TFlowTaskInfo)).Where("cur_status = ? and enable = ?", string(constant.FlowNodeFailed), 1).Order("id desc").Pluck("flow_id", &failFlowIdList)
 	return failFlowIdList
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) GetLastByAccountId(ctx context.Context, accountId string) *po.TFlowTaskInfo {
+func (f *flowTaskInfoRepository) GetLastByAccountId(ctx context.Context, accountId string) *po.TFlowTaskInfo {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-GetLastByAccountId")
 	ctx = tr.Context()
 	defer tr.Finish()
 	taskInfo := new(po.TFlowTaskInfo)
-	db.GetDB().Where("account_id = ? and enable = ?", accountId, 1).Order("id desc").First(taskInfo)
+	f.common.DB.Where("account_id = ? and enable = ?", accountId, 1).Order("id desc").First(taskInfo)
 	if taskInfo.Id > 0 {
 		return taskInfo
 	}
 	return nil
 }
 
-func (flowTaskInfoRepository *FlowTaskInfoRepository) MetricByDay(ctx context.Context, dayList []string) []dto.FlowMetricResultModel {
+func (f *flowTaskInfoRepository) MetricByDay(ctx context.Context, dayList []string) []dto.FlowMetricResultModel {
 	tr := tracer.StartTrace(ctx, "flow_task_info_repository-MetricByDay")
 	ctx = tr.Context()
 	defer tr.Finish()
@@ -107,10 +102,12 @@ func (flowTaskInfoRepository *FlowTaskInfoRepository) MetricByDay(ctx context.Co
 `, dateSql)
 
 	result := make([]dto.FlowMetricResultModel, 0)
-	db.GetDB().Raw(sql).Scan(&result)
+	f.common.DB.Raw(sql).Scan(&result)
 	return result
 }
 
-func init() {
-	flowTaskInfoRepository = new(FlowTaskInfoRepository)
+func newFlowTaskInfoRepository(common *common.Common) IFlowTaskInfoRepository {
+	return &flowTaskInfoRepository{
+		common: common,
+	}
 }

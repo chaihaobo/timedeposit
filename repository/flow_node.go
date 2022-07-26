@@ -6,31 +6,29 @@ package repository
 import (
 	"context"
 	"gitlab.com/bns-engineering/common/tracer"
-	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/common"
 	"gitlab.com/bns-engineering/td/model/po"
 )
-
-var repository *FlowNodeRepository
 
 type IFlowNodeRepository interface {
 	GetFlowNodeListByFlowName(ctx context.Context, flowName string) []*po.TFlowNode
 }
 
-type FlowNodeRepository struct{}
+type flowNodeRepository struct {
+	common *common.Common
+}
 
-func (flowNodeRepository *FlowNodeRepository) GetFlowNodeListByFlowName(ctx context.Context, flowName string) []*po.TFlowNode {
+func (flowNodeRepository *flowNodeRepository) GetFlowNodeListByFlowName(ctx context.Context, flowName string) []*po.TFlowNode {
 	tr := tracer.StartTrace(ctx, "flow_node_repository-GetFlowNodeListByFlowName")
 	ctx = tr.Context()
 	defer tr.Finish()
 	var flowNodes = make([]*po.TFlowNode, 0)
-	db.GetDB().Where("flow_name", flowName).Find(&flowNodes)
+	flowNodeRepository.common.DB.Where("flow_name", flowName).Find(&flowNodes)
 	return flowNodes
 }
 
-func init() {
-	repository = new(FlowNodeRepository)
-}
-
-func GetFlowNodeRepository() IFlowNodeRepository {
-	return repository
+func newFlowNodeRepository(common *common.Common) IFlowNodeRepository {
+	return &flowNodeRepository{
+		common: common,
+	}
 }

@@ -21,7 +21,7 @@ type DataDogMetric struct {
 	metricName string
 }
 
-func NewDataDog(telemetryAPI *telemetry.API) *DataDog {
+func newDataDog(telemetryAPI *telemetry.API) *DataDog {
 	return &DataDog{
 		Metric:      telemetryAPI.Metric(),
 		ServiceName: telemetryAPI.ServiceAPI,

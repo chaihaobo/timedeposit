@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"gitlab.com/bns-engineering/common/telemetry"
 	"gitlab.com/bns-engineering/common/telemetry/instrumentation/filter"
-	"gitlab.com/bns-engineering/td/common/config"
 	"regexp"
 )
 
@@ -16,7 +15,7 @@ type Telemetry struct {
 	Closer func()
 }
 
-func NewTelemetry(config *config.Config) *Telemetry {
+func newTelemetry(config *Config) *Telemetry {
 	telemetryConfig := telemetry.APIConfig{
 		LoggerConfig: telemetry.LoggerConfig{
 			FileName: config.Log.Filename,

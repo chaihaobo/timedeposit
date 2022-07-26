@@ -3,28 +3,22 @@
 // @createTime：2022/7/22 15:27
 package common
 
-import (
-	"gitlab.com/bns-engineering/td/common/cache"
-	"gitlab.com/bns-engineering/td/common/config"
-	"gitlab.com/bns-engineering/td/common/database"
-)
-
 type Common struct {
-	Config    *config.Config
-	Cache     *cache.Cache
-	DB        *database.Database
+	Config    *Config
+	Cache     *Cache
+	DB        *Database
 	Telemetry *Telemetry
 	DataDog   *DataDog
 	Logger    Logger
 }
 
-func (c Common) NewCommon(configPath string) *Common {
-	config := config.NewConfig(configPath)
-	cache := cache.NewCache(config)
-	database := database.NewDatabase(config)
-	telemetry := NewTelemetry(config)
-	dataDog := NewDataDog(telemetry.API)
-	logger := NewLogger(telemetry.API)
+func NewCommon(configPath string) *Common {
+	config := newConfig(configPath)
+	cache := newCache(config)
+	database := newDatabase(config)
+	telemetry := newTelemetry(config)
+	dataDog := newDataDog(telemetry.API)
+	logger := newLogger(telemetry.API)
 	return &Common{
 		Config:    config,
 		Cache:     cache,

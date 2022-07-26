@@ -7,8 +7,10 @@
 package main
 
 import (
-	"github.com/guonaihong/gout/dataflow"
-	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/application"
+	"gitlab.com/bns-engineering/td/common"
+	"gitlab.com/bns-engineering/td/repository"
+	"gitlab.com/bns-engineering/td/service"
 	"gitlab.com/bns-engineering/td/transport"
 	"time"
 
@@ -21,16 +23,17 @@ func main() {
 
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
-
-	server := transport.NewTdServer(config.Setup("./config.json"))
-	dataflow.GlobalSetting.SetTimeout(config.TDConf.Mambu.Timeout)
-	server.Start()
+	com := common.NewCommon("./config.json")
+	repo := repository.NewRepository(com)
+	svc := service.NewService(com, repo)
+	app := application.NewApplication(com, repo, svc)
+	tp := transport.NewTransport(com, app)
+	tp.Start()
 	// graceful shutdown
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
 	<-sigs
 	// stop gin engine
-	server.Shutdown()
+	tp.Stop()
 
 }

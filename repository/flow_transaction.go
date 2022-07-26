@@ -6,14 +6,12 @@ package repository
 import (
 	"context"
 	"gitlab.com/bns-engineering/common/tracer"
+	"gitlab.com/bns-engineering/td/common"
 	"gitlab.com/bns-engineering/td/common/constant"
-	"gitlab.com/bns-engineering/td/common/db"
 	"gitlab.com/bns-engineering/td/model/mambu"
 	"gitlab.com/bns-engineering/td/model/po"
 	"time"
 )
-
-var flowTransactionRepository = new(FlowTransactionRepository)
 
 type IFlowTransactionRepository interface {
 	GetTransactionByTransId(ctx context.Context, transId string) *po.TFlowTransactions
@@ -23,43 +21,45 @@ type IFlowTransactionRepository interface {
 	GetLastByFlowId(ctx context.Context, flowId string) *po.TFlowTransactions
 }
 
-type FlowTransactionRepository int
+type flowTransactionRepository struct {
+	common *common.Common
+}
 
-func (flowTransactionRepository *FlowTransactionRepository) GetTransactionByTransId(ctx context.Context, transId string) *po.TFlowTransactions {
+func (f *flowTransactionRepository) GetTransactionByTransId(ctx context.Context, transId string) *po.TFlowTransactions {
 	tr := tracer.StartTrace(ctx, "flow_transaction_repository-GetTransactionByTransId")
 	ctx = tr.Context()
 	defer tr.Finish()
 	flowTransaction := new(po.TFlowTransactions)
-	rowsAffected := db.GetDB().Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
+	rowsAffected := f.common.DB.Where("trans_id", transId).Where("result", 1).Last(flowTransaction).RowsAffected
 	if rowsAffected > 0 {
 		return flowTransaction
 	}
 	return nil
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) GetLastByFlowId(ctx context.Context, flowId string) *po.TFlowTransactions {
+func (f *flowTransactionRepository) GetLastByFlowId(ctx context.Context, flowId string) *po.TFlowTransactions {
 	tr := tracer.StartTrace(ctx, "flow_transaction_repository-GetLastByFlowId")
 	ctx = tr.Context()
 	defer tr.Finish()
 
 	flowTransaction := new(po.TFlowTransactions)
-	rowsAffected := db.GetDB().Where("flow_id", flowId).Where("result", 1).Last(flowTransaction).RowsAffected
+	rowsAffected := f.common.DB.Where("flow_id", flowId).Where("result", 1).Last(flowTransaction).RowsAffected
 	if rowsAffected > 0 {
 		return flowTransaction
 	}
 	return nil
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) ListErrorTransactionByFlowId(ctx context.Context, flowId string) []po.TFlowTransactions {
+func (f *flowTransactionRepository) ListErrorTransactionByFlowId(ctx context.Context, flowId string) []po.TFlowTransactions {
 	tr := tracer.StartTrace(ctx, "flow_transaction_repository-ListErrorTransactionByFlowId")
 	ctx = tr.Context()
 	defer tr.Finish()
 	failedTransactions := make([]po.TFlowTransactions, 1)
-	db.GetDB().Model(new(po.TFlowTransactions)).Where("flow_id = ? and result=0", flowId).Order("id desc").Find(&failedTransactions)
+	f.common.DB.Model(new(po.TFlowTransactions)).Where("flow_id = ? and result=0", flowId).Order("id desc").Find(&failedTransactions)
 	return failedTransactions
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTransaction(ctx context.Context, transactionResp *mambu.TransactionResp) *po.TFlowTransactions {
+func (f *flowTransactionRepository) CreateSucceedFlowTransaction(ctx context.Context, transactionResp *mambu.TransactionResp) *po.TFlowTransactions {
 	tFlowTask := po.TFlowTransactions{
 		TransId:            transactionResp.Metadata.ExternalTransactionID,
 		MambuTransId:       transactionResp.ID,
@@ -81,11 +81,11 @@ func (flowTransactionRepository *FlowTransactionRepository) CreateSucceedFlowTra
 		tFlowTask.FlowId = ctx.Value("flowId").(string)
 	}
 
-	db.GetDB().Save(&tFlowTask)
+	f.common.DB.Save(&tFlowTask)
 	return &tFlowTask
 }
 
-func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransaction(ctx context.Context, transactionReq *mambu.TransactionReq, transType string, errorMsg string) *po.TFlowTransactions {
+func (f *flowTransactionRepository) CreateFailedTransaction(ctx context.Context, transactionReq *mambu.TransactionReq, transType string, errorMsg string) *po.TFlowTransactions {
 	tr := tracer.StartTrace(ctx, "flow_transaction_repository-CreateFailedTransaction")
 	ctx = tr.Context()
 	defer tr.Finish()
@@ -108,10 +108,12 @@ func (flowTransactionRepository *FlowTransactionRepository) CreateFailedTransact
 	if ctx != nil && ctx.Value("flowId") != nil {
 		tFlowTask.FlowId = ctx.Value("flowId").(string)
 	}
-	db.GetDB().Save(&tFlowTask)
+	f.common.DB.Save(&tFlowTask)
 	return &tFlowTask
 }
 
-func GetFlowTransactionRepository() IFlowTransactionRepository {
-	return flowTransactionRepository
+func newFlowTransactionRepository(common *common.Common) IFlowTransactionRepository {
+	return &flowTransactionRepository{
+		common: common,
+	}
 }

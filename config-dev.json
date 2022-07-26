@@ -19,14 +19,14 @@
     "nodeFailRetryTimes": 3,
     "maxLimitSearchAccount": 1000,
     "nodeSleepTime": "0s",
-    "flowStartSleepTime": "3s"
+    "flowStartSleepTime": "0s"
   },
   "db": {
     "username": "hugo",
     "password": "123456",
     "host": "192.168.31.58",
     "port": 3306,
-    "db": "time_deposit_eod_engine",
+    "db": "time_deposit",
     "maxOpenConn": 100,
     "maxIdleConn": 20
   },
@@ -77,7 +77,5 @@
       "depositNetprofitTranDesc1": "Bagi Hasil Deposito",
       "depositNetprofitTranDesc3": null
     }
-  },
-
-  "skipTests": true
+  }
 }

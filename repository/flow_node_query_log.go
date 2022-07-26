@@ -6,12 +6,10 @@ package repository
 import (
 	"context"
 	"gitlab.com/bns-engineering/common/tracer"
-	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/common"
 	"gitlab.com/bns-engineering/td/model/po"
 	"time"
 )
-
-var flowNodeQueryLogRepository *FlowNodeQueryLogRepository
 
 type IFlowNodeQueryLogRepository interface {
 	SaveLog(ctx context.Context, flowId string, nodeName string, queryType string, data string)
@@ -20,10 +18,11 @@ type IFlowNodeQueryLogRepository interface {
 	GetLogValueOr(ctx context.Context, flowId string, nodeName string, queryType string, valueGenerator func() string) string
 }
 
-type FlowNodeQueryLogRepository struct {
+type flowNodeQueryLogRepository struct {
+	common *common.Common
 }
 
-func (f *FlowNodeQueryLogRepository) SaveLog(ctx context.Context, flowId string, nodeName string, queryType string, data string) {
+func (f *flowNodeQueryLogRepository) SaveLog(ctx context.Context, flowId string, nodeName string, queryType string, data string) {
 	log := new(po.TFlowNodeQueryLog)
 	log.FLowId = flowId
 	log.NodeName = nodeName
@@ -31,42 +30,42 @@ func (f *FlowNodeQueryLogRepository) SaveLog(ctx context.Context, flowId string,
 	log.Data = data
 	log.CreateTime = time.Now()
 	log.UpdateTime = time.Now()
-	db.GetDB().Save(log)
+	f.common.DB.Save(log)
 }
 
-func (f *FlowNodeQueryLogRepository) GetLog(ctx context.Context, flowId string, nodeName string, queryType string) *po.TFlowNodeQueryLog {
+func (f *flowNodeQueryLogRepository) GetLog(ctx context.Context, flowId string, nodeName string, queryType string) *po.TFlowNodeQueryLog {
 	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetLog")
 	ctx = tr.Context()
 	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
-	db.GetDB().Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).First(log)
+	f.common.DB.Where("flow_id", flowId).Where("node_name", nodeName).Where("query_type", queryType).First(log)
 	if log.ID > 0 {
 		return log
 	}
 	return nil
 }
 
-func (f *FlowNodeQueryLogRepository) GetNewLog(ctx context.Context, flowId string, queryType string) *po.TFlowNodeQueryLog {
+func (f *flowNodeQueryLogRepository) GetNewLog(ctx context.Context, flowId string, queryType string) *po.TFlowNodeQueryLog {
 	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetNewLog")
 	ctx = tr.Context()
 	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
-	db.GetDB().Where("flow_id", flowId).Where("query_type", queryType).Last(log)
+	f.common.DB.Where("flow_id", flowId).Where("query_type", queryType).Last(log)
 	if log.ID > 0 {
 		return log
 	}
 	return nil
 }
 
-func (f *FlowNodeQueryLogRepository) GetLogValueOr(ctx context.Context, flowId string, nodeName string, queryType string, valueGenerator func() string) string {
+func (f *flowNodeQueryLogRepository) GetLogValueOr(ctx context.Context, flowId string, nodeName string, queryType string, valueGenerator func() string) string {
 	tr := tracer.StartTrace(ctx, "flow_node_query_log_repository-GetLogValueOr")
 	ctx = tr.Context()
 	defer tr.Finish()
 	log := new(po.TFlowNodeQueryLog)
 	genValue := valueGenerator()
-	result := db.GetDB().Where("flow_id = ? and node_name=? and query_type = ?", flowId, nodeName, queryType).Order("id desc").First(log)
+	result := f.common.DB.Where("flow_id = ? and node_name=? and query_type = ?", flowId, nodeName, queryType).Order("id desc").First(log)
 	if result.RowsAffected <= 0 {
-		db.GetDB().Save(&po.TFlowNodeQueryLog{
+		f.common.DB.Save(&po.TFlowNodeQueryLog{
 			FLowId:     flowId,
 			NodeName:   nodeName,
 			QueryType:  queryType,
@@ -79,10 +78,8 @@ func (f *FlowNodeQueryLogRepository) GetLogValueOr(ctx context.Context, flowId s
 	return log.Data
 }
 
-func GetFlowNodeQueryLogRepository() IFlowNodeQueryLogRepository {
-	return flowNodeQueryLogRepository
-}
-
-func init() {
-	flowNodeQueryLogRepository = new(FlowNodeQueryLogRepository)
+func newFlowNodeQueryLogRepository(common *common.Common) IFlowNodeQueryLogRepository {
+	return &flowNodeQueryLogRepository{
+		common: common,
+	}
 }

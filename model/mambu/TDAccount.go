@@ -10,8 +10,8 @@ import (
 	"context"
 	"github.com/shopspring/decimal"
 	"github.com/uniplaces/carbon"
-	"gitlab.com/bns-engineering/td/common/log"
-	time2 "gitlab.com/bns-engineering/td/common/util/time"
+	"gitlab.com/bns-engineering/td/common"
+	time2 "gitlab.com/bns-engineering/td/common/util"
 	"go.uber.org/zap"
 	"strconv"
 	"strings"
@@ -139,7 +139,7 @@ func (tdAccInfo *TDAccount) IsCaseA(taskCreateTime time.Time) bool {
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		common.L.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 
@@ -156,7 +156,7 @@ func (tdAccInfo *TDAccount) IsCaseB(taskCreateTime time.Time) bool {
 	activeState := strings.ToUpper(tdAccInfo.AccountState) == "ACTIVE"
 	rekeningTanggalJatohTempoDate, err := time.Parse(carbon.DateFormat, tdAccInfo.Rekening.RekeningTanggalJatohTempo)
 	if err != nil {
-		log.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
+		common.L.Error(context.Background(), "Error in parsing timeFormat for rekeningTanggalJatohTempoDate", err, zap.String("accNo", tdAccInfo.ID), zap.String("rekeningTanggalJatohTempo", tdAccInfo.Rekening.RekeningTanggalJatohTempo))
 		return false
 	}
 	return isARO &&

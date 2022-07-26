@@ -6,29 +6,25 @@ package repository
 import (
 	"context"
 	"gitlab.com/bns-engineering/common/tracer"
-	"gitlab.com/bns-engineering/td/common/db"
+	"gitlab.com/bns-engineering/td/common"
 	"gitlab.com/bns-engineering/td/model/po"
 )
-
-var flowNodeLogRepository *FlowNodeLogRepository
-
-func GetFlowNodeLogRepository() IFlowNodeLogRepository {
-	return flowNodeLogRepository
-}
 
 type IFlowNodeLogRepository interface {
 	Save(ctx context.Context, log *po.TFlowNodeLog)
 }
 
-type FlowNodeLogRepository struct{}
+type flowNodeLogRepository struct {
+	common *common.Common
+}
 
-func (flowNodeLogRepository *FlowNodeLogRepository) Save(ctx context.Context, log *po.TFlowNodeLog) {
+func (flowNodeLogRepository *flowNodeLogRepository) Save(ctx context.Context, log *po.TFlowNodeLog) {
 	tr := tracer.StartTrace(ctx, "flow_node_log_repository-Save")
 	ctx = tr.Context()
 	defer tr.Finish()
-	db.GetDB().Save(log)
+	flowNodeLogRepository.common.DB.Save(log)
 }
 
-func init() {
-	flowTaskInfoRepository = new(FlowTaskInfoRepository)
+func newFlowNodeLogRepository(common *common.Common) IFlowNodeLogRepository {
+	return &flowNodeLogRepository{}
 }

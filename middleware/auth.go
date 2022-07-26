@@ -5,7 +5,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.com/bns-engineering/td/common/config"
+	"gitlab.com/bns-engineering/td/common"
 	"net/http"
 )
 
@@ -13,10 +13,10 @@ const (
 	authHeader = "Authorization"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(common *common.Common) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		authToken := context.GetHeader(authHeader)
-		if "" == authToken || authToken != config.TDConf.Server.AuthToken {
+		if "" == authToken || authToken != common.Config.Server.AuthToken {
 			context.Abort()
 			context.String(http.StatusUnauthorized, "unauthorized")
 		}
