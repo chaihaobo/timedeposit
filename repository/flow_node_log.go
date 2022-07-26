@@ -26,5 +26,7 @@ func (flowNodeLogRepository *flowNodeLogRepository) Save(ctx context.Context, lo
 }
 
 func newFlowNodeLogRepository(common *common.Common) IFlowNodeLogRepository {
-	return &flowNodeLogRepository{}
+	return &flowNodeLogRepository{
+		common: common,
+	}
 }
