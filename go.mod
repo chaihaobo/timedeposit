@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/golang-module/carbon/v2 v2.1.8 // indirect
+	github.com/golang-module/carbon/v2 v2.1.8
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/stretchr/testify v1.7.2 // indirect
