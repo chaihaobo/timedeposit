@@ -10,12 +10,15 @@ import (
 	"gitlab.com/bns-engineering/td/common/config"
 	"gitlab.com/bns-engineering/td/common/util"
 	"testing"
+	"time"
 )
 
 func init() {
 	util.SetupTelemetry(config.Setup("../../config.json"))
+	zone := time.FixedZone("CST", 7*3600)
+	time.Local = zone
 }
 
 func TestStartFlow(t *testing.T) {
-	// engine.Start(context.Background(), "11979664472")
+	// engine.Start(context.Background(), "11961471326")
 }

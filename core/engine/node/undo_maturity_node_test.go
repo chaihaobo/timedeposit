@@ -10,6 +10,7 @@ import (
 	"gitlab.com/bns-engineering/td/common/util"
 	"reflect"
 	"testing"
+	"time"
 
 	"gitlab.com/bns-engineering/td/common/config"
 )
@@ -60,17 +61,9 @@ func TestUndoMaturityNode_Run(t *testing.T) {
 }
 
 func TestName(t *testing.T) {
-	carbonMaturityDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-02-27T00:00:00+07:00", "")
-	carbonActivationDate, _ := carbon.Parse(carbon.RFC3339Format, "2022-01-28T07:00:00+07:00", "")
-	carbonActivationDate = carbonActivationDate.StartOfDay()
-	diffInMonths := carbonMaturityDate.DiffInMonths(carbonActivationDate, true)
-	if carbonActivationDate.Day() == 31 && (carbonMaturityDate.Day() == 30 || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
-		diffInMonths++
-	}
-	if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 {
-		diffInMonths++
-	}
-
-	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + 1)
-	println(resultDate.DateString())
+	zone := time.FixedZone("CST", 7*3600)
+	time.Local = zone
+	date := time.Date(2022, 5, 31, 0, 0, 0, 0, zone)
+	date2 := time.Date(2022, 7, 1, 0, 0, 0, 0, zone)
+	println(carbon.NewCarbon(date2).DiffInMonths(carbon.NewCarbon(date), true))
 }

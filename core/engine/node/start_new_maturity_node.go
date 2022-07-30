@@ -6,6 +6,7 @@ package node
 import (
 	"context"
 	"fmt"
+	carbonv2 "github.com/golang-module/carbon/v2"
 	"github.com/pkg/errors"
 	"github.com/uniplaces/carbon"
 	"gitlab.com/bns-engineering/td/common/log"
@@ -32,7 +33,7 @@ func (node *StartNewMaturityNode) Run(ctx context.Context) (INodeResult, error) 
 	}
 	if account.IsCaseA() {
 		activationDate := account.ActivationDate
-		maturityDate, err := generateMaturityDateStr(node.GetContext(ctx), account.OtherInformation.Tenor, account.MaturityDate, account.MatureOnHoliday(), &activationDate)
+		maturityDate, err := generateMaturityDateStr(node.GetContext(ctx), account.OtherInformation.Tenor, account.MaturityDate, account.MatureOnHoliday(), activationDate)
 		if err != nil {
 			log.Info(ctx, fmt.Sprintf("Generate New Maturity Date failed, Account: %v", account.ID))
 			return nil, err
@@ -53,25 +54,15 @@ func (node *StartNewMaturityNode) Run(ctx context.Context) (INodeResult, error) 
 }
 
 // Calcuate the new maturity date by tenor
-func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate time.Time, matureOnHoliday bool, activationDate *time.Time) (string, error) {
+func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate time.Time, matureOnHoliday bool, activationDate time.Time) (string, error) {
 	tenorInt, err := strconv.Atoi(tenor)
 	if err != nil {
 		log.Error(ctx, fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor), err)
 		return "", errors.New("convert tenor to int failed")
 	}
 	carbonMaturityDate := carbon.NewCarbon(maturityDate)
-	carbonActivationDate := carbon.NewCarbon(*activationDate).StartOfDay()
-
-	// resultDate := carbonMaturityDate.AddMonthsNoOverflow(tenorInt)
-	// if last maturity day of month is 31 .then next maturity day is last of that month
-	// if activationDate != nil {
-	// 	if carbon.NewCarbon(*activationDate).Day() == endDayOfBigMonth &&
-	// 		(carbonMaturityDate.Day() == endDayOfSmallMonth || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.Day() == carbonMaturityDate.LastDayOfMonth().Day())) {
-	// 		resultDate = resultDate.LastDayOfMonth()
-	// 	}
-	//
-	// }
-	diffInMonths := carbonMaturityDate.DiffInMonths(carbonActivationDate, true)
+	carbonActivationDate := carbon.NewCarbon(activationDate)
+	diffInMonths := carbonv2.Parse(carbonActivationDate.DateString()).DiffInMonths(carbonv2.Parse(carbonMaturityDate.DateString()))
 	if carbonActivationDate.Day() == endDayOfBigMonth &&
 		(carbonMaturityDate.Day() == endDayOfSmallMonth ||
 			(carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
@@ -80,7 +71,6 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 	if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 {
 		diffInMonths++
 	}
-
 	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + tenorInt)
 	holidayList := holidayservice.GetHolidayList(ctx)
 	if !matureOnHoliday {
