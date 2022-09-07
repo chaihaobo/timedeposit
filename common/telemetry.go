@@ -15,17 +15,17 @@ type Telemetry struct {
 	Closer func()
 }
 
-func newTelemetry(config *Config) *Telemetry {
+func newTelemetry(config *Config, credential *Credential) *Telemetry {
 	telemetryConfig := telemetry.APIConfig{
 		LoggerConfig: telemetry.LoggerConfig{
 			FileName: config.Log.Filename,
 			MaxSize:  config.Log.Maxsize,
 			MaxAge:   config.Log.MaxAge,
 		},
-		TraceConfig: telemetry.TraceConfig{CollectorEndpoint: config.Trace.CollectorURL, ServiceName: config.Trace.ServiceName, SourceEnv: config.Trace.SourceEnv},
+		TraceConfig: telemetry.TraceConfig{CollectorEndpoint: credential.Trace.CollectorURL, ServiceName: credential.Trace.ServiceName, SourceEnv: credential.Trace.SourceEnv},
 		MetricConfig: telemetry.MetricConfig{
-			Port:         config.Metric.Port,
-			AgentAddress: config.Metric.AgentAddress,
+			Port:         credential.Metric.Port,
+			AgentAddress: credential.Metric.AgentAddress,
 			SampleRate:   1,
 		},
 	}

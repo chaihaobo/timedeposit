@@ -15,15 +15,10 @@ import (
 var C Config
 
 type Config struct {
-	Trace                  Trace
-	Metric                 Metric
 	Log                    Log
 	Server                 Server
-	DB                     DB
 	Flow                   Flow
 	TransactionReqMetaData TransactionReqMetaData
-	Redis                  Redis
-	Mambu                  Mambu
 }
 
 type TransactionReqMetaData struct {
@@ -58,15 +53,6 @@ type TransactionReqMetaData struct {
 	}
 }
 
-type Redis struct {
-	PoolSize int
-	DB       int
-}
-
-type Mambu struct {
-	Timeout time.Duration
-}
-
 func setupViperGSM(viper *viper.Viper, parent string, version string) {
 	// Create the client.
 	ctx := context.Background()
@@ -91,17 +77,6 @@ func setupViperGSM(viper *viper.Viper, parent string, version string) {
 	}
 }
 
-type Trace struct {
-	CollectorURL string
-	ServiceName  string
-	SourceEnv    string
-}
-
-type Metric struct {
-	Port         int
-	AgentAddress string
-}
-
 type Log struct {
 	Filename   string
 	Maxsize    int
@@ -115,11 +90,6 @@ type Server struct {
 	HttpPort     int
 	ReadTimeout  int
 	WriteTimeout int
-}
-
-type DB struct {
-	MaxOpenConn int
-	MaxIdleConn int
 }
 
 type Flow struct {

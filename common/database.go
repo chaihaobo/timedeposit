@@ -46,8 +46,8 @@ func newDatabase(config *Config, credential *Credential) *Database {
 	}
 	sqlDB, _ := db.DB()
 	// Set the db connection configuration
-	sqlDB.SetMaxOpenConns(config.DB.MaxOpenConn) // set the max openning connection number
-	sqlDB.SetMaxIdleConns(config.DB.MaxIdleConn) // set the max idle connection number
+	sqlDB.SetMaxOpenConns(credential.DB.MaxOpenConn) // set the max openning connection number
+	sqlDB.SetMaxIdleConns(credential.DB.MaxIdleConn) // set the max idle connection number
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	return &Database{
 		db,

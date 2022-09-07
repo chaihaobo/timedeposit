@@ -15,8 +15,8 @@ func newCache(config *Config, credential *Credential) *Cache {
 	client := redis.NewClient(&redis.Options{
 		Addr:     credential.Redis.Addr,
 		Password: credential.Redis.Password,
-		DB:       config.Redis.DB,
-		PoolSize: config.Redis.PoolSize,
+		DB:       credential.Redis.DB,
+		PoolSize: credential.Redis.PoolSize,
 	})
 
 	return &Cache{

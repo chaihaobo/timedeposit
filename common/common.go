@@ -18,7 +18,7 @@ func NewCommon(configPath string, credentialPath string) *Common {
 	credential := newCredential(credentialPath)
 	cache := newCache(config, credential)
 	database := newDatabase(config, credential)
-	telemetry := newTelemetry(config)
+	telemetry := newTelemetry(config, credential)
 	dataDog := newDataDog(telemetry.API)
 	logger := newLogger(telemetry.API)
 	return &Common{

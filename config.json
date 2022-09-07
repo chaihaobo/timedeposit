@@ -1,13 +1,4 @@
 {
-  "trace": {
-    "collectorURL": "http://192.168.31.58:14268/api/traces",
-    "serviceName": "timedeposit",
-    "sourceEnv": "local"
-  },
-  "metric": {
-    "port": 8181,
-    "agentAddress": "127.0.0.1:8125"
-  },
   "log": {
     "filename": "time_deposit_eod_engine.log",
     "maxsize": 100000000,
@@ -21,22 +12,11 @@
     "nodeSleepTime": "0s",
     "flowStartSleepTime": "1h"
   },
-  "db": {
-    "maxOpenConn": 100,
-    "maxIdleConn": 20
-  },
-  "redis": {
-    "poolSize": 10,
-    "db": 0
-  },
   "server": {
     "RunMode": "debug",
     "HttpPort": 8000,
     "ReadTimeout": 60,
     "WriteTimeout": 60
-  },
-  "mambu": {
-    "timeout": "10s"
   },
   "transactionReqMetaData": {
     "localHolderKey": "8ab08091812313d50181239d36020364",

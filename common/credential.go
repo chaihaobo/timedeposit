@@ -5,28 +5,43 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"time"
 )
 
 var CredentialConfig Credential
 
 type Credential struct {
+	Trace struct {
+		CollectorURL string
+		ServiceName  string
+		SourceEnv    string
+	}
+	Metric struct {
+		Port         int
+		AgentAddress string
+	}
 	Server struct {
 		AuthToken string
 	}
 	DB struct {
-		Username string
-		Password string
-		Host     string
-		Port     int
-		Db       string
+		Username    string
+		Password    string
+		Host        string
+		Port        int
+		Db          string
+		MaxOpenConn int
+		MaxIdleConn int
 	}
 	Redis struct {
+		PoolSize int
+		DB       int
 		Addr     string
 		Password string
 	}
 	Mambu struct {
-		Host   string
-		ApiKey string
+		Host    string
+		ApiKey  string
+		Timeout time.Duration
 	}
 }
 
