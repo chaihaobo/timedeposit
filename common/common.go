@@ -4,28 +4,31 @@
 package common
 
 type Common struct {
-	Config    *Config
-	Cache     *Cache
-	DB        *Database
-	Telemetry *Telemetry
-	DataDog   *DataDog
-	Logger    Logger
+	Config     *Config
+	Cache      *Cache
+	DB         *Database
+	Telemetry  *Telemetry
+	DataDog    *DataDog
+	Credential *Credential
+	Logger     Logger
 }
 
-func NewCommon(configPath string) *Common {
+func NewCommon(configPath string, credentialPath string) *Common {
 	config := newConfig(configPath)
-	cache := newCache(config)
-	database := newDatabase(config)
+	credential := newCredential(credentialPath)
+	cache := newCache(config, credential)
+	database := newDatabase(config, credential)
 	telemetry := newTelemetry(config)
 	dataDog := newDataDog(telemetry.API)
 	logger := newLogger(telemetry.API)
 	return &Common{
-		Config:    config,
-		Cache:     cache,
-		DB:        database,
-		Telemetry: telemetry,
-		DataDog:   dataDog,
-		Logger:    logger,
+		Config:     config,
+		Credential: credential,
+		Cache:      cache,
+		DB:         database,
+		Telemetry:  telemetry,
+		DataDog:    dataDog,
+		Logger:     logger,
 	}
 
 }

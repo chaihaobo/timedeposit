@@ -136,7 +136,7 @@ func (c *client) getMambuHeader(ctx context.Context) map[string][]string {
 	}
 	return map[string][]string{
 		"Accept":                       {constant.Accept},
-		"Apikey":                       {c.common.Config.Mambu.ApiKey},
+		"Apikey":                       {c.common.Credential.Mambu.ApiKey},
 		constant.ContextIdempotencyKey: {key},
 	}
 

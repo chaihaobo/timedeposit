@@ -19,7 +19,7 @@ type Config struct {
 	Metric                 Metric
 	Log                    Log
 	Server                 Server
-	Db                     DB
+	DB                     DB
 	Flow                   Flow
 	TransactionReqMetaData TransactionReqMetaData
 	Redis                  Redis
@@ -42,7 +42,7 @@ type TransactionReqMetaData struct {
 	IssuerIName                    string
 	DestinationIID                 string
 	Currency                       string
-	TranDesc                       *struct {
+	TranDesc                       struct {
 		WithdrawAdditionalProfitTranDesc1 string
 		WithdrawAdditionalProfitTranDesc3 string
 		WithdrawBalanceTranDesc1          string
@@ -59,15 +59,11 @@ type TransactionReqMetaData struct {
 }
 
 type Redis struct {
-	Addr     string
-	Password string
 	PoolSize int
 	DB       int
 }
 
 type Mambu struct {
-	Host    string
-	ApiKey  string
 	Timeout time.Duration
 }
 
@@ -119,15 +115,9 @@ type Server struct {
 	HttpPort     int
 	ReadTimeout  int
 	WriteTimeout int
-	AuthToken    string
 }
 
 type DB struct {
-	Username    string
-	Password    string
-	Host        string
-	Port        int
-	Db          string
 	MaxOpenConn int
 	MaxIdleConn int
 }

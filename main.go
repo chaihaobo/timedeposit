@@ -23,7 +23,7 @@ func main() {
 
 	zone := time.FixedZone("CST", 7*3600)
 	time.Local = zone
-	com := common.NewCommon("./config.json")
+	com := common.NewCommon("./config.json", "./credential.json")
 	repo := repository.NewRepository(com)
 	svc := service.NewService(com, repo)
 	app := application.NewApplication(com, repo, svc)

@@ -23,8 +23,8 @@ type Database struct {
 	*gorm.DB
 }
 
-func newDatabase(config *Config) *Database {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Db.Username, config.Db.Password, config.Db.Host, config.Db.Port, config.Db.Db)
+func newDatabase(config *Config, credential *Credential) *Database {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", credential.DB.Username, credential.DB.Password, credential.DB.Host, credential.DB.Port, credential.DB.Db)
 	var err error
 	dbLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
@@ -46,8 +46,8 @@ func newDatabase(config *Config) *Database {
 	}
 	sqlDB, _ := db.DB()
 	// Set the db connection configuration
-	sqlDB.SetMaxOpenConns(config.Db.MaxOpenConn) // set the max openning connection number
-	sqlDB.SetMaxIdleConns(config.Db.MaxIdleConn) // set the max idle connection number
+	sqlDB.SetMaxOpenConns(config.DB.MaxOpenConn) // set the max openning connection number
+	sqlDB.SetMaxIdleConns(config.DB.MaxIdleConn) // set the max idle connection number
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	return &Database{
 		db,

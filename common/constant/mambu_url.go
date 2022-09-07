@@ -42,7 +42,7 @@ var (
 )
 
 func getDomainName() string {
-	return common.C.Mambu.Host
+	return common.CredentialConfig.Mambu.Host
 }
 
 func UrlOf(path string) string {

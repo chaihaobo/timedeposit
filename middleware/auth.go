@@ -16,7 +16,7 @@ const (
 func AuthMiddleware(common *common.Common) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		authToken := context.GetHeader(authHeader)
-		if "" == authToken || authToken != common.Config.Server.AuthToken {
+		if "" == authToken || authToken != common.Credential.Server.AuthToken {
 			context.Abort()
 			context.String(http.StatusUnauthorized, "unauthorized")
 		}

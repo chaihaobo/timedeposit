@@ -22,17 +22,10 @@
     "flowStartSleepTime": "1h"
   },
   "db": {
-    "username": "svc_tda",
-    "password": "bA0mgmya3s9C2h5C",
-    "host": "10.16.40.228",
-    "port": 3306,
-    "db": "time_deposit",
     "maxOpenConn": 100,
     "maxIdleConn": 20
   },
   "redis": {
-    "addr": "10.16.41.11:6379",
-    "password": "ae0030b1-eaac-41b9-bcc3-f56275ca5333",
     "poolSize": 10,
     "db": 0
   },
@@ -40,12 +33,9 @@
     "RunMode": "debug",
     "HttpPort": 8000,
     "ReadTimeout": 60,
-    "WriteTimeout": 60,
-    "authToken": "Bearer BeeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOjF9.SfruT30UaAbE5Y0IsMvOWVJtoYmKa1jc3JpUkhtSMqk"
+    "WriteTimeout": 60
   },
   "mambu": {
-    "host": "https://cbs-dev1.aladinbank.id",
-    "apiKey": "1XXW0a679FIOoNEadSGt92ysIlr1J2hg",
     "timeout": "10s"
   },
   "transactionReqMetaData": {
@@ -78,6 +68,5 @@
       "depositNetprofitTranDesc1": "Bagi Hasil Deposito",
       "depositNetprofitTranDesc3": null
     }
-  },
-  "skipTests": true
+  }
 }
