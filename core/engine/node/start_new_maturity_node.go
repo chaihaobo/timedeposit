@@ -68,6 +68,7 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 			(carbonMaturityDate.Day() == endDayOfSmallMonth || (carbonMaturityDate.Month() == 2 && carbonMaturityDate.Day() == carbonMaturityDate.LastDayOfMonth().Day())) {
 			resultDate = resultDate.LastDayOfMonth()
 		}
+
 	}
 	holidayList := holidayservice.GetHolidayList(ctx)
 	if !matureOnHoliday {
