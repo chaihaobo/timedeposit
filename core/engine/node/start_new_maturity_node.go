@@ -17,8 +17,7 @@ import (
 )
 
 const (
-	endDayOfBigMonth   = 31
-	endDayOfSmallMonth = 30
+	genTensorMonthSize = 1000
 )
 
 type StartNewMaturityNode struct {
@@ -60,18 +59,7 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 		log.Error(ctx, fmt.Sprintf("Error for convert tenor to int, tenor: %v", tenor), err)
 		return "", errors.New("convert tenor to int failed")
 	}
-	carbonMaturityDate := carbon.NewCarbon(maturityDate)
-	carbonActivationDate := carbon.NewCarbon(activationDate)
-	carbonActivationDate.SetHour(0)
-	diffInMonths := carbonv2.Parse(carbonActivationDate.DateString()).DiffInMonths(carbonv2.Parse(carbonMaturityDate.DateString()))
-	if carbonActivationDate.Day() == endDayOfBigMonth &&
-		(carbonMaturityDate.Day() == endDayOfSmallMonth ||
-			(carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
-		diffInMonths++
-	} else if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day() {
-		diffInMonths++
-	}
-	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + tenorInt)
+	resultDate := carbon.NewCarbon(getNextMaturityDay(activationDate, maturityDate, tenorInt))
 	holidayList := holidayservice.GetHolidayList(ctx)
 	if !matureOnHoliday {
 		for {
@@ -83,8 +71,34 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 		}
 
 	}
-
 	return resultDate.DateString(), nil
+}
+
+func generateTensorArray(tensorCount int, acticationTime time.Time) []time.Time {
+	maturityTensorArray := make([]time.Time, 0)
+	acticationDate := carbonv2.Parse(carbonv2.Time2Carbon(acticationTime).ToDateString())
+	day := acticationDate.Day()
+	for i := 0; i < tensorCount; i++ {
+		acticationDate = acticationDate.SetDay(1)
+		acticationDate = acticationDate.AddMonthsNoOverflow(1)
+		if acticationDate.DaysInMonth() >= day {
+			acticationDate = acticationDate.SetDay(day)
+		} else {
+			acticationDate = acticationDate.SetDay(acticationDate.DaysInMonth())
+		}
+		maturityTensorArray = append(maturityTensorArray, acticationDate.Carbon2Time())
+	}
+	return maturityTensorArray
+}
+
+func getNextMaturityDay(acticationDate, currentMaturityDate time.Time, tensor int) time.Time {
+	tensorArray := generateTensorArray(genTensorMonthSize, acticationDate)
+	for i, tensorTime := range tensorArray {
+		if tensorTime.After(currentMaturityDate) {
+			return tensorArray[i-1+tensor]
+		}
+	}
+	return time.Now()
 }
 
 func isHoliday(time time.Time, holidays []time.Time) bool {
