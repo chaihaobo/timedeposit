@@ -62,13 +62,13 @@ func generateMaturityDateStr(ctx context.Context, tenor string, maturityDate tim
 	}
 	carbonMaturityDate := carbon.NewCarbon(maturityDate)
 	carbonActivationDate := carbon.NewCarbon(activationDate)
+	carbonActivationDate.SetHour(0)
 	diffInMonths := carbonv2.Parse(carbonActivationDate.DateString()).DiffInMonths(carbonv2.Parse(carbonMaturityDate.DateString()))
 	if carbonActivationDate.Day() == endDayOfBigMonth &&
 		(carbonMaturityDate.Day() == endDayOfSmallMonth ||
 			(carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day())) {
 		diffInMonths++
-	}
-	if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 {
+	} else if carbonActivationDate.Day() > carbonMaturityDate.Day() && carbonMaturityDate.Month() == 2 && carbonMaturityDate.LastDayOfMonth().Day() == carbonMaturityDate.Day() {
 		diffInMonths++
 	}
 	resultDate := carbonActivationDate.AddMonthsNoOverflow(int(diffInMonths) + tenorInt)
